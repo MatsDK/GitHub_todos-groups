@@ -1,6 +1,8 @@
 web/node_modules
 web/.next
 web/.vscode
+web/yarn-error.log
 
 server/node_modules
+server/yarn-error.log
 server/.vscode
