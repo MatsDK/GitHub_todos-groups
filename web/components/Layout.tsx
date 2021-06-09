@@ -20,16 +20,29 @@ const Layout: React.FunctionComponent<Props> = ({
     </Head>
     <nav style={{ display: "flex" }}>
       <Link href="/">
-        <h3>Home</h3>
+        <div>
+          <h3>Home</h3>
+        </div>
       </Link>
       <Link href="/login">
-        <h3>Login</h3>
+        <div>
+          <h3>Login</h3>
+        </div>
+      </Link>
+      <Link href="/register">
+        <div>
+          <h3>Register</h3>
+        </div>
       </Link>
       <Link href="/folder/id1/id2">
-        <h3>random page</h3>
+        <div>
+          <h3>random page</h3>
+        </div>
       </Link>
       <Link href="/auth">
-        <h3>auth page</h3>
+        <div>
+          <h3>auth page</h3>
+        </div>
       </Link>
       <LogoutComponent>
         {(mutate: any) => {

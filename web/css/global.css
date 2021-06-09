@@ -8,3 +8,7 @@ body,
   height: 100%;
   width: 100%;
 }
+
+nav div {
+  padding: 10px;
+}

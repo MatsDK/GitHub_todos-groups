@@ -1,14 +1,39 @@
-export type Maybe<T> = T | null;
+type Maybe<T> = T | null;
 
-export interface RegisterInput {
-  firstName: string;
+export type Mutation = {
+  login?: Maybe<User>;
+  logout: boolean;
+  register: User;
+};
 
-  lastName: string;
-
-  email: string;
-
+export type MutationLoginArgs = {
   password: string;
-}
+  email: string;
+};
+
+export type MutationRegisterArgs = {
+  data: RegisterInput;
+};
+
+export type Query = {
+  me?: Maybe<User>;
+  hello: string;
+};
+
+export type RegisterInput = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
+
+export type User = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  name: string;
+};
 
 // ====================================================
 // Documents
@@ -41,6 +66,30 @@ export type LogoutMutation = {
   logout: boolean;
 };
 
+export type RegisterVariables = {
+  data: RegisterInput;
+};
+
+export type RegisterMutation = {
+  __typename?: "Mutation";
+
+  register: RegisterRegister;
+};
+
+export type RegisterRegister = {
+  __typename?: "User";
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
+
+  id: string;
+
+  name: string;
+};
+
 export type MeVariables = {};
 
 export type MeQuery = {
@@ -67,14 +116,16 @@ import * as ReactApollo from "react-apollo";
 // Components
 // ====================================================
 
-export const LoginDocument = gql`
+export const LoginDocument = gql(
+  `
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
       email
       name
     }
   }
-`;
+`
+);
 export class LoginComponent extends React.Component<
   Partial<ReactApollo.MutationProps<LoginMutation, LoginVariables>>
 > {
@@ -153,6 +204,54 @@ export function LogoutHOC<TProps, TChildProps = any>(
     LogoutVariables,
     LogoutProps<TChildProps>
   >(LogoutDocument, operationOptions);
+}
+export const RegisterDocument = gql`
+  mutation Register($data: RegisterInput!) {
+    register(data: $data) {
+      firstName
+      lastName
+      email
+      id
+      name
+    }
+  }
+`;
+export class RegisterComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<RegisterMutation, RegisterVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<RegisterMutation, RegisterVariables>
+        mutation={RegisterDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type RegisterProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<RegisterMutation, RegisterVariables>
+> &
+  TChildProps;
+export type RegisterMutationFn = ReactApollo.MutationFn<
+  RegisterMutation,
+  RegisterVariables
+>;
+export function RegisterHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        RegisterMutation,
+        RegisterVariables,
+        RegisterProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    RegisterMutation,
+    RegisterVariables,
+    RegisterProps<TChildProps>
+  >(RegisterDocument, operationOptions);
 }
 export const MeDocument = gql`
   query Me {
