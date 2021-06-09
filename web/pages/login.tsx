@@ -1,23 +1,52 @@
+import { Field, Formik } from "formik";
 import React from "react";
+import { InputField } from "../components/inputField";
 import Layout from "../components/Layout";
 import { LoginComponent } from "../generated/apolloComponents";
+import Router from "next/router";
 
 const login = () => {
   return (
     <Layout title="Login">
       <LoginComponent>
-        {(mutate) => (
-          <button
-            onClick={async () => {
-              const response = await mutate({
-                variables: { email: "bob2@bob.com", password: "bob" },
+        {(login: any) => (
+          <Formik
+            validateOnBlur={false}
+            validateOnChange={false}
+            onSubmit={async (data: any) => {
+              const response = await login({
+                variables: data,
               });
 
               console.log(response);
+              if (response && response.data && !response.data.login) {
+                return;
+              }
+
+              Router.push("/auth");
+            }}
+            initialValues={{
+              email: "",
+              password: "",
             }}
           >
-            call login mutation
-          </button>
+            {({ handleSubmit }) => (
+              <form onSubmit={handleSubmit}>
+                <Field
+                  name="email"
+                  placeholder="email"
+                  component={InputField}
+                />
+                <Field
+                  name="password"
+                  placeholder="password"
+                  type="password"
+                  component={InputField}
+                />
+                <button type="submit">Login</button>
+              </form>
+            )}
+          </Formik>
         )}
       </LoginComponent>
     </Layout>

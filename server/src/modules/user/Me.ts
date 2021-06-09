@@ -6,7 +6,8 @@ import { User } from "../../entity/User";
 export class MeResolver {
   @Query(() => User, { nullable: true })
   async me(@Ctx() ctx: MyContext): Promise<User | undefined> {
-    if (!(ctx.req.session as any).userId) return undefined;
+    if (!(ctx.req.session as any).userId && !ctx.req.cookies.qid)
+      return undefined;
 
     return User.findOne((ctx.req.session as any).userId);
   }

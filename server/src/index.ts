@@ -7,6 +7,7 @@ import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { redis } from "./redis";
+import cookieParser from "cookie-parser";
 
 (async () => {
   await createConnection();
@@ -24,6 +25,7 @@ import { redis } from "./redis";
 
   const RedisStore = connectRedis(session);
 
+  app.use(cookieParser());
   app.use(
     cors({
       credentials: true,
