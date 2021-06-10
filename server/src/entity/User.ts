@@ -27,4 +27,7 @@ export class User extends BaseEntity {
 
   @Column()
   password: string;
+
+  @Column("int", { nullable: true })
+  count: number;
 }
