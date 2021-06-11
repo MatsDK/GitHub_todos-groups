@@ -2,25 +2,42 @@ import { verify } from "jsonwebtoken";
 import { MiddlewareFn } from "type-graphql";
 import { MyContext } from "../../types/MyContext";
 
-export const isAuth: MiddlewareFn<MyContext> = async ({ context }, next) => {
+export const isAuth: MiddlewareFn<MyContext> = async (
+  { context, args },
+  next
+) => {
   const { cookies } = context.req,
     [refreshToken, accessToken]: Array<string | undefined> = [
-      cookies["refresh-token"],
-      cookies["access-token"],
+      cookies["refresh-token"] || args["refreshToken"],
+      cookies["access-token"] || args["accessToken"],
     ];
 
-  if (!accessToken) return next();
+  if (!accessToken && !refreshToken) return next();
+
   try {
     const decoded: any = verify(
-      accessToken,
+      accessToken || "",
       process.env.ACCESS_TOKEN_SECRET as string
     );
 
     (context.req as any).userId = decoded.userId;
     return next();
-  } catch (err) {
-    console.log(refreshToken);
+  } catch {}
 
+  if (!refreshToken) return next();
+
+  let decodedRefreshToken: any;
+
+  try {
+    decodedRefreshToken = verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string
+    );
+  } catch {
     return next();
   }
+
+  console.log(decodedRefreshToken);
+
+  return next();
 };

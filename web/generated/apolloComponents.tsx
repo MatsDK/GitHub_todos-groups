@@ -3,6 +3,7 @@ type Maybe<T> = T | null;
 export type Mutation = {
   login?: Maybe<User>;
   logout: boolean;
+  me?: Maybe<User>;
   register: User;
 };
 
@@ -11,13 +12,17 @@ export type MutationLoginArgs = {
   email: string;
 };
 
+export type MutationMeArgs = {
+  accessToken?: Maybe<string>;
+  refreshToken?: Maybe<string>;
+};
+
 export type MutationRegisterArgs = {
   data: RegisterInput;
 };
 
 export type Query = {
-  me?: Maybe<User>;
-  hello: string;
+  mequery?: Maybe<User>;
 };
 
 export type RegisterInput = {
@@ -66,6 +71,27 @@ export type LogoutMutation = {
   logout: boolean;
 };
 
+export type MeVariables = {
+  refreshToken: string;
+  accessToken: string;
+};
+
+export type MeMutation = {
+  __typename?: "Mutation";
+
+  me: Maybe<MeMe>;
+};
+
+export type MeMe = {
+  __typename?: "User";
+
+  name: string;
+
+  email: string;
+
+  id: string;
+};
+
 export type RegisterVariables = {
   data: RegisterInput;
 };
@@ -90,24 +116,6 @@ export type RegisterRegister = {
   name: string;
 };
 
-export type MeVariables = {};
-
-export type MeQuery = {
-  __typename?: "Query";
-
-  me: Maybe<MeMe>;
-};
-
-export type MeMe = {
-  __typename?: "User";
-
-  name: string;
-
-  email: string;
-
-  id: string;
-};
-
 import gql from "graphql-tag";
 import * as React from "react";
 import * as ReactApollo from "react-apollo";
@@ -116,16 +124,14 @@ import * as ReactApollo from "react-apollo";
 // Components
 // ====================================================
 
-export const LoginDocument = gql(
-  `
+export const LoginDocument = gql`
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
       email
       name
     }
   }
-`
-);
+`;
 export class LoginComponent extends React.Component<
   Partial<ReactApollo.MutationProps<LoginMutation, LoginVariables>>
 > {
@@ -205,6 +211,49 @@ export function LogoutHOC<TProps, TChildProps = any>(
     LogoutProps<TChildProps>
   >(LogoutDocument, operationOptions);
 }
+export const MeDocument = gql`
+  mutation Me($refreshToken: String!, $accessToken: String!) {
+    me(refreshToken: $refreshToken, accessToken: $accessToken) {
+      name
+      email
+      id
+    }
+  }
+`;
+export class MeComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<MeMutation, MeVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<MeMutation, MeVariables>
+        mutation={MeDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type MeProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<MeMutation, MeVariables>
+> &
+  TChildProps;
+export type MeMutationFn = ReactApollo.MutationFn<MeMutation, MeVariables>;
+export function MeHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        MeMutation,
+        MeVariables,
+        MeProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    MeMutation,
+    MeVariables,
+    MeProps<TChildProps>
+  >(MeDocument, operationOptions);
+}
 export const RegisterDocument = gql`
   mutation Register($data: RegisterInput!) {
     register(data: $data) {
@@ -252,46 +301,4 @@ export function RegisterHOC<TProps, TChildProps = any>(
     RegisterVariables,
     RegisterProps<TChildProps>
   >(RegisterDocument, operationOptions);
-}
-export const MeDocument = gql`
-  query Me {
-    me {
-      name
-      email
-      id
-    }
-  }
-`;
-export class MeComponent extends React.Component<
-  Partial<ReactApollo.QueryProps<MeQuery, MeVariables>>
-> {
-  render() {
-    return (
-      <ReactApollo.Query<MeQuery, MeVariables>
-        query={MeDocument}
-        {...(this as any)["props"] as any}
-      />
-    );
-  }
-}
-export type MeProps<TChildProps = any> = Partial<
-  ReactApollo.DataProps<MeQuery, MeVariables>
-> &
-  TChildProps;
-export function MeHOC<TProps, TChildProps = any>(
-  operationOptions:
-    | ReactApollo.OperationOption<
-        TProps,
-        MeQuery,
-        MeVariables,
-        MeProps<TChildProps>
-      >
-    | undefined
-) {
-  return ReactApollo.graphql<
-    TProps,
-    MeQuery,
-    MeVariables,
-    MeProps<TChildProps>
-  >(MeDocument, operationOptions);
 }

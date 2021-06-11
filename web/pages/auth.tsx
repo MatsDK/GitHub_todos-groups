@@ -1,7 +1,9 @@
+import React from "react";
 import Layout from "../components/Layout";
-import { withAuth } from "../lib/withAuth";
+import { withAuth } from "../lib/HOC/withAuth";
 
-const auth = () => {
+const auth: any = () => {
+  // console.log(data);
   return <Layout title="withAuthPage">Auth</Layout>;
 };
 

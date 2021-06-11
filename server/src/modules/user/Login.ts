@@ -1,8 +1,11 @@
 import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import { compare } from "bcryptjs";
 import { User } from "../../entity/User";
-import { MyContext } from "src/types/MyContext";
-import { sign } from "jsonwebtoken";
+import { MyContext } from "../../../src/types/MyContext";
+import {
+  refreshToken as createRefreshToken,
+  accessToken as createAccessToken,
+} from "../../../src/utils/authTokens";
 
 const MAX_AGE_REFRESH_TOKEN: number = 1000 * 60 * 60 * 24 * 7,
   MAX_AGE_ACCESS_TOKeN: number = 1000 * 60 * 15;
@@ -21,20 +24,8 @@ export class LoginResolver {
     const valid = await compare(password, user.password);
     if (!valid) return null;
 
-    const refreshToken = sign(
-      { userId: user.id, count: user.count },
-      process.env.REFRESH_TOKEN_SECRET as string,
-      {
-        expiresIn: "7d",
-      }
-    );
-    const accessToken = sign(
-      { userId: user.id },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      {
-        expiresIn: "15m",
-      }
-    );
+    const refreshToken: string = createRefreshToken(user),
+      accessToken: string = createAccessToken(user);
 
     ctx.res.cookie("refresh-token", refreshToken, {
       maxAge: MAX_AGE_REFRESH_TOKEN,

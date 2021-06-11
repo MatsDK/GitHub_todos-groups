@@ -18,13 +18,11 @@ const register = () => {
                 variables: { data },
               });
 
-              console.log(response);
               if (response && response.data && !response.data.login) {
                 return;
               }
-              console.log(data);
 
-              Router.push("/auth");
+              Router.replace("/auth");
             }}
             initialValues={{
               email: "",

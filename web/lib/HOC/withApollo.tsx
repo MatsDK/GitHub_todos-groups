@@ -4,8 +4,8 @@ import Head from "next/head";
 import PropTypes from "prop-types";
 import React from "react";
 import { getDataFromTree } from "react-apollo";
-import initApollo from "./initApollo";
-import { isBrowser } from "./isBrowser";
+import initApollo from "../initApollo";
+import { isBrowser } from "../isBrowser";
 
 const parseCookies = (req?: any, options = {}) => {
   return cookie.parse(

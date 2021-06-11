@@ -23,7 +23,7 @@ const login = () => {
                 return;
               }
 
-              Router.push("/auth");
+              Router.replace("/auth");
             }}
             initialValues={{
               email: "",

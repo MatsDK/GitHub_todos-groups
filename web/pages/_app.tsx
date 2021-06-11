@@ -1,7 +1,7 @@
 import App from "next/app";
 import React from "react";
 import { ApolloProvider } from "react-apollo";
-import withApollo from "../lib/withApollo";
+import withApollo from "../lib/HOC/withApollo";
 import "../css/global.css";
 
 class MyApp extends App<any> {
