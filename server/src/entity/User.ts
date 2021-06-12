@@ -1,5 +1,13 @@
-import { Field, ID, ObjectType, Root } from "type-graphql";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { MyContext } from "src/types/MyContext";
+import { Ctx, Field, ID, ObjectType, Root } from "type-graphql";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Group } from "./Group";
 
 @ObjectType()
 @Entity()
@@ -28,6 +36,14 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column("int", { nullable: true })
+  @Column("int", { nullable: true, default: 0 })
   count: number;
+
+  @OneToMany(() => Group, (group) => group.users)
+  groupConnection: Promise<Group[]>;
+
+  @Field(() => [Group])
+  async groups(@Ctx() { groupsLoader }: MyContext): Promise<Group[]> {
+    return groupsLoader.load(this.id);
+  }
 }

@@ -4,6 +4,7 @@ import { redirect } from "../redirect";
 import cookie from "cookie";
 import { MeMutation } from "../../generated/apolloComponents";
 import { meMutation } from "../../graphql/user/mutations/me";
+import { NextPageContext } from "next";
 
 export const withAuth = <T extends object>(Component: React.FC<T>) => {
   return class AuthComponent extends React.Component<T> {
@@ -43,7 +44,7 @@ export const withAuth = <T extends object>(Component: React.FC<T>) => {
   };
 };
 
-const redirectToLogin = (ctx: any) => {
+const redirectToLogin = (ctx: NextPageContext) => {
   redirect(ctx, "/login");
   return {
     me: null,

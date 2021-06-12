@@ -1,10 +1,22 @@
 type Maybe<T> = T | null;
 
+export type Group = {
+  id: string;
+  name: string;
+  users: Array<User>;
+};
+
 export type Mutation = {
+  createGroup: Group;
   login?: Maybe<User>;
   logout: boolean;
   me?: Maybe<User>;
   register: User;
+};
+
+export type MutationCreateGroupArgs = {
+  userId: number;
+  name: string;
 };
 
 export type MutationLoginArgs = {
@@ -22,6 +34,7 @@ export type MutationRegisterArgs = {
 };
 
 export type Query = {
+  groups: Array<Group>;
   mequery?: Maybe<User>;
 };
 

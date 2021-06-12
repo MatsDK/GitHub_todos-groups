@@ -5,7 +5,7 @@ import {
   Ctx,
   UseMiddleware,
   Mutation,
-  Arg,
+  // Arg,
 } from "type-graphql";
 import { User } from "../../entity/User";
 import { isAuth } from "../middleware/isAuth";
@@ -23,13 +23,17 @@ export class MeResolver {
   @UseMiddleware(isAuth)
   @Mutation(() => User, { nullable: true })
   async me(
-    @Arg("refreshToken", { nullable: true }) refreshToken: string,
-    @Arg("accessToken", { nullable: true }) accessToken: string,
+    // @Arg("refreshToken", { nullable: true }) refreshToken: string,
+    // @Arg("accessToken", { nullable: true }) accessToken: string,
     @Ctx() ctx: MyContext
   ): Promise<User | undefined> {
-    console.log(refreshToken, accessToken);
     if ((ctx.req as any).userId == null) return undefined;
 
     return User.findOne((ctx.req as any).userId);
+  }
+
+  @Query(() => [User])
+  async users(): Promise<User[]> {
+    return User.find();
   }
 }
