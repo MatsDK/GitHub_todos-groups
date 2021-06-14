@@ -1,4 +1,4 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Mutation, Resolver } from "type-graphql";
 import { Group } from "../../entity/Group";
 import { GroupUser } from "../../entity/GroupUser";
 
@@ -9,7 +9,6 @@ export class GroupUserResolver {
     @Arg("name") name: string,
     @Arg("userId") userId: number
   ): Promise<Group> {
-    console.log(userId);
     const group = Group.create({ name });
 
     await group.save();
@@ -18,10 +17,5 @@ export class GroupUserResolver {
     await user_group.save();
 
     return group;
-  }
-
-  @Query(() => [Group])
-  async groups(): Promise<Group[]> {
-    return Group.find();
   }
 }

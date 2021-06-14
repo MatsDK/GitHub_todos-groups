@@ -1,8 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
 import Head from "next/head";
-import { LogoutComponent } from "../generated/apolloComponents";
-import Router from "next/router";
 
 type Props = {
   title?: string;
@@ -39,27 +37,16 @@ const Layout: React.FunctionComponent<Props> = ({
           <h3>random page</h3>
         </div>
       </Link>
-      <Link href="/auth">
+      <Link href="/dashboard">
         <div>
-          <h3>auth page</h3>
+          <h3>Dashboard</h3>
         </div>
       </Link>
-      <LogoutComponent>
-        {(mutate: any) => {
-          return (
-            <button
-              onClick={async () => {
-                const response = await mutate();
-
-                console.log(response);
-                Router.reload();
-              }}
-            >
-              Logout
-            </button>
-          );
-        }}
-      </LogoutComponent>
+      <Link href="/logout">
+        <div>
+          <h3>logout</h3>
+        </div>
+      </Link>
     </nav>
     {children}
   </div>

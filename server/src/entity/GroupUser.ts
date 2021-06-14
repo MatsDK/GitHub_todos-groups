@@ -1,5 +1,6 @@
 import {
   BaseEntity,
+  Column,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -15,6 +16,9 @@ export class GroupUser extends BaseEntity {
 
   @PrimaryColumn("int")
   groupId: number;
+
+  @Column("bool", { nullable: true })
+  isOwner: boolean;
 
   @ManyToOne(() => User, (user) => user.groupConnection, { primary: true })
   @JoinColumn({ name: "userId" })

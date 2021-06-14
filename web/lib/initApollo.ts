@@ -20,11 +20,11 @@ const create = (initialState: any, { getToken }: Options) => {
   });
 
   const authLink = setContext((_, { headers }) => {
-    const token = getToken();
+    const token: any = getToken();
     return {
       headers: {
         ...headers,
-        cookie: token ? `qid=${token}` : "",
+        cookie: token ? `${token}` : "",
       },
     };
   });

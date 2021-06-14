@@ -3,27 +3,29 @@ import React from "react";
 import { InputField } from "../components/inputField";
 import Layout from "../components/Layout";
 import { LoginComponent } from "../generated/apolloComponents";
+import { withApollo } from "react-apollo";
+import { ApolloClient } from "@apollo/client";
 import Router from "next/router";
 
-const login = () => {
+const Login = ({ client }: { client: ApolloClient<any> }): any => {
   return (
     <Layout title="Login">
       <LoginComponent>
-        {(login: any) => (
+        {(login) => (
           <Formik
             validateOnBlur={false}
             validateOnChange={false}
-            onSubmit={async (data: any) => {
+            onSubmit={async (data) => {
               const response = await login({
                 variables: data,
               });
 
-              console.log(response);
               if (response && response.data && !response.data.login) {
                 return;
               }
 
-              Router.replace("/auth");
+              await client.resetStore();
+              Router.push("/dashboard");
             }}
             initialValues={{
               email: "",
@@ -53,4 +55,4 @@ const login = () => {
   );
 };
 
-export default login;
+export default withApollo(Login);

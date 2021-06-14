@@ -7,11 +7,15 @@ export type Group = {
 };
 
 export type Mutation = {
+  joinGroup?: Maybe<boolean>;
   createGroup: Group;
   login?: Maybe<User>;
   logout: boolean;
-  me?: Maybe<User>;
   register: User;
+};
+
+export type MutationJoinGroupArgs = {
+  groupId: number;
 };
 
 export type MutationCreateGroupArgs = {
@@ -24,18 +28,19 @@ export type MutationLoginArgs = {
   email: string;
 };
 
-export type MutationMeArgs = {
-  accessToken?: Maybe<string>;
-  refreshToken?: Maybe<string>;
-};
-
 export type MutationRegisterArgs = {
   data: RegisterInput;
 };
 
 export type Query = {
+  group?: Maybe<Group>;
   groups: Array<Group>;
-  mequery?: Maybe<User>;
+  me?: Maybe<User>;
+  users: Array<User>;
+};
+
+export type QueryGroupArgs = {
+  groupId: number;
 };
 
 export type RegisterInput = {
@@ -51,6 +56,7 @@ export type User = {
   lastName: string;
   email: string;
   name: string;
+  groups: Array<Group>;
 };
 
 // ====================================================
@@ -84,13 +90,10 @@ export type LogoutMutation = {
   logout: boolean;
 };
 
-export type MeVariables = {
-  refreshToken: string;
-  accessToken: string;
-};
+export type MeVariables = {};
 
-export type MeMutation = {
-  __typename?: "Mutation";
+export type MeQuery = {
+  __typename?: "Query";
 
   me: Maybe<MeMe>;
 };
@@ -101,6 +104,16 @@ export type MeMe = {
   name: string;
 
   email: string;
+
+  id: string;
+
+  groups: MeGroups[];
+};
+
+export type MeGroups = {
+  __typename?: "Group";
+
+  name: string;
 
   id: string;
 };
@@ -225,36 +238,39 @@ export function LogoutHOC<TProps, TChildProps = any>(
   >(LogoutDocument, operationOptions);
 }
 export const MeDocument = gql`
-  mutation Me($refreshToken: String!, $accessToken: String!) {
-    me(refreshToken: $refreshToken, accessToken: $accessToken) {
+  query me {
+    me {
       name
       email
       id
+      groups {
+        name
+        id
+      }
     }
   }
 `;
 export class MeComponent extends React.Component<
-  Partial<ReactApollo.MutationProps<MeMutation, MeVariables>>
+  Partial<ReactApollo.QueryProps<MeQuery, MeVariables>>
 > {
   render() {
     return (
-      <ReactApollo.Mutation<MeMutation, MeVariables>
-        mutation={MeDocument}
+      <ReactApollo.Query<MeQuery, MeVariables>
+        query={MeDocument}
         {...(this as any)["props"] as any}
       />
     );
   }
 }
 export type MeProps<TChildProps = any> = Partial<
-  ReactApollo.MutateProps<MeMutation, MeVariables>
+  ReactApollo.DataProps<MeQuery, MeVariables>
 > &
   TChildProps;
-export type MeMutationFn = ReactApollo.MutationFn<MeMutation, MeVariables>;
 export function MeHOC<TProps, TChildProps = any>(
   operationOptions:
     | ReactApollo.OperationOption<
         TProps,
-        MeMutation,
+        MeQuery,
         MeVariables,
         MeProps<TChildProps>
       >
@@ -262,7 +278,7 @@ export function MeHOC<TProps, TChildProps = any>(
 ) {
   return ReactApollo.graphql<
     TProps,
-    MeMutation,
+    MeQuery,
     MeVariables,
     MeProps<TChildProps>
   >(MeDocument, operationOptions);

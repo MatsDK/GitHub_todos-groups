@@ -1,11 +1,15 @@
 import gql from "graphql-tag";
 
-export const meMutation = gql`
-  mutation Me($refreshToken: String!, $accessToken: String!) {
-    me(refreshToken: $refreshToken, accessToken: $accessToken) {
+export const meQuery = gql`
+  query me {
+    me {
       name
       email
       id
+      groups {
+        name
+        id
+      }
     }
   }
 `;

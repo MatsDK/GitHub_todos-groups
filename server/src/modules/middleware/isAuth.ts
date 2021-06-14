@@ -2,17 +2,14 @@ import { verify } from "jsonwebtoken";
 import { MiddlewareFn } from "type-graphql";
 import { MyContext } from "../../types/MyContext";
 
-export const isAuth: MiddlewareFn<MyContext> = async (
-  { context, args },
-  next
-) => {
+export const isAuth: MiddlewareFn<MyContext> = async ({ context }, next) => {
   const { cookies } = context.req,
     [refreshToken, accessToken]: Array<string | undefined> = [
-      cookies["refresh-token"] || args["refreshToken"],
-      cookies["access-token"] || args["accessToken"],
+      cookies["refresh-token"],
+      context.req.headers.cookie || cookies["access-token"],
     ];
 
-  if (!accessToken && !refreshToken) return next();
+  if (!accessToken && !refreshToken) return null;
 
   try {
     const decoded: any = verify(
@@ -24,7 +21,7 @@ export const isAuth: MiddlewareFn<MyContext> = async (
     return next();
   } catch {}
 
-  if (!refreshToken) return next();
+  if (!refreshToken) return null;
 
   let decodedRefreshToken: any;
 
@@ -34,10 +31,11 @@ export const isAuth: MiddlewareFn<MyContext> = async (
       process.env.REFRESH_TOKEN_SECRET as string
     );
   } catch {
-    return next();
+    return null;
   }
 
-  console.log(decodedRefreshToken);
+  if (decodedRefreshToken)
+    (context.req as any).userId = decodedRefreshToken.userId;
 
   return next();
 };

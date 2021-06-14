@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from "apollo-boost";
-import cookie from "cookie";
+// import cookie from "cookie";
 import Head from "next/head";
 import PropTypes from "prop-types";
 import React from "react";
@@ -7,12 +7,12 @@ import { getDataFromTree } from "react-apollo";
 import initApollo from "../initApollo";
 import { isBrowser } from "../isBrowser";
 
-const parseCookies = (req?: any, options = {}) => {
-  return cookie.parse(
-    req ? req.headers.cookie || "" : document.cookie,
-    options
-  );
-};
+// const parseCookies = (req?: any, options = {}) => {
+//   return cookie.parse(
+//     req ? req.headers.cookie || "" : document.cookie,
+//     options
+//   );
+// };
 
 const withApollo = (App: any) => {
   return class WithData extends React.Component {
@@ -30,7 +30,7 @@ const withApollo = (App: any) => {
       const apollo = initApollo(
         {},
         {
-          getToken: () => parseCookies(req).qid,
+          getToken: () => req.headers.cookie || document.cookie,
         }
       );
 
@@ -86,7 +86,7 @@ const withApollo = (App: any) => {
       // After that rendering is done using Next's normal rendering pipeline
       this.apolloClient = initApollo(props.apolloState, {
         getToken: () => {
-          return parseCookies().token;
+          return document.cookie;
         },
       });
     }

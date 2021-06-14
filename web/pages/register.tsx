@@ -22,7 +22,7 @@ const register = () => {
                 return;
               }
 
-              Router.replace("/auth");
+              Router.replace("/dashboard");
             }}
             initialValues={{
               email: "",
