@@ -2,7 +2,7 @@ import React from "react";
 import { NextContextWithApollo } from "../../interfaces/types";
 import { redirect } from "../redirect";
 import { NextPageContext } from "next";
-import { meQuery } from "../../graphql/user/mutations/me";
+import { meQuery } from "../../graphql/user/queries/me";
 import { MeQuery } from "../../generated/apolloComponents";
 
 export const withAuth = <T extends object>(Component: React.FC<T>) => {
@@ -11,10 +11,17 @@ export const withAuth = <T extends object>(Component: React.FC<T>) => {
       apolloClient,
       ...ctx
     }: NextContextWithApollo) {
+      // if ((Component as any).getInitialProps) {
+      //   console.log(
+      //     (Component as any).getInitialProps({ apolloClient, ...ctx })
+      //   );
+      // }
       try {
         const response = await apolloClient.query<MeQuery>({
           query: meQuery,
         });
+
+        // console.log(response);
 
         if (!response || !response.data || !response.data.me)
           return redirectToLogin(ctx);

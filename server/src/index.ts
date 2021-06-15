@@ -14,12 +14,11 @@ dotenv.config();
 (async () => {
   await createConnection({
     type: "postgres",
-    host: "localhost",
-    port: 5432,
-    username: "postgres",
-    password: "postgres",
-    // dropSchema: true,
-    database: "typegraphql",
+    host: process.env.DB_HOST as string,
+    port: parseInt(process.env.DB_PORT as string),
+    username: process.env.DB_USER_NAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     synchronize: true,
     logging: true,
     entities: ["src/entity/*.*"],

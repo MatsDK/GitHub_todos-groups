@@ -6,9 +6,10 @@ import {
   refreshToken as createRefreshToken,
   accessToken as createAccessToken,
 } from "../../../src/utils/authTokens";
-
-const MAX_AGE_REFRESH_TOKEN: number = 1000 * 60 * 60 * 24 * 7,
-  MAX_AGE_ACCESS_TOKeN: number = 1000 * 60 * 15;
+import {
+  MAX_AGE_ACCESS_TOKEN,
+  MAX_AGE_REFRESH_TOKEN,
+} from "../../../src/constants";
 
 @Resolver()
 export class LoginResolver {
@@ -31,7 +32,7 @@ export class LoginResolver {
       maxAge: MAX_AGE_REFRESH_TOKEN,
     });
     ctx.res.cookie("access-token", accessToken, {
-      maxAge: MAX_AGE_ACCESS_TOKeN,
+      maxAge: MAX_AGE_ACCESS_TOKEN,
     });
 
     return user;

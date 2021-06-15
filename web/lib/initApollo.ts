@@ -4,7 +4,7 @@ import {
   // NormalizedCacheObject,
 } from "apollo-boost";
 import { setContext } from "apollo-link-context";
-import { createHttpLink } from "apollo-link-http";
+import { createHttpLink, HttpLink } from "apollo-link-http";
 import { isBrowser } from "./isBrowser";
 
 let apolloClient: any = null;
@@ -13,11 +13,12 @@ interface Options {
   getToken: () => string;
 }
 
-const create = (initialState: any, { getToken }: Options) => {
-  const httpLink = createHttpLink({
-    uri: "http://localhost:4000/graphql",
-    credentials: "include",
-  });
+const create = (
+  initialState: any,
+  { getToken }: Options,
+  linkOptions: HttpLink.Options
+) => {
+  const httpLink = createHttpLink(linkOptions);
 
   const authLink = setContext((_, { headers }) => {
     const token: any = getToken();
@@ -38,13 +39,17 @@ const create = (initialState: any, { getToken }: Options) => {
   });
 };
 
-const initApollo = (initialState: any, options: Options) => {
+const initApollo = (
+  initialState: any,
+  options: Options,
+  linkOptions: HttpLink.Options
+) => {
   // Make sure to create a new client for every server-side request so that data
   // isn't shared between connections (which would be bad)
-  if (!isBrowser) return create(initialState, options);
+  if (!isBrowser) return create(initialState, options, linkOptions);
 
   // Reuse client on the client-side
-  if (!apolloClient) apolloClient = create(initialState, options);
+  if (!apolloClient) apolloClient = create(initialState, options, linkOptions);
 
   return apolloClient;
 };

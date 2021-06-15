@@ -63,6 +63,36 @@ export type User = {
 // Documents
 // ====================================================
 
+export type GroupVariables = {
+  groupId: number;
+};
+
+export type GroupQuery = {
+  __typename?: "Query";
+
+  group: Maybe<GroupGroup>;
+};
+
+export type GroupGroup = {
+  __typename?: "Group";
+
+  id: string;
+
+  name: string;
+
+  users: GroupUsers[];
+};
+
+export type GroupUsers = {
+  __typename?: "User";
+
+  email: string;
+
+  id: string;
+
+  name: string;
+};
+
 export type LoginVariables = {
   email: string;
   password: string;
@@ -88,6 +118,30 @@ export type LogoutMutation = {
   __typename?: "Mutation";
 
   logout: boolean;
+};
+
+export type RegisterVariables = {
+  data: RegisterInput;
+};
+
+export type RegisterMutation = {
+  __typename?: "Mutation";
+
+  register: RegisterRegister;
+};
+
+export type RegisterRegister = {
+  __typename?: "User";
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
+
+  id: string;
+
+  name: string;
 };
 
 export type MeVariables = {};
@@ -118,30 +172,6 @@ export type MeGroups = {
   id: string;
 };
 
-export type RegisterVariables = {
-  data: RegisterInput;
-};
-
-export type RegisterMutation = {
-  __typename?: "Mutation";
-
-  register: RegisterRegister;
-};
-
-export type RegisterRegister = {
-  __typename?: "User";
-
-  firstName: string;
-
-  lastName: string;
-
-  email: string;
-
-  id: string;
-
-  name: string;
-};
-
 import gql from "graphql-tag";
 import * as React from "react";
 import * as ReactApollo from "react-apollo";
@@ -150,6 +180,52 @@ import * as ReactApollo from "react-apollo";
 // Components
 // ====================================================
 
+export const GroupDocument = gql`
+  query group($groupId: Float!) {
+    group(groupId: $groupId) {
+      id
+      name
+      users {
+        email
+        id
+        name
+      }
+    }
+  }
+`;
+export class GroupComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<GroupQuery, GroupVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<GroupQuery, GroupVariables>
+        query={GroupDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type GroupProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<GroupQuery, GroupVariables>
+> &
+  TChildProps;
+export function GroupHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        GroupQuery,
+        GroupVariables,
+        GroupProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    GroupQuery,
+    GroupVariables,
+    GroupProps<TChildProps>
+  >(GroupDocument, operationOptions);
+}
 export const LoginDocument = gql`
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -237,52 +313,6 @@ export function LogoutHOC<TProps, TChildProps = any>(
     LogoutProps<TChildProps>
   >(LogoutDocument, operationOptions);
 }
-export const MeDocument = gql`
-  query me {
-    me {
-      name
-      email
-      id
-      groups {
-        name
-        id
-      }
-    }
-  }
-`;
-export class MeComponent extends React.Component<
-  Partial<ReactApollo.QueryProps<MeQuery, MeVariables>>
-> {
-  render() {
-    return (
-      <ReactApollo.Query<MeQuery, MeVariables>
-        query={MeDocument}
-        {...(this as any)["props"] as any}
-      />
-    );
-  }
-}
-export type MeProps<TChildProps = any> = Partial<
-  ReactApollo.DataProps<MeQuery, MeVariables>
-> &
-  TChildProps;
-export function MeHOC<TProps, TChildProps = any>(
-  operationOptions:
-    | ReactApollo.OperationOption<
-        TProps,
-        MeQuery,
-        MeVariables,
-        MeProps<TChildProps>
-      >
-    | undefined
-) {
-  return ReactApollo.graphql<
-    TProps,
-    MeQuery,
-    MeVariables,
-    MeProps<TChildProps>
-  >(MeDocument, operationOptions);
-}
 export const RegisterDocument = gql`
   mutation Register($data: RegisterInput!) {
     register(data: $data) {
@@ -330,4 +360,50 @@ export function RegisterHOC<TProps, TChildProps = any>(
     RegisterVariables,
     RegisterProps<TChildProps>
   >(RegisterDocument, operationOptions);
+}
+export const MeDocument = gql`
+  query me {
+    me {
+      name
+      email
+      id
+      groups {
+        name
+        id
+      }
+    }
+  }
+`;
+export class MeComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<MeQuery, MeVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<MeQuery, MeVariables>
+        query={MeDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type MeProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<MeQuery, MeVariables>
+> &
+  TChildProps;
+export function MeHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        MeQuery,
+        MeVariables,
+        MeProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    MeQuery,
+    MeVariables,
+    MeProps<TChildProps>
+  >(MeDocument, operationOptions);
 }
