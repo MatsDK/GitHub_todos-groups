@@ -1,47 +1,68 @@
-import Layout from "../../components/Layout";
-import {
-  GroupComponent,
-  GroupGroup,
-  GroupUsers,
-} from "../../generated/apolloComponents";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
+import { useContext } from "react";
+import { withApollo } from "react-apollo";
+import { GroupGroup } from "../../generated/apolloComponents";
+import { GetRepoObjectComponent } from "../../generated/github-apollo-components";
+import { getRepoObject } from "../../github-graphql/query/getRepo";
+import { groupQuery } from "../../graphql/group/query/group";
 import { NextContextWithApollo } from "../../interfaces/types";
-import { groupQuery } from "../../graphql/group/queries/group";
 import { redirect } from "../../lib/redirect";
-import { withAuth } from "../../lib/HOC/withAuth";
+import Layout from "../../src/components/Layout";
+import { GitHubApolloClientContext } from "../../src/context/githubApolloClientContext";
 
-const Group = () => {
-  const router = useRouter();
-  const { group } = router.query;
+const Group = (x: any) => {
+  // const router = useRouter();
+  const context = useContext(GitHubApolloClientContext);
+  // const { group } = router.query;
 
   return (
     <Layout title="Group">
       <div>
-        {typeof group == "string" && (
+        {console.log(context)}
+        {context && (
+          <GetRepoObjectComponent
+            client={context}
+            variables={{ owner: "MatsDK", name: "SSH_Files" }}
+          >
+            {(data) => {
+              console.log(data);
+              return null;
+            }}
+          </GetRepoObjectComponent>
+        )}
+        {/* {typeof group == "string" && (
           <GroupComponent variables={{ groupId: parseInt(group as string) }}>
             {({ data }) => {
-              if (!data || !data.group) {
-                return null;
-              }
+              // console.log(data);
+              if (!data || !data.group) return null;
+
+              // console.log(
+              //   // context
+              //   (context as ApolloClient<NormalizedCacheObject>).query<
+              //     GetRepoObjectQuery
+              //   >({
+              //     variables: { name: "SSH_Files", owner: "MatsDK" },
+              //     query: getRepoObject,
+              //   })
+              // );
 
               return (
-                <div>
-                  <p>{data.group.name}</p>
-                  <div>
-                    <h2>users</h2>
-                    {data.group.users.map((user: GroupUsers, idx: number) => {
-                      return (
-                        <div style={{ display: "flex" }} key={idx}>
-                          <p>{user.name}</p> <p>--</p> <p>{user.email}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                <>
+                  <GetRepoObjectComponent
+                    client={context}
+                    variables={{ name: "SSH_Files", owner: "MatsDK" }}
+                  >
+                    {(repoData: any) => {
+                      console.log(repoData);
+
+                      return <GroupView group={data.group} />;
+                    }}
+                  </GetRepoObjectComponent>
+                </>
               );
             }}
           </GroupComponent>
-        )}
+        )} */}
       </div>
     </Layout>
   );
@@ -49,8 +70,17 @@ const Group = () => {
 
 Group.getInitialProps = async ({
   apolloClient,
+  githubApolloClient,
   ...ctx
 }: NextContextWithApollo) => {
+  const res = await githubApolloClient.query({
+    query: getRepoObject,
+    variables: {
+      owner: "MatsDK",
+      name: "SSH_Files",
+    },
+  });
+
   const { group } = ctx.query;
   if (group == null) return redirect(ctx, "/");
 
@@ -59,12 +89,10 @@ Group.getInitialProps = async ({
     variables: { groupId: parseInt(group as string) },
   });
 
-  console.log(response);
   if (!response || !response.data || !(response.data as any).group)
     return redirect(ctx, "/");
 
-  return { data: response.data };
+  return { groupData: response.data, githubData: res };
 };
 
-export default Group;
-// export default withAuth(Group);
+export default withApollo(Group);

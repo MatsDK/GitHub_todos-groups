@@ -4,4 +4,5 @@ import { NextPageContext } from "next";
 
 export interface NextContextWithApollo extends NextPageContext {
   apolloClient: ApolloClient<NormalizedCacheObject>;
+  githubApolloClient: ApolloClient<NormalizedCacheObject>;
 }

@@ -11,7 +11,7 @@ const batchGroups = async (ids: number[]) => {
   const data = await GroupUser.find({
     join: {
       alias: "GroupUser",
-      innerJoinAndSelect: {
+      leftJoinAndSelect: {
         group: "GroupUser.group",
       },
     },

@@ -9,4 +9,3 @@ generates:
       - "typescript-react-apollo"
     config:
       noNamespaces: true
-      # withHOC: false

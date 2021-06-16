@@ -1,7 +1,7 @@
 import { Field, Formik } from "formik";
 import React from "react";
-import { InputField } from "../components/inputField";
-import Layout from "../components/Layout";
+import { InputField } from "../src/components/inputField";
+import Layout from "../src/components/Layout";
 import { LoginComponent } from "../generated/apolloComponents";
 import { withApollo } from "react-apollo";
 import { ApolloClient } from "@apollo/client";

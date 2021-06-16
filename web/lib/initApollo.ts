@@ -20,20 +20,21 @@ const create = (
 ) => {
   const httpLink = createHttpLink(linkOptions);
 
-  const authLink = setContext((_, { headers }) => {
+  const authLink = setContext((_, { headers = {} }) => {
     const token: any = getToken();
+
+    if (linkOptions.credentials == "omit")
+      headers.Authorization = token ? `${token}` : "";
+    else headers.cookie = token ? `${token}` : "";
+
     return {
-      headers: {
-        ...headers,
-        cookie: token ? `${token}` : "",
-      },
+      headers,
     };
   });
 
-  // Check out https://github.com/zeit/next.js/pull/4611 if you want to use the AWSAppSyncClient
   return new ApolloClient({
     connectToDevTools: isBrowser,
-    ssrMode: !isBrowser, // Disables forceFetch on the server (so queries are only run once)
+    ssrMode: !isBrowser,
     link: authLink.concat(httpLink),
     cache: new InMemoryCache().restore(initialState || {}),
   });
@@ -44,11 +45,8 @@ const initApollo = (
   options: Options,
   linkOptions: HttpLink.Options
 ) => {
-  // Make sure to create a new client for every server-side request so that data
-  // isn't shared between connections (which would be bad)
   if (!isBrowser) return create(initialState, options, linkOptions);
 
-  // Reuse client on the client-side
   if (!apolloClient) apolloClient = create(initialState, options, linkOptions);
 
   return apolloClient;

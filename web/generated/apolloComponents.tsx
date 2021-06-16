@@ -7,20 +7,20 @@ export type Group = {
 };
 
 export type Mutation = {
-  joinGroup?: Maybe<boolean>;
   createGroup: Group;
+  joinGroup?: Maybe<boolean>;
   login?: Maybe<User>;
   logout: boolean;
   register: User;
 };
 
-export type MutationJoinGroupArgs = {
-  groupId: number;
-};
-
 export type MutationCreateGroupArgs = {
   userId: number;
   name: string;
+};
+
+export type MutationJoinGroupArgs = {
+  groupId: number;
 };
 
 export type MutationLoginArgs = {

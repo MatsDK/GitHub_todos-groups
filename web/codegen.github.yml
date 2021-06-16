@@ -1,0 +1,13 @@
+overwrite: true
+schema: github-schema.json
+documents: ./github-graphql/**/*.ts
+generates:
+  ./generated/github-apollo-components.tsx:
+    config:
+      noNamespaces: true
+      withHOC: false
+    # withComponent: true
+    plugins:
+      - "typescript-common"
+      - "typescript-client"
+      - "typescript-react-apollo"

@@ -37,16 +37,17 @@ const withApollo = (App: any) => {
         {},
         {
           getToken: () => {
-            return req.headers.cookie || "";
+            return `bearer ${process.env.GITHUB_ACCESS_TOKEN as string}`;
           },
         },
         {
           uri: "https://api.github.com/graphql",
+          credentials: "omit",
         }
       );
 
-      ctx.ctx.apolloClient = apollo;
-      ctx.ctx.githubApolloClient = githubApolloClient;
+      ctx.ctx.apolloClient = { ...apollo };
+      ctx.ctx.githubApolloClient = { ...githubApolloClient };
 
       let appProps = {};
       if (App.getInitialProps) appProps = await App.getInitialProps(ctx);
@@ -67,6 +68,7 @@ const withApollo = (App: any) => {
               Component={Component}
               router={router}
               apolloClient={apollo}
+              githubApolloClient={githubApolloClient}
             />
           );
         } catch (error) {
@@ -116,17 +118,24 @@ const withApollo = (App: any) => {
         props.apolloState,
         {
           getToken: () => {
-            return docExists() ? document.cookie : "";
+            return `bearer ${process.env.GITHUB_ACCESS_TOKEN as string}`;
           },
         },
         {
           uri: "https://api.github.com/graphql",
+          credentials: "omit",
         }
       );
     }
 
     render() {
-      return <App {...this.props} apolloClient={this.apolloClient} />;
+      return (
+        <App
+          {...this.props}
+          apolloClient={{ ...this.apolloClient }}
+          githubApolloClient={{ ...this.githubApolloClient }}
+        />
+      );
     }
   };
 };

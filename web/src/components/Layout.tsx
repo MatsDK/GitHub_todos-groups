@@ -32,11 +32,6 @@ const Layout: React.FunctionComponent<Props> = ({
           <h3>Register</h3>
         </div>
       </Link>
-      <Link href="/folder/id1/id2">
-        <div>
-          <h3>random page</h3>
-        </div>
-      </Link>
       <Link href="/dashboard">
         <div>
           <h3>Dashboard</h3>

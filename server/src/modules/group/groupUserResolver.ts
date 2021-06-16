@@ -27,12 +27,10 @@ export class GroupUserResolver {
   async joinGroup(@Ctx() ctx: MyContext, @Arg("groupId") groupId: number) {
     try {
       if ((ctx.req as any).userId == null) return false;
-      const groupUser = await GroupUser.create({
+      await GroupUser.create({
         groupId,
         userId: (ctx.req as any).userId,
       }).save();
-
-      console.log(groupUser);
 
       return true;
     } catch (err) {
