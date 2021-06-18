@@ -19,7 +19,6 @@ export const isAuth: MiddlewareFn<MyContext> = async ({ context }, next) => {
       cookies["refresh-token"] || parsedCookies["refresh-token"],
       cookies["access-token"] || parsedCookies["access-token"],
     ];
-  console.log(context.req.headers, context.req.cookies);
 
   if (!accessToken && !refreshToken) return null;
 

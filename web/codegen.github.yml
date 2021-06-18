@@ -1,5 +1,5 @@
 overwrite: true
-schema: github-schema.json
+schema: ./github-api-utils/github-schema.json
 documents: ./github-graphql/**/*.ts
 generates:
   ./generated/github-apollo-components.tsx:
