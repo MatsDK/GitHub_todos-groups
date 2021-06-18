@@ -1,11 +1,47 @@
 import React from "react";
 import Head from "next/head";
 import { getDataFromTree } from "react-apollo";
-// import { renderToString } from "react-dom/server";
 import { ApolloClient } from "apollo-boost";
-import { NormalizedCacheObject } from "@apollo/client";
-import { initApollo } from "../initApolloWithLinks";
+import {
+  // ApolloLink,
+  // createHttpLink,
+  NormalizedCacheObject,
+} from "@apollo/client";
+import initApollo from "../initApolloWithLinks";
 import { isBrowser } from "../isBrowser";
+
+const docExists = () => typeof document !== "undefined";
+
+// const serverLink: ApolloLink = createHttpLink({
+//   uri: "http://localhost:4000/graphql",
+//   headers: {
+//     credentials: "include",
+//     cookie: "",
+//   },
+// });
+
+// const graphqlLink: ApolloLink = createHttpLink({
+//   uri: "https://api.github.com/graphql",
+//   headers: {
+//     credentials: "omit",
+//     Authorazation: `bearer ${process.env.GITHUB_ACCESS_TOKEN as string}`,
+//   },
+// });
+// const serverLink = new HttpLink({
+//   uri: "http://localhost:4000/graphql",
+//   headers: {
+//     Credentials: "include",
+//     cookie: "",
+//   },
+// });
+
+// const graphqlLink = new HttpLink({
+//   uri: "https://api.github.com/graphql",
+//   headers: {
+//     Credentials: "include",
+//     Authorazation: `bearer ${process.env.GITHUB_ACCESS_TOKEN as string}`,
+//   },
+// });
 
 export const withApollo = (App: any) => {
   return class Apollo extends React.Component {
@@ -17,7 +53,25 @@ export const withApollo = (App: any) => {
         ctx: { req, res },
       } = ctx;
 
-      const apollo = initApollo({});
+      const apollo = initApollo(
+        {},
+        {
+          getToken: () => req.headers.cookie || "",
+        },
+        {
+          getToken: () => {
+            return `bearer ${process.env.GITHUB_ACCESS_TOKEN as string}`;
+          },
+        },
+        {
+          uri: "http://localhost:4000/graphql",
+          credentials: "include",
+        },
+        {
+          uri: "http://localhost:4000/graphql",
+          credentials: "include",
+        }
+      );
 
       ctx.ctx.apolloClient = { ...apollo };
 
@@ -73,8 +127,28 @@ export const withApollo = (App: any) => {
 
     constructor(props: any) {
       super(props);
-      const client = initApollo(props.apolloState);
-      this.apolloClient = client;
+      const apollo = initApollo(
+        props.apolloState,
+        {
+          getToken: () => {
+            return docExists() ? document.cookie : "";
+          },
+        },
+        {
+          getToken: () => {
+            return `bearer ${process.env.GITHUB_ACCESS_TOKEN as string}`;
+          },
+        },
+        {
+          uri: "http://localhost:4000/graphql",
+          credentials: "include",
+        },
+        {
+          uri: "https://api.github.com/graphql",
+          credentials: "omit",
+        }
+      );
+      this.apolloClient = apollo;
     }
 
     render() {

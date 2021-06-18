@@ -21,7 +21,7 @@ const create = (
   const httpLink = createHttpLink(linkOptions);
 
   const authLink = setContext((_, { headers = {} }) => {
-    const token: any = getToken();
+    const token: string = getToken();
 
     if (linkOptions.credentials == "omit")
       headers.Authorization = token ? `${token}` : "";

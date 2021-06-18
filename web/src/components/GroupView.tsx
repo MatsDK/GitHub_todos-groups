@@ -1,5 +1,5 @@
 import React from "react";
-import { GroupGroup, GroupUsers } from "../generated/apolloComponents";
+import { GroupGroup, GroupUsers } from "../../generated/apolloComponents";
 
 interface Props {
   group: GroupGroup;

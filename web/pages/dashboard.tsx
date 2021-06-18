@@ -9,6 +9,8 @@ interface authPageProps {
 }
 
 const auth: any = ({ me }: authPageProps) => {
+  console.log(me);
+  // return null;
   return (
     <Layout title="Dashboard">
       <div>

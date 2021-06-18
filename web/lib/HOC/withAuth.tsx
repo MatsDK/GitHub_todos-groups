@@ -1,11 +1,11 @@
 import { NextPageContext } from "next";
 import React from "react";
 import { MeQuery } from "../../generated/apolloComponents";
-import { meQuery } from "../../graphql/user/queries/me";
+// import { GetRepoObjectQuery } from "../../generated/github-apollo-components";
+// import { getRepoObject } from "../../github-graphql/query/getRepo";
+import { meQuery } from "../../graphql/user/query/me";
 import { NextContextWithApollo } from "../../interfaces/types";
 import { redirect } from "../redirect";
-// import { meQuery } from "../../graphql/user/queries/me";
-// import { MeQuery } from "../../generated/apolloComponents";
 
 export const withAuth = <T extends object>(Component: React.FC<T>) => {
   return class AuthComponent extends React.Component<T> {
@@ -15,19 +15,27 @@ export const withAuth = <T extends object>(Component: React.FC<T>) => {
     }: NextContextWithApollo) {
       try {
         const response = await apolloClient.query<MeQuery>({
-          // context: { clientName: "second" },
           query: meQuery,
         });
 
-        console.log(response);
-
-        if (!response || !response.data || !response.data.me)
+        if (!response || !response.data || !response.data.me) {
           return redirectToLogin(ctx);
+        }
+
+        // await apolloClient.query<GetRepoObjectQuery>({
+        //   context: { clientName: "github" },
+        //   query: getRepoObject,
+        //   variables: {
+        //     owner: "MatsDK",
+        //     name: "SSH_Files",
+        //   },
+        // });
 
         return {
           me: response.data.me,
         };
-      } catch {
+      } catch (err) {
+        console.log(err.networkError.result.errors);
         return redirectToLogin(ctx);
       }
     }

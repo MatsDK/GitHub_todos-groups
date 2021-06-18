@@ -23,6 +23,7 @@ const Login = ({ client }: { client: ApolloClient<any> }): any => {
               if (response && response.data && !response.data.login) {
                 return;
               }
+              console.log(response);
 
               await client.resetStore();
               Router.push("/dashboard");
