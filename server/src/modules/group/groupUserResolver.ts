@@ -10,9 +10,11 @@ export class GroupUserResolver {
   @Mutation(() => Group)
   async createGroup(
     @Arg("name") name: string,
+    @Arg("repoName") repoName: string,
+    @Arg("mainBranch") mainBranch: string,
     @Arg("userId") userId: number
   ): Promise<Group> {
-    const group = Group.create({ name });
+    const group = Group.create({ name, repoName, mainBranch });
 
     await group.save();
 

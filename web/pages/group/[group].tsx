@@ -1,5 +1,9 @@
 import { useRouter } from "next/router";
-import { GroupGroup, GroupComponent } from "../../generated/apolloComponents";
+import {
+  GroupGroup,
+  GroupComponent,
+  GroupQuery,
+} from "../../generated/apolloComponents";
 import {
   GetRepoObjectComponent,
   GetRepoObjectQuery,
@@ -10,7 +14,7 @@ import { redirect } from "../../lib/redirect";
 import Layout from "../../src/components/Layout";
 import GroupView from "../../src/components/GroupView";
 import { getRepoObject } from "../../github-graphql/query/getRepo";
-import { ApolloQueryResult } from "@apollo/client";
+import { responseIsInvalid } from "../../src/isResponseValid";
 
 interface Props {
   groupData: GroupGroup;
@@ -30,20 +34,28 @@ const Group: NextFunctionComponent<Props> = ({}) => {
             {({ data }) => {
               if (!data || !data.group) return null;
 
+              // if (!data.group.repoName || !data.group.mainBranch) return null;
               return (
                 <>
                   <GetRepoObjectComponent
                     context={{ server: "github" }}
                     variables={{
                       owner: "MatsDK",
-                      name: "SSH_Files",
-                      expression: "master:",
+                      name: data.group.repoName,
+                      expression: `${data.group.mainBranch}:`,
                     }}
                   >
                     {({ data: repoData }) => {
                       console.log(repoData, data);
+                      if (!repoData || !repoData.repository) return null;
 
-                      return <GroupView group={data.group as GroupGroup} />;
+                      return (
+                        <GroupView
+                          path={{ groupId: data.group!.id, path: "" }}
+                          group={data.group as GroupGroup}
+                          repoData={repoData.repository}
+                        />
+                      );
                     }}
                   </GetRepoObjectComponent>
                 </>
@@ -60,11 +72,11 @@ Group.getInitialProps = async ({ apolloClient, ...ctx }) => {
   const { group } = ctx.query;
   if (group == null) return redirect(ctx, "/");
 
-  const response = await apolloClient.query<GroupGroup>({
+  const response = await apolloClient.query<GroupQuery>({
     query: groupQuery,
     variables: { groupId: parseInt(group as string) },
   });
-  if (responseIsInvalid<GroupGroup>(response, "group"))
+  if (responseIsInvalid<GroupQuery>(response, "group"))
     return redirect(ctx, "/");
 
   const githubRes = await apolloClient.query<GetRepoObjectQuery>({
@@ -72,8 +84,8 @@ Group.getInitialProps = async ({ apolloClient, ...ctx }) => {
     query: getRepoObject,
     variables: {
       owner: "MatsDK",
-      name: "SSH_Files",
-      expression: "master:",
+      name: response.data.group!.repoName,
+      expression: `${response.data.group!.mainBranch}:`,
     },
   });
   if (responseIsInvalid<GetRepoObjectQuery>(githubRes, "repository"))
@@ -81,10 +93,5 @@ Group.getInitialProps = async ({ apolloClient, ...ctx }) => {
 
   return { groupData: response.data, repoData: githubRes.data };
 };
-
-const responseIsInvalid = <T extends GroupGroup | GetRepoObjectQuery>(
-  response: ApolloQueryResult<T>,
-  key: string
-) => !response || !response.data || !(response.data as any)[key];
 
 export default Group;

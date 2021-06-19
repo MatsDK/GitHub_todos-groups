@@ -4,6 +4,8 @@ export type Group = {
   id: string;
   name: string;
   users: Array<User>;
+  repoName: string;
+  mainBranch: string;
 };
 
 export type Mutation = {
@@ -16,6 +18,8 @@ export type Mutation = {
 
 export type MutationCreateGroupArgs = {
   userId: number;
+  mainBranch: string;
+  repoName: string;
   name: string;
 };
 
@@ -79,6 +83,10 @@ export type GroupGroup = {
   id: string;
 
   name: string;
+
+  repoName: string;
+
+  mainBranch: string;
 
   users: GroupUsers[];
 };
@@ -185,6 +193,8 @@ export const GroupDocument = gql`
     group(groupId: $groupId) {
       id
       name
+      repoName
+      mainBranch
       users {
         email
         id

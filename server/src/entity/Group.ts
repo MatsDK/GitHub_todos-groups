@@ -28,4 +28,12 @@ export class Group extends BaseEntity {
   async users(@Ctx() { usersLoader }: MyContext): Promise<User[]> {
     return usersLoader.load(this.id);
   }
+
+  @Field()
+  @Column()
+  repoName: string;
+
+  @Field()
+  @Column()
+  mainBranch: string;
 }

@@ -7,15 +7,14 @@ import { RegisterInput } from "./register/RegisterInput";
 export class RegisterResolver {
   @Mutation(() => User)
   async register(
-    @Arg("data") { email, firstName, lastName, password }: RegisterInput
+    @Arg("data") { password, ...rest }: RegisterInput
   ): Promise<User> {
+    console.log(rest);
     const hashedPassword = await hash(password, 12);
 
     const user = await User.create({
-      firstName,
-      lastName,
-      email,
       password: hashedPassword,
+      ...rest,
     }).save();
 
     return user;

@@ -5,6 +5,8 @@ export const groupQuery = gql`
     group(groupId: $groupId) {
       id
       name
+      repoName
+      mainBranch
       users {
         email
         id

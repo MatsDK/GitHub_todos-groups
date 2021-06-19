@@ -1,9 +1,9 @@
 import { Field, Formik } from "formik";
 import Router from "next/router";
 import React from "react";
+import { RegisterComponent } from "../generated/apolloComponents";
 import { InputField } from "../src/components/inputField";
 import Layout from "../src/components/Layout";
-import { RegisterComponent } from "../generated/apolloComponents";
 
 const register = () => {
   return (
