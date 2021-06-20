@@ -19,7 +19,7 @@ const GroupView: React.FC<Props> = ({
   path: { groupId, path },
 }) => {
   return (
-    <div>
+    <>
       <p>{group.name}</p>
       <div>
         <h2>users</h2>
@@ -33,7 +33,7 @@ const GroupView: React.FC<Props> = ({
         <h2>Files</h2>
         <Files groupId={groupId} path={path} repoData={repoData} />
       </div>
-    </div>
+    </>
   );
 };
 
@@ -55,7 +55,7 @@ const Files: React.FC<FilesProps> = ({ repoData, groupId, path }) => {
     return null;
 
   return (
-    <div>
+    <>
       {(repoData.object as GetRepoObjectTreeInlineFragment).entries!.map(
         (_, idx: number) => {
           const newPath =
@@ -69,7 +69,7 @@ const Files: React.FC<FilesProps> = ({ repoData, groupId, path }) => {
           );
         }
       )}
-    </div>
+    </>
   );
 };
 

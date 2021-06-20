@@ -5,4 +5,5 @@ export interface MyContext {
   res: Response;
   usersLoader: any;
   groupsLoader: any;
+  invitesLoader: any;
 }

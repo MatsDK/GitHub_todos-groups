@@ -8,6 +8,11 @@ export type Group = {
   mainBranch: string;
 };
 
+export type Invite = {
+  user_target: number;
+  group_id: number;
+};
+
 export type Mutation = {
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
@@ -61,6 +66,7 @@ export type User = {
   email: string;
   name: string;
   groups: Array<Group>;
+  invites: Array<Group>;
 };
 
 // ====================================================
@@ -169,7 +175,17 @@ export type MeMe = {
 
   id: string;
 
+  invites: MeInvites[];
+
   groups: MeGroups[];
+};
+
+export type MeInvites = {
+  __typename?: "Group";
+
+  id: string;
+
+  name: string;
 };
 
 export type MeGroups = {
@@ -377,6 +393,10 @@ export const MeDocument = gql`
       name
       email
       id
+      invites {
+        id
+        name
+      }
       groups {
         name
         id

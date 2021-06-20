@@ -6,6 +6,10 @@ export const meQuery = gql`
       name
       email
       id
+      invites {
+        id
+        name
+      }
       groups {
         name
         id

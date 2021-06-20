@@ -7,6 +7,7 @@ import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { createGroupsLoader } from "./utils/dataLoaders/groupsLoader";
+import { createInvitesLoader } from "./utils/dataLoaders/invitesLoader";
 import { createUsersLoader } from "./utils/dataLoaders/usersLoader";
 
 dotenv.config();
@@ -36,6 +37,7 @@ dotenv.config();
       res,
       usersLoader: createUsersLoader(),
       groupsLoader: createGroupsLoader(),
+      invitesLoader: createInvitesLoader(),
     }),
   });
 

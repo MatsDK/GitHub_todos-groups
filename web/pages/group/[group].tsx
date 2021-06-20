@@ -1,20 +1,13 @@
 import { useRouter } from "next/router";
-import {
-  GroupGroup,
-  GroupComponent,
-  GroupQuery,
-} from "../../generated/apolloComponents";
-import {
-  GetRepoObjectComponent,
-  GetRepoObjectQuery,
-} from "../../generated/github-apollo-components";
+import { GroupGroup, GroupQuery } from "../../generated/apolloComponents";
+import { GetRepoObjectQuery } from "../../generated/github-apollo-components";
+import { getRepoObject } from "../../github-graphql/query/getRepo";
 import { groupQuery } from "../../graphql/group/query/group";
 import { NextFunctionComponent } from "../../interfaces/types";
 import { redirect } from "../../lib/redirect";
 import Layout from "../../src/components/Layout";
-import GroupView from "../../src/components/GroupView";
-import { getRepoObject } from "../../github-graphql/query/getRepo";
 import { responseIsInvalid } from "../../src/isResponseValid";
+import GroupContainer from "../../src/components/GroupContainer";
 
 interface Props {
   groupData: GroupGroup;
@@ -28,42 +21,7 @@ const Group: NextFunctionComponent<Props> = ({}) => {
 
   return (
     <Layout title="Group">
-      <>
-        {typeof group == "string" && (
-          <GroupComponent variables={{ groupId: parseInt(group as string) }}>
-            {({ data }) => {
-              if (!data || !data.group) return null;
-
-              // if (!data.group.repoName || !data.group.mainBranch) return null;
-              return (
-                <>
-                  <GetRepoObjectComponent
-                    context={{ server: "github" }}
-                    variables={{
-                      owner: "MatsDK",
-                      name: data.group.repoName,
-                      expression: `${data.group.mainBranch}:`,
-                    }}
-                  >
-                    {({ data: repoData }) => {
-                      console.log(repoData, data);
-                      if (!repoData || !repoData.repository) return null;
-
-                      return (
-                        <GroupView
-                          path={{ groupId: data.group!.id, path: "" }}
-                          group={data.group as GroupGroup}
-                          repoData={repoData.repository}
-                        />
-                      );
-                    }}
-                  </GetRepoObjectComponent>
-                </>
-              );
-            }}
-          </GroupComponent>
-        )}
-      </>
+      <GroupContainer path={""} group={group as string} />
     </Layout>
   );
 };

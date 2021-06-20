@@ -46,4 +46,9 @@ export class User extends BaseEntity {
   async groups(@Ctx() { groupsLoader }: MyContext): Promise<Group[]> {
     return groupsLoader.load(this.id);
   }
+
+  @Field(() => [Group])
+  async invites(@Ctx() { invitesLoader }: MyContext): Promise<Group[]> {
+    return invitesLoader.load(this.id);
+  }
 }
