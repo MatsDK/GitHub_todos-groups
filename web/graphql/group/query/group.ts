@@ -6,6 +6,7 @@ export const groupQuery = gql`
       id
       name
       repoName
+      repoOwner
       mainBranch
       users {
         email

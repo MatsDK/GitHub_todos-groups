@@ -3,7 +3,7 @@ import { Group } from "src/entity/Group";
 import { In } from "typeorm";
 import { GroupUser } from "../../entity/GroupUser";
 
-const batchGroups = async (ids: number[]) => {
+const batchGroups = async (ids: number[]): Promise<Array<Group[]>> => {
   const whereQuery = {
     userId: In(ids),
   };
@@ -26,9 +26,7 @@ const batchGroups = async (ids: number[]) => {
     else map.set(_.userId, [(_ as any).__group__]);
   });
 
-  return new Array(ids.length)
-    .fill([])
-    .map((_: any[], idx: number) => Array.from(map.values())[idx] || []);
+  return ids.map((_: number) => map.get(_) || []);
 };
 
 export const createGroupsLoader = () => new DataLoader(batchGroups as any);

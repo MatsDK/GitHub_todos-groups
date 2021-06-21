@@ -5,7 +5,7 @@ import GroupView from "./GroupView";
 
 interface Props {
   group: string;
-  path: string;
+  path: string[];
 }
 
 const GroupContainer: React.FC<Props> = ({ group, path }) => {
@@ -20,13 +20,13 @@ const GroupContainer: React.FC<Props> = ({ group, path }) => {
               <GetRepoObjectComponent
                 context={{ server: "github" }}
                 variables={{
-                  owner: "MatsDK",
+                  owner: data.group.repoOwner,
                   name: data.group.repoName,
-                  expression: `${data.group.mainBranch}:${path}`,
+                  expression: `${data.group.mainBranch}:${path.join("/")}`,
                 }}
               >
                 {({ data: repoData }) => {
-                  console.log(repoData, data);
+                  // console.log(repoData, data);
                   if (!repoData || !repoData.repository) return null;
 
                   return (

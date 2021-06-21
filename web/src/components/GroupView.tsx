@@ -6,11 +6,12 @@ import {
   GetRepoObjectRepository,
   GetRepoObjectTreeInlineFragment,
 } from "../../generated/github-apollo-components";
+import { PathArrow } from "./icons";
 
 interface Props {
   group: GroupGroup;
   repoData: GetRepoObjectRepository;
-  path: { groupId: string; path: string };
+  path: { groupId: string; path: string[] };
 }
 
 const GroupView: React.FC<Props> = ({
@@ -23,15 +24,46 @@ const GroupView: React.FC<Props> = ({
       <p>{group.name}</p>
       <div>
         <h2>users</h2>
-        {group.users.map((user: GroupUsers, idx: number) => {
-          return (
-            <div style={{ display: "flex" }} key={idx}>
-              <p>{user.name}</p> <p>--</p> <p>{user.email}</p>
-            </div>
+        {group.users.map((user: GroupUsers, idx: number) => (
+          <div style={{ display: "flex" }} key={idx}>
+            <p>{user.name}</p> <p>--</p> <p>{user.email}</p>
+          </div>
+        ))}
+        <FilePath path={[group.name, ...path]} group={parseInt(group.id)} />
+        <h2>Files</h2>
+        <Files groupId={groupId} path={path.join("/")} repoData={repoData} />
+      </div>
+    </>
+  );
+};
+
+interface PathProps {
+  path: string[];
+  group: number;
+}
+
+const FilePath: React.FC<PathProps> = ({ path, group }) => {
+  const currPaht: string[] = [];
+
+  return (
+    <>
+      <h2 style={{ margin: 0 }}>Path</h2>
+      <br />
+      <div style={{ display: "flex" }}>
+        {path.map((_: string, idx) => {
+          if (idx) currPaht.push(_);
+
+          return idx != path.length - 1 ? (
+            <Link href={`/group/${group}/${currPaht.join("/")}`}>
+              <div>
+                {_}
+                <PathArrow />
+              </div>
+            </Link>
+          ) : (
+            <b>{_}</b>
           );
         })}
-        <h2>Files</h2>
-        <Files groupId={groupId} path={path} repoData={repoData} />
       </div>
     </>
   );

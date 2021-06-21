@@ -35,5 +35,9 @@ export class Group extends BaseEntity {
 
   @Field()
   @Column()
+  repoOwner: string;
+
+  @Field()
+  @Column()
   mainBranch: string;
 }

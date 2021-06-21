@@ -21,7 +21,7 @@ const Group: NextFunctionComponent<Props> = ({}) => {
 
   return (
     <Layout title="Group">
-      <GroupContainer path={""} group={group as string} />
+      <GroupContainer path={[]} group={group as string} />
     </Layout>
   );
 };

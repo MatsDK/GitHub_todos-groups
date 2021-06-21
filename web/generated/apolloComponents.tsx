@@ -5,6 +5,7 @@ export type Group = {
   name: string;
   users: Array<User>;
   repoName: string;
+  repoOwner: string;
   mainBranch: string;
 };
 
@@ -73,6 +74,16 @@ export type User = {
 // Documents
 // ====================================================
 
+export type JoinGroupVariables = {
+  groupId: number;
+};
+
+export type JoinGroupMutation = {
+  __typename?: "Mutation";
+
+  joinGroup: Maybe<boolean>;
+};
+
 export type GroupVariables = {
   groupId: number;
 };
@@ -91,6 +102,8 @@ export type GroupGroup = {
   name: string;
 
   repoName: string;
+
+  repoOwner: string;
 
   mainBranch: string;
 
@@ -204,12 +217,55 @@ import * as ReactApollo from "react-apollo";
 // Components
 // ====================================================
 
+export const JoinGroupDocument = gql`
+  mutation JoinGroup($groupId: Float!) {
+    joinGroup(groupId: $groupId)
+  }
+`;
+export class JoinGroupComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<JoinGroupMutation, JoinGroupVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<JoinGroupMutation, JoinGroupVariables>
+        mutation={JoinGroupDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type JoinGroupProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<JoinGroupMutation, JoinGroupVariables>
+> &
+  TChildProps;
+export type JoinGroupMutationFn = ReactApollo.MutationFn<
+  JoinGroupMutation,
+  JoinGroupVariables
+>;
+export function JoinGroupHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        JoinGroupMutation,
+        JoinGroupVariables,
+        JoinGroupProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    JoinGroupMutation,
+    JoinGroupVariables,
+    JoinGroupProps<TChildProps>
+  >(JoinGroupDocument, operationOptions);
+}
 export const GroupDocument = gql`
   query group($groupId: Float!) {
     group(groupId: $groupId) {
       id
       name
       repoName
+      repoOwner
       mainBranch
       users {
         email

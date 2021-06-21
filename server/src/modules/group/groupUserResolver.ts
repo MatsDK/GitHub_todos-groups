@@ -1,4 +1,5 @@
-import { MyContext } from "src/types/MyContext";
+import { Invite } from "../../entity/Invite";
+import { MyContext } from "../../types/MyContext";
 import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
 import { Group } from "../../entity/Group";
 import { GroupUser } from "../../entity/GroupUser";
@@ -12,9 +13,10 @@ export class GroupUserResolver {
     @Arg("name") name: string,
     @Arg("repoName") repoName: string,
     @Arg("mainBranch") mainBranch: string,
-    @Arg("userId") userId: number
+    @Arg("userId") userId: number,
+    @Arg("repoOwner") repoOwner: string
   ): Promise<Group> {
-    const group = Group.create({ name, repoName, mainBranch });
+    const group = Group.create({ name, repoName, mainBranch, repoOwner });
 
     await group.save();
 
@@ -33,6 +35,11 @@ export class GroupUserResolver {
         groupId,
         userId: (ctx.req as any).userId,
       }).save();
+
+      await Invite.delete({
+        group_id: groupId,
+        user_target: (ctx.req as any).userId,
+      });
 
       return true;
     } catch (err) {

@@ -14,12 +14,14 @@ const Path: NextFunctionComponent<any> = () => {
   const router = useRouter();
   if (!router) return null;
 
-  const path = (router.query.path as string[]).join("/");
   const { group } = router.query;
 
   return (
     <Layout title={router.query.path[router.query.path.length - 1]}>
-      <GroupContainer group={group as string} path={path} />
+      <GroupContainer
+        group={group as string}
+        path={router.query.path as string[]}
+      />
     </Layout>
   );
 };
