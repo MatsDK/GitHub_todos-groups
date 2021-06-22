@@ -54,14 +54,14 @@ const FilePath: React.FC<PathProps> = ({ path, group }) => {
           if (idx) currPaht.push(_);
 
           return idx != path.length - 1 ? (
-            <Link href={`/group/${group}/${currPaht.join("/")}`}>
+            <Link key={idx} href={`/group/${group}/${currPaht.join("/")}`}>
               <div>
                 {_}
                 <PathArrow />
               </div>
             </Link>
           ) : (
-            <b>{_}</b>
+            <b key={idx}>{_}</b>
           );
         })}
       </div>

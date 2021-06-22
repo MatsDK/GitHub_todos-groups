@@ -23,6 +23,7 @@ export type Mutation = {
 };
 
 export type MutationCreateGroupArgs = {
+  repoOwner: string;
   userId: number;
   mainBranch: string;
   repoName: string;
