@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { GroupUser } from "./GroupUser";
+import { Todo } from "./Todo";
 import { User } from "./User";
 
 @ObjectType()
@@ -25,7 +26,7 @@ export class Group extends BaseEntity {
   userConnection: Promise<GroupUser[]>;
 
   @Field(() => [User])
-  async users(@Ctx() { usersLoader }: MyContext): Promise<User[]> {
+  users(@Ctx() { usersLoader }: MyContext): Promise<User[]> {
     return usersLoader.load(this.id);
   }
 
@@ -40,4 +41,9 @@ export class Group extends BaseEntity {
   @Field()
   @Column()
   mainBranch: string;
+
+  @Field(() => [Todo])
+  todos(@Ctx() {}: MyContext): Promise<Todo[]> {
+    return Todo.find({ where: { todoGroupId: this.id } });
+  }
 }

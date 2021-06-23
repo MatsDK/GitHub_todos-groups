@@ -1,5 +1,12 @@
 type Maybe<T> = T | null;
 
+export type CreateTodoInput = {
+  todoTitle: string;
+  todoBody: string;
+  fileName: Maybe<string>;
+  todoGroupId: number;
+};
+
 export type Group = {
   id: string;
   name: string;
@@ -7,6 +14,7 @@ export type Group = {
   repoName: string;
   repoOwner: string;
   mainBranch: string;
+  todos: Array<Todo>;
 };
 
 export type Invite = {
@@ -17,6 +25,7 @@ export type Invite = {
 export type Mutation = {
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
+  createTodo?: Maybe<Todo>;
   login?: Maybe<User>;
   logout: boolean;
   register: User;
@@ -34,6 +43,10 @@ export type MutationJoinGroupArgs = {
   groupId: number;
 };
 
+export type MutationCreateTodoArgs = {
+  data: CreateTodoInput;
+};
+
 export type MutationLoginArgs = {
   password: string;
   email: string;
@@ -46,6 +59,8 @@ export type MutationRegisterArgs = {
 export type Query = {
   group?: Maybe<Group>;
   groups: Array<Group>;
+  getTodos: Array<Todo>;
+  todos: Array<Todo>;
   me?: Maybe<User>;
   users: Array<User>;
 };
@@ -54,11 +69,25 @@ export type QueryGroupArgs = {
   groupId: number;
 };
 
+export type QueryGetTodosArgs = {
+  groupId: number;
+};
+
 export type RegisterInput = {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+};
+
+export type Todo = {
+  id: string;
+  todoTitle: string;
+  todoBody: string;
+  todoGroupId: number;
+  todoAuthorId: number;
+  timeStamp: string;
+  fileName: string;
 };
 
 export type User = {
@@ -109,6 +138,8 @@ export type GroupGroup = {
   mainBranch: string;
 
   users: GroupUsers[];
+
+  todos: GroupTodos[];
 };
 
 export type GroupUsers = {
@@ -119,6 +150,22 @@ export type GroupUsers = {
   id: string;
 
   name: string;
+};
+
+export type GroupTodos = {
+  __typename?: "Todo";
+
+  id: string;
+
+  todoTitle: string;
+
+  timeStamp: string;
+
+  fileName: string;
+
+  todoBody: string;
+
+  todoAuthorId: number;
 };
 
 export type LoginVariables = {
@@ -272,6 +319,14 @@ export const GroupDocument = gql`
         email
         id
         name
+      }
+      todos {
+        id
+        todoTitle
+        timeStamp
+        fileName
+        todoBody
+        todoAuthorId
       }
     }
   }

@@ -1,5 +1,13 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
@@ -31,4 +39,11 @@ export class Todo extends BaseEntity {
   @Field()
   @Column({ nullable: true })
   fileName: string;
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.todos, {
+    primary: true,
+  })
+  @JoinColumn({ name: "todoAuthorId" })
+  author: Promise<User>;
 }

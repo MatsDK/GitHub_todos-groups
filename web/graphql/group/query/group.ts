@@ -13,6 +13,14 @@ export const groupQuery = gql`
         id
         name
       }
+      todos {
+        id
+        todoTitle
+        timeStamp
+        fileName
+        todoBody
+        todoAuthorId
+      }
     }
   }
 `;

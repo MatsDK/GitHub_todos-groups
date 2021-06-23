@@ -1,4 +1,4 @@
-import { Todo } from "../../entity/Todo";
+import dayjs from "dayjs";
 import {
   Arg,
   Ctx,
@@ -7,10 +7,10 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { Todo } from "../../entity/Todo";
 import { MyContext } from "../../types/MyContext";
 import { isAuth } from "../middleware/isAuth";
 import { CreateTodoInput } from "./createTodoInput";
-import dayjs from "dayjs";
 
 @Resolver()
 export class TodoResolver {
@@ -33,6 +33,12 @@ export class TodoResolver {
     }).save();
 
     return todo;
+  }
+
+  @UseMiddleware(isAuth)
+  @Query(() => [Todo])
+  getTodos(@Arg("groupId") groupId: number): Promise<Todo[]> {
+    return Todo.find({ where: { todoGroupId: groupId } });
   }
 
   @Query(() => [Todo])

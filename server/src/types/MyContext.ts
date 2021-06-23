@@ -6,4 +6,5 @@ export interface MyContext {
   usersLoader: any;
   groupsLoader: any;
   invitesLoader: any;
+  todoLoader: any;
 }

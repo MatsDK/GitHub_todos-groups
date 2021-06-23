@@ -4,10 +4,12 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Group } from "./Group";
+import { Todo } from "./Todo";
 
 @ObjectType()
 @Entity()
@@ -51,4 +53,11 @@ export class User extends BaseEntity {
   async invites(@Ctx() { invitesLoader }: MyContext): Promise<Group[]> {
     return invitesLoader.load(this.id);
   }
+
+  @OneToMany(() => Todo, (todo) => todo.author, {
+    primary: true,
+    nullable: true,
+  })
+  @JoinColumn({ name: "todoId" })
+  todos: Promise<Todo[]>;
 }

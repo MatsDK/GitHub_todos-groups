@@ -19,6 +19,7 @@ const GroupView: React.FC<Props> = ({
   repoData,
   path: { groupId, path },
 }) => {
+  console.log(group);
   return (
     <>
       <p>{group.name}</p>
