@@ -37,7 +37,7 @@ export class Todo extends BaseEntity {
   timeStamp: string;
 
   @Field()
-  @Column({ nullable: true })
+  @Column({ default: "" })
   fileName: string;
 
   @Field(() => User)

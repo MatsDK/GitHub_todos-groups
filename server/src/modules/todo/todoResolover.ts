@@ -15,15 +15,15 @@ import { CreateTodoInput } from "./createTodoInput";
 @Resolver()
 export class TodoResolver {
   @UseMiddleware(isAuth)
-  @Mutation(() => Todo, { nullable: true })
+  @Mutation(() => [Todo], { nullable: true })
   async createTodo(
     @Arg("data")
     { todoBody, todoTitle, fileName, todoGroupId }: CreateTodoInput,
     @Ctx() ctx: MyContext
-  ): Promise<Todo | undefined> {
+  ): Promise<Todo[] | undefined> {
     const timeStamp = dayjs().format("YYYY-MM-DD HH:mm");
 
-    const todo = await Todo.create({
+    await Todo.create({
       todoAuthorId: (ctx.req as any).userId,
       fileName,
       todoTitle,
@@ -32,7 +32,7 @@ export class TodoResolver {
       todoGroupId,
     }).save();
 
-    return todo;
+    return Todo.find({ where: { todoGroupId } });
   }
 
   @UseMiddleware(isAuth)

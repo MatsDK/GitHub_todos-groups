@@ -43,7 +43,7 @@ export class Group extends BaseEntity {
   mainBranch: string;
 
   @Field(() => [Todo])
-  todos(@Ctx() {}: MyContext): Promise<Todo[]> {
-    return Todo.find({ where: { todoGroupId: this.id } });
+  todos(): Todo[] {
+    return [];
   }
 }

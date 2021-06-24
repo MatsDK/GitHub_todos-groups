@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const groupQuery = gql`
-  query group($groupId: Float!) {
-    group(groupId: $groupId) {
+  query group($groupId: Float!, $path: String!) {
+    group(groupId: $groupId, path: $path) {
       id
       name
       repoName
@@ -14,6 +14,11 @@ export const groupQuery = gql`
         name
       }
       todos {
+        author {
+          name
+          email
+          id
+        }
         id
         todoTitle
         timeStamp

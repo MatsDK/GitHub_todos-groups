@@ -1,12 +1,19 @@
+import dayjs from "dayjs";
 import Link from "next/link";
-import React from "react";
-import { GroupGroup, GroupUsers } from "../../generated/apolloComponents";
+import React, { useEffect } from "react";
+import { useState } from "react";
+import {
+  GroupGroup,
+  GroupTodos,
+  GroupUsers,
+} from "../../generated/apolloComponents";
 import {
   GetRepoObjectBlobInlineFragment,
   GetRepoObjectRepository,
   GetRepoObjectTreeInlineFragment,
 } from "../../generated/github-apollo-components";
 import { PathArrow } from "./icons";
+import NewTodoForm from "./NewTodoForm";
 
 interface Props {
   group: GroupGroup;
@@ -19,7 +26,15 @@ const GroupView: React.FC<Props> = ({
   repoData,
   path: { groupId, path },
 }) => {
-  console.log(group);
+  console.log(group.todos);
+  const [todos, setTodos] = useState<Array<GroupTodos>>(group.todos.reverse());
+
+  useEffect(() => {
+    setTodos(group.todos);
+
+    return () => {};
+  }, [todos, group]);
+
   return (
     <>
       <p>{group.name}</p>
@@ -33,6 +48,32 @@ const GroupView: React.FC<Props> = ({
         <FilePath path={[group.name, ...path]} group={parseInt(group.id)} />
         <h2>Files</h2>
         <Files groupId={groupId} path={path.join("/")} repoData={repoData} />
+        <div>
+          <h2 style={{ margin: 0 }}>Todos</h2>
+          <h3>new Todo</h3>
+          <NewTodoForm
+            path={path}
+            groupId={parseInt(group.id)}
+            setTodos={setTodos}
+          />
+          {todos.map((_: GroupTodos, idx: number) => {
+            return (
+              <div key={idx}>
+                <p style={{ marginBottom: 0, marginTop: "10px" }}>
+                  {_.author.name}
+                  {" - "}
+                  {_.author.email}
+                  {" - "}
+                  {dayjs(_.timeStamp).format("MMMM D, YYYY h:mm A")}
+                </p>
+                <div>
+                  <b>{_.todoTitle}</b>
+                  <span>{_.todoBody}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

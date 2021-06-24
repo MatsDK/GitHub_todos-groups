@@ -27,13 +27,13 @@ const Path: NextFunctionComponent<any> = () => {
 };
 
 Path.getInitialProps = async ({ apolloClient, ...ctx }) => {
-  const path = (ctx.query.path as string[]).join();
+  const path = (ctx.query.path as string[]).join("/");
   const { group } = ctx.query;
   if (group == null) return redirect(ctx, "/");
 
   const response = await apolloClient.query<GroupQuery>({
     query: groupQuery,
-    variables: { groupId: parseInt(group as string) },
+    variables: { path, groupId: parseInt(group as string) },
   });
   if (responseIsInvalid<GroupQuery>(response, "group"))
     return redirect(ctx, "/");

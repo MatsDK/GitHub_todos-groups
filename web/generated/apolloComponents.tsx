@@ -25,7 +25,7 @@ export type Invite = {
 export type Mutation = {
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
-  createTodo?: Maybe<Todo>;
+  createTodo?: Maybe<Array<Todo>>;
   login?: Maybe<User>;
   logout: boolean;
   register: User;
@@ -66,6 +66,7 @@ export type Query = {
 };
 
 export type QueryGroupArgs = {
+  path: string;
   groupId: number;
 };
 
@@ -88,6 +89,7 @@ export type Todo = {
   todoAuthorId: number;
   timeStamp: string;
   fileName: string;
+  author: User;
 };
 
 export type User = {
@@ -116,6 +118,7 @@ export type JoinGroupMutation = {
 
 export type GroupVariables = {
   groupId: number;
+  path: string;
 };
 
 export type GroupQuery = {
@@ -155,6 +158,8 @@ export type GroupUsers = {
 export type GroupTodos = {
   __typename?: "Todo";
 
+  author: GroupAuthor;
+
   id: string;
 
   todoTitle: string;
@@ -166,6 +171,54 @@ export type GroupTodos = {
   todoBody: string;
 
   todoAuthorId: number;
+};
+
+export type GroupAuthor = {
+  __typename?: "User";
+
+  name: string;
+
+  email: string;
+
+  id: string;
+};
+
+export type CreateTodoVariables = {
+  data: CreateTodoInput;
+};
+
+export type CreateTodoMutation = {
+  __typename?: "Mutation";
+
+  createTodo: Maybe<CreateTodoCreateTodo[]>;
+};
+
+export type CreateTodoCreateTodo = {
+  __typename?: "Todo";
+
+  author: CreateTodoAuthor;
+
+  id: string;
+
+  todoTitle: string;
+
+  timeStamp: string;
+
+  fileName: string;
+
+  todoBody: string;
+
+  todoAuthorId: number;
+};
+
+export type CreateTodoAuthor = {
+  __typename?: "User";
+
+  name: string;
+
+  email: string;
+
+  id: string;
 };
 
 export type LoginVariables = {
@@ -308,8 +361,8 @@ export function JoinGroupHOC<TProps, TChildProps = any>(
   >(JoinGroupDocument, operationOptions);
 }
 export const GroupDocument = gql`
-  query group($groupId: Float!) {
-    group(groupId: $groupId) {
+  query group($groupId: Float!, $path: String!) {
+    group(groupId: $groupId, path: $path) {
       id
       name
       repoName
@@ -321,6 +374,11 @@ export const GroupDocument = gql`
         name
       }
       todos {
+        author {
+          name
+          email
+          id
+        }
         id
         todoTitle
         timeStamp
@@ -363,6 +421,60 @@ export function GroupHOC<TProps, TChildProps = any>(
     GroupVariables,
     GroupProps<TChildProps>
   >(GroupDocument, operationOptions);
+}
+export const CreateTodoDocument = gql`
+  mutation createTodo($data: CreateTodoInput!) {
+    createTodo(data: $data) {
+      author {
+        name
+        email
+        id
+      }
+      id
+      todoTitle
+      timeStamp
+      fileName
+      todoBody
+      todoAuthorId
+    }
+  }
+`;
+export class CreateTodoComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<CreateTodoMutation, CreateTodoVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<CreateTodoMutation, CreateTodoVariables>
+        mutation={CreateTodoDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type CreateTodoProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<CreateTodoMutation, CreateTodoVariables>
+> &
+  TChildProps;
+export type CreateTodoMutationFn = ReactApollo.MutationFn<
+  CreateTodoMutation,
+  CreateTodoVariables
+>;
+export function CreateTodoHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        CreateTodoMutation,
+        CreateTodoVariables,
+        CreateTodoProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    CreateTodoMutation,
+    CreateTodoVariables,
+    CreateTodoProps<TChildProps>
+  >(CreateTodoDocument, operationOptions);
 }
 export const LoginDocument = gql`
   mutation Login($email: String!, $password: String!) {
