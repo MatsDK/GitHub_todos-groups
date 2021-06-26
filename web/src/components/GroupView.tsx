@@ -30,10 +30,9 @@ const GroupView: React.FC<Props> = ({
   const [todos, setTodos] = useState<Array<GroupTodos>>(group.todos.reverse());
 
   useEffect(() => {
-    setTodos(group.todos);
-
+    setTodos(group.todos.reverse());
     return () => {};
-  }, [todos, group]);
+  }, [group]);
 
   return (
     <>

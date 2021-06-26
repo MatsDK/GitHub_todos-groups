@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { Ctx, Field, ID, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -8,6 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User";
+import { Comment } from "./Comment";
+import { MyContext } from "src/types/MyContext";
 
 @ObjectType()
 @Entity()
@@ -46,4 +48,10 @@ export class Todo extends BaseEntity {
   })
   @JoinColumn({ name: "todoAuthorId" })
   author: Promise<User>;
+
+  @Field(() => [Comment])
+  async comments(@Ctx() ctx: MyContext) {
+    return ctx.commentsLoader.load(this.id);
+    // return Comment.find({ where: { todoId: this.id } });
+  }
 }

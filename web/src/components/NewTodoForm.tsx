@@ -39,7 +39,14 @@ const newTodoForm: React.SFC<Props> = ({ groupId, setTodos, path }) => {
 
               if (!res || !res.data || !res.data.createTodo) return;
 
-              setTodos(res.data.createTodo.reverse());
+              setTodos(
+                res.data.createTodo
+                  .reverse()
+                  .filter((_: GroupTodos) =>
+                    _.fileName.includes(path.join("/"))
+                  )
+              );
+              // setTodos(res.data.createTodo.reverse());
             }}
             initialValues={{
               fileName: pathPlaceHolder,
