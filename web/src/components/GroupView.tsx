@@ -26,7 +26,6 @@ const GroupView: React.FC<Props> = ({
   repoData,
   path: { groupId, path },
 }) => {
-  console.log(group);
   const [todos, setTodos] = useState<Array<GroupTodos>>(group.todos.reverse());
 
   useEffect(() => {

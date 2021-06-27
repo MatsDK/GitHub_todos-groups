@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 
+type reqContext = Request & { userId: number };
+
 export interface MyContext {
-  req: Request;
+  req: reqContext;
   res: Response;
   usersLoader: any;
   groupsLoader: any;

@@ -49,7 +49,7 @@ export const isAuth: MiddlewareFn<MyContext> = async ({ context }, next) => {
     (context.req as any).userId = decodedRefreshToken.userId;
 
   const user = await User.findOne(decodedRefreshToken.userId);
-  if (!user) return null;
+  if (!user || user.count != decodedRefreshToken.count) return null;
 
   const newRefreshToken: string = createRefreshToken(user),
     newAccessToken: string = createAccessToken(user);

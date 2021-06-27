@@ -9,5 +9,5 @@ export interface NextContextWithApollo extends NextPageContext {
 
 export interface NextFunctionComponent<T = {}> {
   (props: T): any;
-  getInitialProps: (props: NextContextWithApollo) => Promise<any>;
+  getInitialProps?: (props: NextContextWithApollo) => Promise<any>;
 }

@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { GroupGroup, GroupQuery } from "../../generated/apolloComponents";
+import { GroupGroup, GroupQuery, MeMe } from "../../generated/apolloComponents";
 import { GetRepoObjectQuery } from "../../generated/github-apollo-components";
 import { getRepoObject } from "../../github-graphql/query/getRepo";
 import { groupQuery } from "../../graphql/group/query/group";
@@ -8,10 +8,12 @@ import { redirect } from "../../lib/redirect";
 import Layout from "../../src/components/Layout";
 import { responseIsInvalid } from "../../src/isResponseValid";
 import GroupContainer from "../../src/components/GroupContainer";
+import { withAuth } from "../../lib/HOC/withAuth";
 
 interface Props {
   groupData: GroupGroup;
   repoData: GetRepoObjectQuery;
+  me: MeMe;
 }
 
 const Group: NextFunctionComponent<Props> = ({}) => {
@@ -52,4 +54,4 @@ Group.getInitialProps = async ({ apolloClient, ...ctx }) => {
   return { groupData: response.data, repoData: githubRes.data };
 };
 
-export default Group;
+export default withAuth(Group);

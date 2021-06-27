@@ -14,7 +14,7 @@ interface authPageProps {
   me: MeMe;
 }
 
-const auth: any = ({ me }: authPageProps) => {
+const auth: React.FC<authPageProps> = ({ me }) => {
   const router = useRouter();
   const [groups] = useState<MeGroups[]>(me.groups);
   const [invites] = useState<MeInvites[]>(me.invites);

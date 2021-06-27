@@ -1,5 +1,5 @@
 import { MyContext } from "../../../src/types/MyContext";
-import { Resolver, Query, Ctx, UseMiddleware } from "type-graphql";
+import { Resolver, Query, Ctx, UseMiddleware, Mutation } from "type-graphql";
 import { User } from "../../entity/User";
 import { isAuth } from "../middleware/isAuth";
 
@@ -16,5 +16,21 @@ export class MeResolver {
   @Query(() => [User])
   async users(): Promise<User[]> {
     return User.find();
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Boolean, { nullable: true })
+  async invalidateTokens(@Ctx() { req, res }: MyContext): Promise<boolean> {
+    if (!req.userId) return false;
+
+    const user = await User.findOne(req.userId);
+    if (!user) return false;
+
+    user.count += 1;
+    await user.save();
+
+    res.clearCookie("access-token");
+
+    return true;
   }
 }
