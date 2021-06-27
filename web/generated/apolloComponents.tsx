@@ -1,5 +1,19 @@
 type Maybe<T> = T | null;
 
+export type Comment = {
+  id: string;
+  text: string;
+  todoId: number;
+  commentAuthorId: number;
+  timeStamp: string;
+  author: User;
+};
+
+export type CreateCommentInput = {
+  text: string;
+  todoId: number;
+};
+
 export type CreateTodoInput = {
   todoTitle: string;
   todoBody: string;
@@ -23,12 +37,17 @@ export type Invite = {
 };
 
 export type Mutation = {
+  createComment: Comment;
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
   createTodo?: Maybe<Array<Todo>>;
   login?: Maybe<User>;
   logout: boolean;
   register: User;
+};
+
+export type MutationCreateCommentArgs = {
+  data: CreateCommentInput;
 };
 
 export type MutationCreateGroupArgs = {
@@ -57,12 +76,17 @@ export type MutationRegisterArgs = {
 };
 
 export type Query = {
+  comments: Array<Comment>;
   group?: Maybe<Group>;
   groups: Array<Group>;
   getTodos: Array<Todo>;
   todos: Array<Todo>;
   me?: Maybe<User>;
   users: Array<User>;
+};
+
+export type QueryCommentsArgs = {
+  todoId: number;
 };
 
 export type QueryGroupArgs = {
@@ -90,6 +114,7 @@ export type Todo = {
   timeStamp: string;
   fileName: string;
   author: User;
+  comments: Array<Comment>;
 };
 
 export type User = {
@@ -160,6 +185,8 @@ export type GroupTodos = {
 
   author: GroupAuthor;
 
+  comments: GroupComments[];
+
   id: string;
 
   todoTitle: string;
@@ -181,6 +208,64 @@ export type GroupAuthor = {
   email: string;
 
   id: string;
+};
+
+export type GroupComments = {
+  __typename?: "Comment";
+
+  text: string;
+
+  timeStamp: string;
+
+  todoId: number;
+
+  author: Group_Author;
+};
+
+export type Group_Author = {
+  __typename?: "User";
+
+  name: string;
+
+  id: string;
+
+  email: string;
+};
+
+export type CreateCommentVariables = {
+  data: CreateCommentInput;
+};
+
+export type CreateCommentMutation = {
+  __typename?: "Mutation";
+
+  createComment: CreateCommentCreateComment;
+};
+
+export type CreateCommentCreateComment = {
+  __typename?: "Comment";
+
+  text: string;
+
+  todoId: number;
+
+  id: string;
+
+  timeStamp: string;
+
+  commentAuthorId: number;
+
+  author: CreateCommentAuthor;
+};
+
+export type CreateCommentAuthor = {
+  __typename?: "User";
+
+  id: string;
+
+  name: string;
+
+  email: string;
 };
 
 export type CreateTodoVariables = {
@@ -379,6 +464,16 @@ export const GroupDocument = gql`
           email
           id
         }
+        comments {
+          text
+          timeStamp
+          todoId
+          author {
+            name
+            id
+            email
+          }
+        }
         id
         todoTitle
         timeStamp
@@ -421,6 +516,61 @@ export function GroupHOC<TProps, TChildProps = any>(
     GroupVariables,
     GroupProps<TChildProps>
   >(GroupDocument, operationOptions);
+}
+export const CreateCommentDocument = gql`
+  mutation CreateComment($data: CreateCommentInput!) {
+    createComment(data: $data) {
+      text
+      todoId
+      id
+      timeStamp
+      commentAuthorId
+      author {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+export class CreateCommentComponent extends React.Component<
+  Partial<
+    ReactApollo.MutationProps<CreateCommentMutation, CreateCommentVariables>
+  >
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<CreateCommentMutation, CreateCommentVariables>
+        mutation={CreateCommentDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type CreateCommentProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<CreateCommentMutation, CreateCommentVariables>
+> &
+  TChildProps;
+export type CreateCommentMutationFn = ReactApollo.MutationFn<
+  CreateCommentMutation,
+  CreateCommentVariables
+>;
+export function CreateCommentHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        CreateCommentMutation,
+        CreateCommentVariables,
+        CreateCommentProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    CreateCommentMutation,
+    CreateCommentVariables,
+    CreateCommentProps<TChildProps>
+  >(CreateCommentDocument, operationOptions);
 }
 export const CreateTodoDocument = gql`
   mutation createTodo($data: CreateTodoInput!) {

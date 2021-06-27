@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useState } from "react";
@@ -14,6 +13,7 @@ import {
 } from "../../generated/github-apollo-components";
 import { PathArrow } from "./icons";
 import NewTodoForm from "./NewTodoForm";
+import Todo from "./Todo";
 
 interface Props {
   group: GroupGroup;
@@ -26,7 +26,7 @@ const GroupView: React.FC<Props> = ({
   repoData,
   path: { groupId, path },
 }) => {
-  console.log(group.todos);
+  console.log(group);
   const [todos, setTodos] = useState<Array<GroupTodos>>(group.todos.reverse());
 
   useEffect(() => {
@@ -55,23 +55,9 @@ const GroupView: React.FC<Props> = ({
             groupId={parseInt(group.id)}
             setTodos={setTodos}
           />
-          {todos.map((_: GroupTodos, idx: number) => {
-            return (
-              <div key={idx}>
-                <p style={{ marginBottom: 0, marginTop: "10px" }}>
-                  {_.author.name}
-                  {" - "}
-                  {_.author.email}
-                  {" - "}
-                  {dayjs(_.timeStamp).format("MMMM D, YYYY h:mm A")}
-                </p>
-                <div>
-                  <b>{_.todoTitle}</b>
-                  <span>{_.todoBody}</span>
-                </div>
-              </div>
-            );
-          })}
+          {todos.map((_: GroupTodos, idx: number) => (
+            <Todo todo={_} key={idx} />
+          ))}
         </div>
       </div>
     </>

@@ -50,8 +50,7 @@ export class Todo extends BaseEntity {
   author: Promise<User>;
 
   @Field(() => [Comment])
-  async comments(@Ctx() ctx: MyContext) {
+  comments(@Ctx() ctx: MyContext): Promise<Comment[]> {
     return ctx.commentsLoader.load(this.id);
-    // return Comment.find({ where: { todoId: this.id } });
   }
 }

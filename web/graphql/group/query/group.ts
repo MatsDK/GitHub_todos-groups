@@ -19,6 +19,16 @@ export const groupQuery = gql`
           email
           id
         }
+        comments {
+          text
+          timeStamp
+          todoId
+          author {
+            name
+            id
+            email
+          }
+        }
         id
         todoTitle
         timeStamp
