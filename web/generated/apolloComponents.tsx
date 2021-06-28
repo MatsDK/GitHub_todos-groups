@@ -43,6 +43,7 @@ export type Mutation = {
   createTodo?: Maybe<Array<Todo>>;
   login?: Maybe<User>;
   logout: boolean;
+  invalidateTokens?: Maybe<boolean>;
   register: User;
 };
 
@@ -123,8 +124,10 @@ export type User = {
   lastName: string;
   email: string;
   name: string;
+  pictureUrl?: Maybe<string>;
   groups: Array<Group>;
   invites: Array<Group>;
+  isOwner?: Maybe<boolean>;
 };
 
 // ====================================================
@@ -178,6 +181,10 @@ export type GroupUsers = {
   id: string;
 
   name: string;
+
+  isOwner: Maybe<boolean>;
+
+  pictureUrl: Maybe<string>;
 };
 
 export type GroupTodos = {
@@ -208,6 +215,8 @@ export type GroupAuthor = {
   email: string;
 
   id: string;
+
+  pictureUrl: Maybe<string>;
 };
 
 export type GroupComments = {
@@ -230,6 +239,8 @@ export type Group_Author = {
   id: string;
 
   email: string;
+
+  pictureUrl: Maybe<string>;
 };
 
 export type CreateCommentVariables = {
@@ -266,6 +277,8 @@ export type CreateCommentAuthor = {
   name: string;
 
   email: string;
+
+  pictureUrl: Maybe<string>;
 };
 
 export type CreateTodoVariables = {
@@ -304,6 +317,8 @@ export type CreateTodoAuthor = {
   email: string;
 
   id: string;
+
+  pictureUrl: Maybe<string>;
 };
 
 export type LoginVariables = {
@@ -373,6 +388,8 @@ export type MeMe = {
   email: string;
 
   id: string;
+
+  pictureUrl: Maybe<string>;
 
   invites: MeInvites[];
 
@@ -457,12 +474,15 @@ export const GroupDocument = gql`
         email
         id
         name
+        isOwner
+        pictureUrl
       }
       todos {
         author {
           name
           email
           id
+          pictureUrl
         }
         comments {
           text
@@ -472,6 +492,7 @@ export const GroupDocument = gql`
             name
             id
             email
+            pictureUrl
           }
         }
         id
@@ -529,6 +550,7 @@ export const CreateCommentDocument = gql`
         id
         name
         email
+        pictureUrl
       }
     }
   }
@@ -579,6 +601,7 @@ export const CreateTodoDocument = gql`
         name
         email
         id
+        pictureUrl
       }
       id
       todoTitle
@@ -767,6 +790,7 @@ export const MeDocument = gql`
       name
       email
       id
+      pictureUrl
       invites {
         id
         name

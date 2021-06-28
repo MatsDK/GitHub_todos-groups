@@ -16,14 +16,14 @@ interface Props {
   me: MeMe;
 }
 
-const Group: NextFunctionComponent<Props> = ({}) => {
+const Group: NextFunctionComponent<Props> = ({ me }) => {
   const router = useRouter();
   if (!router || !router.query) return null;
   const { group } = router.query;
 
   return (
-    <Layout title="Group">
-      <GroupContainer path={[]} group={group as string} />
+    <Layout me={me} title="Group">
+      <GroupContainer me={me} path={[]} group={group as string} />
     </Layout>
   );
 };

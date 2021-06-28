@@ -5,28 +5,35 @@ import {
   GroupGroup,
   GroupTodos,
   GroupUsers,
+  MeMe,
 } from "../../generated/apolloComponents";
 import {
   GetRepoObjectBlobInlineFragment,
   GetRepoObjectRepository,
   GetRepoObjectTreeInlineFragment,
 } from "../../generated/github-apollo-components";
+import { sortDates } from "../sortDates";
 import { PathArrow } from "./icons";
 import NewTodoForm from "./NewTodoForm";
 import Todo from "./Todo";
+import Picture from "../ui/Picture";
 
 interface Props {
   group: GroupGroup;
   repoData: GetRepoObjectRepository;
   path: { groupId: string; path: string[] };
+  me: MeMe;
 }
 
 const GroupView: React.FC<Props> = ({
   group,
   repoData,
   path: { groupId, path },
+  me,
 }) => {
-  const [todos, setTodos] = useState<Array<GroupTodos>>(group.todos.reverse());
+  const [todos, setTodos] = useState<Array<GroupTodos>>(
+    sortDates(group.todos, "timeStamp")
+  );
 
   useEffect(() => {
     setTodos(group.todos.reverse());
@@ -40,7 +47,10 @@ const GroupView: React.FC<Props> = ({
         <h2>users</h2>
         {group.users.map((user: GroupUsers, idx: number) => (
           <div style={{ display: "flex" }} key={idx}>
+            {user.pictureUrl && <Picture src={user.pictureUrl} />}
             <p>{user.name}</p> <p>--</p> <p>{user.email}</p>
+            <p>{user.id == me.id && "(you)"} </p>
+            <p>{user.isOwner && "--owner"}</p>
           </div>
         ))}
         <FilePath path={[group.name, ...path]} group={parseInt(group.id)} />

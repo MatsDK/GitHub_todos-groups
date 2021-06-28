@@ -6,6 +6,7 @@ import Express from "express";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
+import { createAuthorsLoader } from "./utils/dataLoaders/authorsLoader";
 import { createCommentsLoader } from "./utils/dataLoaders/commentsLoader";
 import { createGroupsLoader } from "./utils/dataLoaders/groupsLoader";
 import { createInvitesLoader } from "./utils/dataLoaders/invitesLoader";
@@ -40,6 +41,7 @@ dotenv.config();
       groupsLoader: createGroupsLoader(),
       invitesLoader: createInvitesLoader(),
       commentsLoader: createCommentsLoader(),
+      authorsLoader: createAuthorsLoader(),
     }),
   });
 

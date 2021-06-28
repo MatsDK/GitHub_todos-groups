@@ -26,7 +26,7 @@ export class commentResolver {
     @Ctx() ctx: MyContext,
     @Arg("data") { text, todoId }: CreateCommentInput
   ): Promise<Comment> {
-    const timeStamp = dayjs().format("YYYY-MM-DD HH:mm");
+    const timeStamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
     const comment = await Comment.create({
       commentAuthorId: (ctx.req as any).userId,

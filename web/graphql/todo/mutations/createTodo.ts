@@ -7,6 +7,7 @@ export const joinGroupMutation = gql`
         name
         email
         id
+        pictureUrl
       }
       id
       todoTitle

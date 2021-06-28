@@ -1,4 +1,5 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { MyContext } from "src/types/MyContext";
+import { Ctx, Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 
@@ -26,7 +27,7 @@ export class Comment extends BaseEntity {
   timeStamp: string;
 
   @Field(() => User)
-  async author(): Promise<User | undefined> {
-    return User.findOne(this.commentAuthorId);
+  async author(@Ctx() { authorsLoader }: MyContext): Promise<User | undefined> {
+    return authorsLoader.load(this.commentAuthorId);
   }
 }

@@ -1,13 +1,17 @@
 import * as React from "react";
 import Link from "next/link";
 import Head from "next/head";
+import { MeMe } from "../../generated/apolloComponents";
+import Picture from "../ui/Picture";
 
 type Props = {
   title?: string;
+  me?: MeMe;
 };
 
 const Layout: React.FunctionComponent<Props> = ({
   children,
+  me,
   title = "Home",
 }) => (
   <div>
@@ -42,6 +46,14 @@ const Layout: React.FunctionComponent<Props> = ({
           <h3>logout</h3>
         </div>
       </Link>
+
+      {me && (
+        <div>
+          {me.pictureUrl && <Picture src={me.pictureUrl} />}
+          {me.name}
+          {me.email}
+        </div>
+      )}
     </nav>
     {children}
   </div>

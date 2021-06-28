@@ -21,9 +21,11 @@ const batchUsers = async (ids: number[]): Promise<Array<User[]>> => {
   const map: Map<number, User[]> = new Map();
 
   data.forEach((_) => {
+    const thisObj: User = { ...(_ as any).__user__, isOwner: _.isOwner };
+
     if (map.has(_.groupId))
-      map.set(_.groupId, [...(map.get(_.groupId) || []), (_ as any).__user__]);
-    else map.set(_.groupId, [(_ as any).__user__]);
+      map.set(_.groupId, [...(map.get(_.groupId) || []), thisObj]);
+    else map.set(_.groupId, [thisObj]);
   });
 
   return ids.map((_: number) => map.get(_) || []);

@@ -12,12 +12,15 @@ export const groupQuery = gql`
         email
         id
         name
+        isOwner
+        pictureUrl
       }
       todos {
         author {
           name
           email
           id
+          pictureUrl
         }
         comments {
           text
@@ -27,6 +30,7 @@ export const groupQuery = gql`
             name
             id
             email
+            pictureUrl
           }
         }
         id

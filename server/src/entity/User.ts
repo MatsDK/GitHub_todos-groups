@@ -4,12 +4,10 @@ import {
   BaseEntity,
   Column,
   Entity,
-  JoinColumn,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Group } from "./Group";
-import { Todo } from "./Todo";
 
 @ObjectType()
 @Entity()
@@ -38,6 +36,10 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  pictureUrl: string;
+
   @Column("int", { nullable: true, default: 0 })
   count: number;
 
@@ -54,10 +56,6 @@ export class User extends BaseEntity {
     return invitesLoader.load(this.id);
   }
 
-  @OneToMany(() => Todo, (todo) => todo.author, {
-    primary: true,
-    nullable: true,
-  })
-  @JoinColumn({ name: "todoId" })
-  todos: Promise<Todo[]>;
+  @Field({ nullable: true })
+  isOwner: boolean;
 }

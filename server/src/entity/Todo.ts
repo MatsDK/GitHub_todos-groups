@@ -1,12 +1,5 @@
 import { Ctx, Field, ID, ObjectType } from "type-graphql";
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 import { Comment } from "./Comment";
 import { MyContext } from "src/types/MyContext";
@@ -42,12 +35,10 @@ export class Todo extends BaseEntity {
   @Column({ default: "" })
   fileName: string;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (user) => user.todos, {
-    primary: true,
-  })
-  @JoinColumn({ name: "todoAuthorId" })
-  author: Promise<User>;
+  @Field(() => User, { nullable: true })
+  author(@Ctx() { authorsLoader }: MyContext): Promise<User> {
+    return authorsLoader.load(this.todoAuthorId);
+  }
 
   @Field(() => [Comment])
   comments(@Ctx() ctx: MyContext): Promise<Comment[]> {

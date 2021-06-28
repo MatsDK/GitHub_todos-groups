@@ -12,6 +12,7 @@ export const joinGroupMutation = gql`
         id
         name
         email
+        pictureUrl
       }
     }
   }

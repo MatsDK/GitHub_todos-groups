@@ -20,13 +20,7 @@ const auth: React.FC<authPageProps> = ({ me }) => {
   const [invites] = useState<MeInvites[]>(me.invites);
 
   return (
-    <Layout title="Dashboard">
-      <div>
-        <span>{me.name}</span>
-      </div>
-      <div>
-        <span>{me.email}</span>
-      </div>
+    <Layout me={me} title="Dashboard">
       <div>
         <b>Groups</b>
         {groups.map((_: MeGroups, idx: number) => (

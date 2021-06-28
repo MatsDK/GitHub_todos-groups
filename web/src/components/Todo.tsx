@@ -8,6 +8,8 @@ import {
 } from "../../generated/apolloComponents";
 import { InputField } from "./inputField";
 import { Formik, Field } from "formik";
+import { sortDates } from "../sortDates";
+import Picture from "../ui/Picture";
 
 interface Props {
   todo: GroupTodos;
@@ -16,12 +18,13 @@ interface Props {
 const Todo: React.FC<Props> = ({ todo }) => {
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
   const [comments, setComments] = useState<GroupComments[]>(
-    todo.comments.reverse()
+    sortDates(todo.comments || [], "timeStamp")
   );
 
   return (
     <div>
       <p style={{ marginBottom: 0, marginTop: "10px" }}>
+        {todo.author.pictureUrl && <Picture src={todo.author.pictureUrl} />}
         {todo.author.name}
         {" - "}
         {todo.author.email}
@@ -35,7 +38,11 @@ const Todo: React.FC<Props> = ({ todo }) => {
 
       <button onClick={() => setShowCommentForm((_) => !_)}>Comment</button>
       {showCommentForm && (
-        <CommentForm todoId={Number(todo.id)} setComments={setComments} />
+        <CommentForm
+          hideForm={() => setShowCommentForm(false)}
+          todoId={Number(todo.id)}
+          setComments={setComments}
+        />
       )}
 
       <div style={{ marginLeft: 25 }}>
@@ -50,9 +57,14 @@ const Todo: React.FC<Props> = ({ todo }) => {
 interface CommentFormProps {
   setComments: React.Dispatch<React.SetStateAction<GroupComments[]>>;
   todoId: number;
+  hideForm: () => void;
 }
 
-const CommentForm: React.FC<CommentFormProps> = ({ todoId, setComments }) => {
+const CommentForm: React.FC<CommentFormProps> = ({
+  todoId,
+  setComments,
+  hideForm,
+}) => {
   return (
     <div style={{ marginLeft: 25 }}>
       <CreateCommentComponent>
@@ -68,7 +80,10 @@ const CommentForm: React.FC<CommentFormProps> = ({ todoId, setComments }) => {
 
               if (!res || !res.data || !res.data.createComment) return;
 
-              setComments((comments) => [res.data!.createComment, ...comments]);
+              setComments(
+                (comments) => [res.data!.createComment, ...comments] as any
+              );
+              hideForm();
             }}
             initialValues={{
               text: "",
@@ -77,7 +92,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ todoId, setComments }) => {
             {({ handleSubmit }) => (
               <form onSubmit={handleSubmit}>
                 <Field name="text" placeholder="text" component={InputField} />
-                <button type="submit">create todo</button>
+                <button type="submit">create comment</button>
               </form>
             )}
           </Formik>
@@ -95,6 +110,9 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
   return (
     <div>
       <div style={{ display: "flex" }}>
+        {comment.author.pictureUrl && (
+          <Picture src={comment.author.pictureUrl} />
+        )}
         <p>{comment.author.name}</p>
         <p>{comment.author.email}</p>
         <p>{dayjs(comment.timeStamp).format("MMMM D, YYYY h:mm A")}</p>

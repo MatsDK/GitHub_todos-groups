@@ -6,6 +6,7 @@ export const meQuery = gql`
       name
       email
       id
+      pictureUrl
       invites {
         id
         name

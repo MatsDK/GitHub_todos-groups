@@ -21,7 +21,7 @@ export class TodoResolver {
     { todoBody, todoTitle, fileName, todoGroupId }: CreateTodoInput,
     @Ctx() ctx: MyContext
   ): Promise<Todo[] | undefined> {
-    const timeStamp = dayjs().format("YYYY-MM-DD HH:mm");
+    const timeStamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
     await Todo.create({
       todoAuthorId: (ctx.req as any).userId,

@@ -20,7 +20,11 @@ export class GroupUserResolver {
 
     await group.save();
 
-    const user_group = GroupUser.create({ groupId: group.id, userId });
+    const user_group = GroupUser.create({
+      groupId: group.id,
+      userId,
+      isOwner: true,
+    });
     await user_group.save();
 
     return group;
@@ -34,7 +38,11 @@ export class GroupUserResolver {
       await GroupUser.create({
         groupId,
         userId: (ctx.req as any).userId,
-      }).save();
+      })
+        .save()
+        .catch(() => {
+          console.log("already in group");
+        });
 
       await Invite.delete({
         group_id: groupId,
