@@ -21,20 +21,27 @@ export class commentResolver {
   }
 
   @UseMiddleware(isAuth)
-  @Mutation(() => Comment)
+  @Mutation(() => Comment, {nullable: true})
   async createComment(
     @Ctx() ctx: MyContext,
-    @Arg("data") { text, todoId }: CreateCommentInput
+    @Arg("data") { text, todoId, parentCommentId }: CreateCommentInput
   ): Promise<Comment> {
     const timeStamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
     const comment = await Comment.create({
       commentAuthorId: (ctx.req as any).userId,
+      parentCommentId,
       text,
       todoId,
       timeStamp,
     }).save();
 
     return comment;
+  }
+
+  @UseMiddleware(isAuth)
+  @Query(() => [Comment])
+  async nestedComments(@Arg("parentCommentId") parentCommentId: number) {
+    return Comment.find({where : {parentCommentId}})
   }
 }

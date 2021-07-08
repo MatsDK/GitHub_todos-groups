@@ -24,10 +24,10 @@ const Todo: React.FC<Props> = ({ todo }) => {
   return (
     <div>
       <p style={{ marginBottom: 0, marginTop: "10px" }}>
-        {todo.author.pictureUrl && <Picture src={todo.author.pictureUrl} />}
-        {todo.author.name}
+        {todo.author!.pictureUrl && <Picture src={todo.author!.pictureUrl} />}
+        {todo.author!.name}
         {" - "}
-        {todo.author.email}
+        {todo.author!.email}
         {" - "}
         {dayjs(todo.timeStamp).format("MMMM D, YYYY h:mm A")}
       </p>
@@ -45,7 +45,9 @@ const Todo: React.FC<Props> = ({ todo }) => {
         />
       )}
 
-      <div style={{ marginLeft: 25 }}>
+      <div
+        style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}
+      >
         {comments.map((comment: GroupComments, idx: number) => (
           <Comment comment={comment} key={idx} />
         ))}
@@ -66,7 +68,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
   hideForm,
 }) => {
   return (
-    <div style={{ marginLeft: 25 }}>
+    <div style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}>
       <CreateCommentComponent>
         {(createComment) => (
           <Formik
@@ -75,7 +77,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
             validateOnChange={false}
             onSubmit={async (data) => {
               const res = await createComment({
-                variables: { data: { todoId, ...data } },
+                variables: { data: { todoId, ...data, parentCommentId: null } },
               });
 
               if (!res || !res.data || !res.data.createComment) return;
@@ -107,6 +109,11 @@ interface CommentProps {
 }
 
 const Comment: React.FC<CommentProps> = ({ comment }) => {
+  const [nestedComments, setNestedComments] = useState<GroupComments[]>(
+    sortDates(comment.comments as any || [], "timeStamp") 
+  );
+  const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
+
   return (
     <div>
       <div style={{ display: "flex" }}>
@@ -117,7 +124,85 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
         <p>{comment.author.email}</p>
         <p>{dayjs(comment.timeStamp).format("MMMM D, YYYY h:mm A")}</p>
       </div>
-      <span>{comment.text}</span>
+      <div
+        style={{
+          marginBottom: 10,
+          padding: 15,
+          marginLeft: 10,
+          borderLeft: "1px solid black",
+        }}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <span>{comment.text}</span>
+        </div>
+
+        <button
+          onClick={() =>
+            setShowCommentForm((showCommentForm) => !showCommentForm)
+          }
+        >
+          Comment
+        </button>
+        {showCommentForm && (
+          <NestedCommentForm
+            todoId={comment.todoId}
+            parentCommentId={parseInt(comment.id)}
+            setNestedComments={setNestedComments}
+          />
+        )}
+
+        {nestedComments.map((_: GroupComments, idx: number) => (
+          <Comment comment={_} key={idx}/>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface NestedCommentFormProps {
+  todoId: number;
+  parentCommentId: number;
+  setNestedComments:React.Dispatch<React.SetStateAction<GroupComments[]>>
+}
+
+const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
+  todoId,
+  parentCommentId,
+  setNestedComments
+}) => {
+  return (
+    <div style={{ marginLeft: 25 }}>
+      <CreateCommentComponent>
+        {(createComment) => (
+          <Formik
+            validateOnBlur={false}
+            enableReinitialize={true}
+            validateOnChange={false}
+            onSubmit={async (data) => {
+              const res = await createComment({
+                variables: {
+                  data: { todoId, text: data.text, parentCommentId },
+                },
+              });
+
+              if (!res || !res.data || !res.data.createComment) return;
+
+              
+              setNestedComments(nestedComments => [res.data?.createComment as any, ...nestedComments])
+            }}
+            initialValues={{
+              text: "",
+            }}
+          >
+            {({ handleSubmit }) => (
+              <form onSubmit={handleSubmit}>
+                <Field name="text" placeholder="text" component={InputField} />
+                <button type="submit">create comment</button>
+              </form>
+            )}
+          </Formik>
+        )}
+      </CreateCommentComponent>
     </div>
   );
 };

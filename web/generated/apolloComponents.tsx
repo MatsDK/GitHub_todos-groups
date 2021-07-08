@@ -6,12 +6,15 @@ export type Comment = {
   todoId: number;
   commentAuthorId: number;
   timeStamp: string;
+  parentCommentId?: Maybe<string>;
+  comments: Array<Comment>;
   author: User;
 };
 
 export type CreateCommentInput = {
   text: string;
   todoId: number;
+  parentCommentId: Maybe<number>;
 };
 
 export type CreateTodoInput = {
@@ -37,7 +40,7 @@ export type Invite = {
 };
 
 export type Mutation = {
-  createComment: Comment;
+  createComment?: Maybe<Comment>;
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
   createTodo?: Maybe<Array<Todo>>;
@@ -78,6 +81,7 @@ export type MutationRegisterArgs = {
 
 export type Query = {
   comments: Array<Comment>;
+  nestedComments: Array<Comment>;
   group?: Maybe<Group>;
   groups: Array<Group>;
   getTodos: Array<Todo>;
@@ -88,6 +92,10 @@ export type Query = {
 
 export type QueryCommentsArgs = {
   todoId: number;
+};
+
+export type QueryNestedCommentsArgs = {
+  parentCommentId: number;
 };
 
 export type QueryGroupArgs = {
@@ -114,7 +122,7 @@ export type Todo = {
   todoAuthorId: number;
   timeStamp: string;
   fileName: string;
-  author: User;
+  author?: Maybe<User>;
   comments: Array<Comment>;
 };
 
@@ -190,7 +198,7 @@ export type GroupUsers = {
 export type GroupTodos = {
   __typename?: "Todo";
 
-  author: GroupAuthor;
+  author: Maybe<GroupAuthor>;
 
   comments: GroupComments[];
 
@@ -228,10 +236,40 @@ export type GroupComments = {
 
   todoId: number;
 
+  id: string;
+
+  comments: Group_Comments[];
+
+  author: Group__Author;
+};
+
+export type Group_Comments = {
+  __typename?: "Comment";
+
+  text: string;
+
+  timeStamp: string;
+
+  todoId: number;
+
+  id: string;
+
   author: Group_Author;
 };
 
 export type Group_Author = {
+  __typename?: "User";
+
+  name: string;
+
+  id: string;
+
+  email: string;
+
+  pictureUrl: Maybe<string>;
+};
+
+export type Group__Author = {
   __typename?: "User";
 
   name: string;
@@ -250,7 +288,7 @@ export type CreateCommentVariables = {
 export type CreateCommentMutation = {
   __typename?: "Mutation";
 
-  createComment: CreateCommentCreateComment;
+  createComment: Maybe<CreateCommentCreateComment>;
 };
 
 export type CreateCommentCreateComment = {
@@ -294,7 +332,7 @@ export type CreateTodoMutation = {
 export type CreateTodoCreateTodo = {
   __typename?: "Todo";
 
-  author: CreateTodoAuthor;
+  author: Maybe<CreateTodoAuthor>;
 
   id: string;
 
@@ -488,6 +526,19 @@ export const GroupDocument = gql`
           text
           timeStamp
           todoId
+          id
+          comments {
+            text
+            timeStamp
+            todoId
+            id
+            author {
+              name
+              id
+              email
+              pictureUrl
+            }
+          }
           author {
             name
             id

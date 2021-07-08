@@ -1,13 +1,13 @@
+import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import Express from "express";
-import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { createAuthorsLoader } from "./utils/dataLoaders/authorsLoader";
-import { createCommentsLoader } from "./utils/dataLoaders/commentsLoader";
+import { createCommentsLoader, createNestedCommentsLoader } from "./utils/dataLoaders/commentsLoader";
 import { createGroupsLoader } from "./utils/dataLoaders/groupsLoader";
 import { createInvitesLoader } from "./utils/dataLoaders/invitesLoader";
 import { createUsersLoader } from "./utils/dataLoaders/usersLoader";
@@ -28,20 +28,24 @@ dotenv.config();
     entities: ["src/entity/*.*"],
   });
 
-  const schema = await buildSchema({
-    resolvers: [__dirname + "/modules/**/*.ts"],
-  });
+  const dataLoaders = {
+    usersLoader: createUsersLoader(),
+    groupsLoader: createGroupsLoader(),
+    invitesLoader: createInvitesLoader(),
+    commentsLoader: createCommentsLoader(),
+    authorsLoader: createAuthorsLoader(),
+    nestedCommentsLoader: createNestedCommentsLoader()
+  }
+
 
   const apolloServer = new ApolloServer({
-    schema,
+    schema: await buildSchema({
+      resolvers: [__dirname + "/modules/**/*.ts"],
+    }),
     context: ({ req, res }: any) => ({
       req,
       res,
-      usersLoader: createUsersLoader(),
-      groupsLoader: createGroupsLoader(),
-      invitesLoader: createInvitesLoader(),
-      commentsLoader: createCommentsLoader(),
-      authorsLoader: createAuthorsLoader(),
+      ...dataLoaders
     }),
   });
 

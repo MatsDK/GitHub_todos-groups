@@ -9,4 +9,7 @@ export class CreateCommentInput {
 
   @Field(() => Float)
   todoId: number;
+
+  @Field(() => Float, {nullable: true})
+  parentCommentId: number
 }

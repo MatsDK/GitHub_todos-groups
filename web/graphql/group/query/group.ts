@@ -26,6 +26,19 @@ export const groupQuery = gql`
           text
           timeStamp
           todoId
+          id
+          comments {
+            text
+            timeStamp
+            todoId
+            id
+            author {
+              name
+              id
+              email
+              pictureUrl
+            }
+          }
           author {
             name
             id

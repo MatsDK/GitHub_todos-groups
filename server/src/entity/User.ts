@@ -47,12 +47,12 @@ export class User extends BaseEntity {
   groupConnection: Promise<Group[]>;
 
   @Field(() => [Group])
-  async groups(@Ctx() { groupsLoader }: MyContext): Promise<Group[]> {
+  groups(@Ctx() { groupsLoader }: MyContext): Promise<Group[]> {
     return groupsLoader.load(this.id);
   }
 
   @Field(() => [Group])
-  async invites(@Ctx() { invitesLoader }: MyContext): Promise<Group[]> {
+  invites(@Ctx() { invitesLoader }: MyContext): Promise<Group[]> {
     return invitesLoader.load(this.id);
   }
 

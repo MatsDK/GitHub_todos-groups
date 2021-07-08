@@ -26,8 +26,17 @@ export class Comment extends BaseEntity {
   @Column()
   timeStamp: string;
 
+  @Field(() => ID, { nullable: true })
+  @Column({ nullable: true })
+  parentCommentId: number;
+
+  @Field(() => [Comment])
+  comments(@Ctx() { nestedCommentsLoader }: MyContext): Promise<Comment[]> {
+    return nestedCommentsLoader.load(this.id);
+  }
+
   @Field(() => User)
-  async author(@Ctx() { authorsLoader }: MyContext): Promise<User | undefined> {
+  author(@Ctx() { authorsLoader }: MyContext): Promise<User | undefined> {
     return authorsLoader.load(this.commentAuthorId);
   }
 }
