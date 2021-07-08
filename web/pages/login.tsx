@@ -20,7 +20,6 @@ const Login = ({ client }: { client: ApolloClient<any> }): any => {
                 variables: data,
               });
 
-              console.log(response);
               if (response && response.data && !response.data.login) {
                 return;
               }

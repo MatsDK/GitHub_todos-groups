@@ -7,10 +7,14 @@ import Express from "express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { createAuthorsLoader } from "./utils/dataLoaders/authorsLoader";
-import { createCommentsLoader, createNestedCommentsLoader } from "./utils/dataLoaders/commentsLoader";
+import {
+  createCommentsLoader,
+  createNestedCommentsLoader,
+} from "./utils/dataLoaders/commentsLoader";
 import { createGroupsLoader } from "./utils/dataLoaders/groupsLoader";
 import { createInvitesLoader } from "./utils/dataLoaders/invitesLoader";
 import { createUsersLoader } from "./utils/dataLoaders/usersLoader";
+import { createCountsLoader } from "./utils/dataLoaders/countLoader";
 
 dotenv.config();
 
@@ -34,9 +38,9 @@ dotenv.config();
     invitesLoader: createInvitesLoader(),
     commentsLoader: createCommentsLoader(),
     authorsLoader: createAuthorsLoader(),
-    nestedCommentsLoader: createNestedCommentsLoader()
-  }
-
+    nestedCommentsLoader: createNestedCommentsLoader(),
+    countsLoader: createCountsLoader(),
+  };
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -45,7 +49,7 @@ dotenv.config();
     context: ({ req, res }: any) => ({
       req,
       res,
-      ...dataLoaders
+      ...dataLoaders,
     }),
   });
 

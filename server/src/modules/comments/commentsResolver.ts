@@ -21,7 +21,13 @@ export class commentResolver {
   }
 
   @UseMiddleware(isAuth)
-  @Mutation(() => Comment, {nullable: true})
+  @Query(() => [Comment])
+  async allComments(): Promise<Comment[]> {
+    return Comment.find();
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Comment, { nullable: true })
   async createComment(
     @Ctx() ctx: MyContext,
     @Arg("data") { text, todoId, parentCommentId }: CreateCommentInput
@@ -42,6 +48,6 @@ export class commentResolver {
   @UseMiddleware(isAuth)
   @Query(() => [Comment])
   async nestedComments(@Arg("parentCommentId") parentCommentId: number) {
-    return Comment.find({where : {parentCommentId}})
+    return Comment.find({ where: { parentCommentId } });
   }
 }

@@ -9,7 +9,6 @@ export class RegisterResolver {
   async register(
     @Arg("data") { password, ...rest }: RegisterInput
   ): Promise<User> {
-    console.log(rest);
     const hashedPassword = await hash(password, 12);
 
     const user = await User.create({

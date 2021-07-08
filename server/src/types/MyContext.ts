@@ -10,5 +10,6 @@ export interface MyContext {
   invitesLoader: any;
   authorsLoader: any;
   commentsLoader: any;
-  nestedCommentsLoader: any
+  nestedCommentsLoader: any;
+  countsLoader: any;
 }

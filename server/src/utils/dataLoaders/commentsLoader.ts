@@ -4,7 +4,7 @@ import { In } from "typeorm";
 
 const batchComments = async (ids: number[]) => {
   const data = await Comment.find({
-    where: { todoId: In(ids) },
+    where: { todoId: In(ids), parentCommentId: null },
   });
 
   const map: Map<number, Comment[]> = new Map();
@@ -29,11 +29,15 @@ const batchNestedComments = async (ids: number[]) => {
 
   data.forEach((comment: Comment) => {
     if (map.has(comment.parentCommentId))
-      map.set(comment.parentCommentId, [...(map.get(comment.parentCommentId) || []), comment]);
+      map.set(comment.parentCommentId, [
+        ...(map.get(comment.parentCommentId) || []),
+        comment,
+      ]);
     else map.set(comment.parentCommentId, [comment]);
   });
 
   return ids.map((_: number) => map.get(_) || []);
 };
 
-export const createNestedCommentsLoader = () => new DataLoader(batchNestedComments as any);
+export const createNestedCommentsLoader = () =>
+  new DataLoader(batchNestedComments as any);

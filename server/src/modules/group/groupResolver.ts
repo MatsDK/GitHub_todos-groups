@@ -11,7 +11,7 @@ export class GroupUserResolver {
   @Query(() => Group, { nullable: true })
   async group(
     @Arg("groupId") groupId: number,
-    @Arg("path") path: string,
+    @Arg("path") _: string,
     @Ctx() ctx: MyContext
   ): Promise<Group | undefined> {
     if (
@@ -20,8 +20,6 @@ export class GroupUserResolver {
       }))
     )
       return undefined;
-
-    console.log(path);
 
     const group = await Group.findOne(groupId);
     if (!group) return undefined;

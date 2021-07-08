@@ -1,4 +1,4 @@
-import { Ctx, Field, ID, ObjectType } from "type-graphql";
+import { Ctx, Field, Float, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 import { Comment } from "./Comment";
@@ -41,7 +41,12 @@ export class Todo extends BaseEntity {
   }
 
   @Field(() => [Comment])
-  comments(@Ctx() ctx: MyContext): Promise<Comment[]> {
-    return ctx.commentsLoader.load(this.id);
+  comments(@Ctx() { commentsLoader }: MyContext): Promise<Comment[]> {
+    return commentsLoader.load(this.id);
+  }
+
+  @Field(() => Float)
+  commentsCount(@Ctx() { countsLoader }: MyContext): Promise<number> {
+    return countsLoader.load([this.id, null]);
   }
 }

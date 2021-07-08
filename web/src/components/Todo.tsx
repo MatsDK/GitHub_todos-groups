@@ -109,9 +109,11 @@ interface CommentProps {
 }
 
 const Comment: React.FC<CommentProps> = ({ comment }) => {
-  const [nestedComments, setNestedComments] = useState<GroupComments[]>(
-    sortDates(comment.comments as any || [], "timeStamp") 
+  const [nestedComments, setNestedComments] = useState<GroupComments[] | null>(
+    comment.comments ?
+      sortDates(comment.comments as any, "timeStamp") : null
   );
+  const [showComments, setShowcComments] = useState<boolean>(false);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
 
   return (
@@ -138,6 +140,13 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
 
         <button
           onClick={() =>
+            setShowcComments((showcomments) => !showcomments)
+          }
+        >
+          show comments
+        </button>
+        <button
+          onClick={() =>
             setShowCommentForm((showCommentForm) => !showCommentForm)
           }
         >
@@ -151,9 +160,12 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
           />
         )}
 
-        {nestedComments.map((_: GroupComments, idx: number) => (
-          <Comment comment={_} key={idx}/>
-        ))}
+        {
+          showComments && nestedComments &&
+          nestedComments.map((_: GroupComments, idx: number) => (
+            <Comment comment={_} key={idx} />
+          ))
+        }
       </div>
     </div>
   );
@@ -162,7 +174,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
 interface NestedCommentFormProps {
   todoId: number;
   parentCommentId: number;
-  setNestedComments:React.Dispatch<React.SetStateAction<GroupComments[]>>
+  setNestedComments: React.Dispatch<React.SetStateAction<GroupComments[] | null>>
 }
 
 const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
@@ -187,8 +199,7 @@ const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
 
               if (!res || !res.data || !res.data.createComment) return;
 
-              
-              setNestedComments(nestedComments => [res.data?.createComment as any, ...nestedComments])
+              setNestedComments(nestedComments => [res.data?.createComment as any, ...nestedComments as any])
             }}
             initialValues={{
               text: "",
