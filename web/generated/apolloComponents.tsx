@@ -93,6 +93,7 @@ export type Query = {
 };
 
 export type QueryCommentsArgs = {
+  skip: number;
   todoId: number;
 };
 
@@ -367,6 +368,45 @@ export type NestedCommentsNestedComments = {
 };
 
 export type NestedCommentsAuthor = {
+  __typename?: "User";
+
+  name: string;
+
+  id: string;
+
+  email: string;
+
+  pictureUrl: Maybe<string>;
+};
+
+export type LoadCommentsVariables = {
+  todoId: number;
+  skip: number;
+};
+
+export type LoadCommentsQuery = {
+  __typename?: "Query";
+
+  comments: LoadCommentsComments[];
+};
+
+export type LoadCommentsComments = {
+  __typename?: "Comment";
+
+  text: string;
+
+  timeStamp: string;
+
+  todoId: number;
+
+  id: string;
+
+  commentsCount: number;
+
+  author: LoadCommentsAuthor;
+};
+
+export type LoadCommentsAuthor = {
   __typename?: "User";
 
   name: string;
@@ -759,6 +799,56 @@ export function NestedCommentsHOC<TProps, TChildProps = any>(
     NestedCommentsVariables,
     NestedCommentsProps<TChildProps>
   >(NestedCommentsDocument, operationOptions);
+}
+export const LoadCommentsDocument = gql`
+  query loadComments($todoId: Float!, $skip: Float!) {
+    comments(todoId: $todoId, skip: $skip) {
+      text
+      timeStamp
+      todoId
+      id
+      commentsCount
+      author {
+        name
+        id
+        email
+        pictureUrl
+      }
+    }
+  }
+`;
+export class LoadCommentsComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<LoadCommentsQuery, LoadCommentsVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<LoadCommentsQuery, LoadCommentsVariables>
+        query={LoadCommentsDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type LoadCommentsProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<LoadCommentsQuery, LoadCommentsVariables>
+> &
+  TChildProps;
+export function LoadCommentsHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        LoadCommentsQuery,
+        LoadCommentsVariables,
+        LoadCommentsProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    LoadCommentsQuery,
+    LoadCommentsVariables,
+    LoadCommentsProps<TChildProps>
+  >(LoadCommentsDocument, operationOptions);
 }
 export const LoginDocument = gql`
   mutation Login($email: String!, $password: String!) {

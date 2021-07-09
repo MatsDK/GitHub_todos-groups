@@ -1,10 +1,13 @@
 import DataLoader from "dataloader";
 import { Comment } from "../../entity/Comment";
-import { In } from "typeorm";
+import { In, IsNull } from "typeorm";
+import { COMMENTS_LIMIT } from "../../constants";
 
 const batchComments = async (ids: number[]) => {
   const data = await Comment.find({
-    where: { todoId: In(ids), parentCommentId: null },
+    where: { parentCommentId: IsNull(), todoId: In(ids) },
+    take: COMMENTS_LIMIT,
+    skip: 0,
   });
 
   const map: Map<number, Comment[]> = new Map();
@@ -23,6 +26,8 @@ export const createCommentsLoader = () => new DataLoader(batchComments as any);
 const batchNestedComments = async (ids: number[]) => {
   const data = await Comment.find({
     where: { parentCommentId: In(ids) },
+    take: COMMENTS_LIMIT,
+    skip: 0,
   });
 
   const map: Map<number, Comment[]> = new Map();

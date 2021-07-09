@@ -17,3 +17,21 @@ export const NestedCommentsQuery = gql`
     }
   }
 `;
+
+export const LoadCommentsQuery = gql`
+  query loadComments($todoId: Float!, $skip: Float!) {
+    comments(todoId: $todoId, skip: $skip) {
+      text
+      timeStamp
+      todoId
+      id
+      commentsCount
+      author {
+        name
+        id
+        email
+        pictureUrl
+      }
+    }
+  }
+`;

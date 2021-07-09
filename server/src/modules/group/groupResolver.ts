@@ -36,7 +36,7 @@ export class GroupUserResolver {
   }
 
   @Query(() => [Group])
-  async groups(): Promise<Group[]> {
+  groups(): Promise<Group[]> {
     return Group.find();
   }
 }

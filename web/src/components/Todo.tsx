@@ -1,18 +1,22 @@
 import dayjs from "dayjs";
-import React from "react";
-import { useState } from "react";
+import { Field, Formik } from "formik";
+import React, { useState } from "react";
 import {
   CreateCommentComponent,
   GroupComments,
   GroupTodos,
+  LoadCommentsComponent,
   NestedCommentsComponent,
 } from "../../generated/apolloComponents";
-import { InputField } from "./inputField";
-import { Formik, Field } from "formik";
+import {
+  LoadCommentsQuery,
+  NestedCommentsQuery,
+} from "../../graphql/todo/query/comments";
+import { COMMENTS_LIMIT } from "../constants";
+import { responseIsInvalid } from "../isResponseValid";
 import { sortDates } from "../sortDates";
 import Picture from "../ui/Picture";
-import { NestedCommentsQuery } from "../../graphql/todo/query/comments";
-import { responseIsInvalid } from "../isResponseValid";
+import { InputField } from "./inputField";
 
 interface Props {
   todo: GroupTodos;
@@ -24,6 +28,10 @@ const Todo: React.FC<Props> = ({ todo }) => {
   const [comments, setComments] = useState<GroupComments[]>(
     sortDates(todo.comments || [], "timeStamp")
   );
+  const [canLoadMore, setCanLoadMore] = useState<boolean>(
+    comments.length < todo.commentsCount
+  );
+  const [loaded, setLoaded] = useState<number>(1);
 
   return (
     <div>
@@ -63,6 +71,41 @@ const Todo: React.FC<Props> = ({ todo }) => {
           {comments.map((comment: GroupComments, idx: number) => (
             <Comment comment={comment} key={idx} />
           ))}
+          {canLoadMore && (
+            <LoadCommentsComponent skip={true}>
+              {({ client }) => {
+                return (
+                  <button
+                    onClick={async () => {
+                      const res = await client.query({
+                        query: LoadCommentsQuery,
+                        variables: {
+                          todoId: parseInt(todo.id),
+                          skip: loaded * COMMENTS_LIMIT,
+                        },
+                      });
+
+                      if (responseIsInvalid(res, "comments")) return;
+
+                      setLoaded((loaded) => (loaded += 1));
+
+                      if (!res.data.comments.length)
+                        return setCanLoadMore(false);
+
+                      setComments((comments) =>
+                        sortDates(
+                          [...(res.data.comments as any[]), ...comments],
+                          "timeStamp"
+                        )
+                      );
+                    }}
+                  >
+                    load more
+                  </button>
+                );
+              }}
+            </LoadCommentsComponent>
+          )}
         </div>
       )}
     </div>
@@ -121,13 +164,28 @@ interface CommentProps {
   comment: GroupComments;
 }
 
-const Comment: React.FC<CommentProps> = ({ comment }) => {
+const Comment: React.FC<CommentProps> = (props) => {
+  const [comment, setComment] = useState<GroupComments>(props.comment);
   const [nestedComments, setNestedComments] = useState<GroupComments[] | null>(
-    comment.comments ? sortDates(comment.comments as any, "timeStamp") : null
+    null
   );
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
   const [showComments, setShowComments] = useState<boolean>(false);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
+
+  const createComment = (newComment: any) => {
+    setNestedComments((nestedComments) => [
+      newComment,
+      ...((nestedComments as any) || []),
+    ]);
+
+    setShowComments(true);
+
+    setComment((comment) => ({
+      ...comment,
+      commentsCount: comment.commentsCount + 1,
+    }));
+  };
 
   return (
     <div>
@@ -202,8 +260,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
                   <NestedCommentForm
                     todoId={comment.todoId}
                     parentCommentId={parseInt(comment.id)}
-                    setNestedComments={setNestedComments}
-                    showComments={setShowComments}
+                    newComment={createComment}
                   />
                 )}
 
@@ -226,17 +283,13 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
 interface NestedCommentFormProps {
   todoId: number;
   parentCommentId: number;
-  setNestedComments: React.Dispatch<
-    React.SetStateAction<GroupComments[] | null>
-  >;
-  showComments: React.Dispatch<React.SetStateAction<boolean>>;
+  newComment: (newComments: any) => void;
 }
 
 const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
   todoId,
   parentCommentId,
-  setNestedComments,
-  showComments,
+  newComment,
 }) => {
   return (
     <div style={{ marginLeft: 25 }}>
@@ -255,12 +308,7 @@ const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
 
               if (!res || !res.data || !res.data.createComment) return;
 
-              setNestedComments((nestedComments) => [
-                res.data!.createComment as any,
-                ...((nestedComments as any) || []),
-              ]);
-
-              showComments(true);
+              newComment(res.data.createComment);
             }}
             initialValues={{
               text: "",

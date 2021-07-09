@@ -11,18 +11,27 @@ import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "../../types/MyContext";
 import { CreateCommentInput } from "./createCommentInput";
 import dayjs from "dayjs";
+import { COMMENTS_LIMIT } from "../../constants";
+import { IsNull } from "typeorm";
 
 @Resolver()
 export class commentResolver {
   @UseMiddleware(isAuth)
   @Query(() => [Comment])
-  async comments(@Arg("todoId") todoId: number): Promise<Comment[]> {
-    return Comment.find({ where: { todoId } });
+  comments(
+    @Arg("todoId") todoId: number,
+    @Arg("skip") skip: number
+  ): Promise<Comment[]> {
+    return Comment.find({
+      where: { todoId, parentCommentId: IsNull() },
+      skip,
+      take: COMMENTS_LIMIT,
+    });
   }
 
   @UseMiddleware(isAuth)
   @Query(() => [Comment])
-  async allComments(): Promise<Comment[]> {
+  allComments(): Promise<Comment[]> {
     return Comment.find();
   }
 
@@ -47,7 +56,7 @@ export class commentResolver {
 
   @UseMiddleware(isAuth)
   @Query(() => [Comment])
-  async nestedComments(@Arg("parentCommentId") parentCommentId: number) {
+  nestedComments(@Arg("parentCommentId") parentCommentId: number) {
     return Comment.find({ where: { parentCommentId } });
   }
 }
