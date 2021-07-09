@@ -9,6 +9,7 @@ export type Comment = {
   parentCommentId?: Maybe<string>;
   comments: Array<Comment>;
   author: User;
+  commentsCount: number;
 };
 
 export type CreateCommentInput = {
@@ -81,6 +82,7 @@ export type MutationRegisterArgs = {
 
 export type Query = {
   comments: Array<Comment>;
+  allComments: Array<Comment>;
   nestedComments: Array<Comment>;
   group?: Maybe<Group>;
   groups: Array<Group>;
@@ -124,6 +126,7 @@ export type Todo = {
   fileName: string;
   author?: Maybe<User>;
   comments: Array<Comment>;
+  commentsCount: number;
 };
 
 export type User = {
@@ -200,6 +203,8 @@ export type GroupTodos = {
 
   author: Maybe<GroupAuthor>;
 
+  commentsCount: number;
+
   comments: GroupComments[];
 
   id: string;
@@ -238,38 +243,12 @@ export type GroupComments = {
 
   id: string;
 
-  comments: Group_Comments[];
-
-  author: Group__Author;
-};
-
-export type Group_Comments = {
-  __typename?: "Comment";
-
-  text: string;
-
-  timeStamp: string;
-
-  todoId: number;
-
-  id: string;
+  commentsCount: number;
 
   author: Group_Author;
 };
 
 export type Group_Author = {
-  __typename?: "User";
-
-  name: string;
-
-  id: string;
-
-  email: string;
-
-  pictureUrl: Maybe<string>;
-};
-
-export type Group__Author = {
   __typename?: "User";
 
   name: string;
@@ -303,6 +282,8 @@ export type CreateCommentCreateComment = {
   timeStamp: string;
 
   commentAuthorId: number;
+
+  commentsCount: number;
 
   author: CreateCommentAuthor;
 };
@@ -355,6 +336,44 @@ export type CreateTodoAuthor = {
   email: string;
 
   id: string;
+
+  pictureUrl: Maybe<string>;
+};
+
+export type NestedCommentsVariables = {
+  parentId: number;
+};
+
+export type NestedCommentsQuery = {
+  __typename?: "Query";
+
+  nestedComments: NestedCommentsNestedComments[];
+};
+
+export type NestedCommentsNestedComments = {
+  __typename?: "Comment";
+
+  text: string;
+
+  timeStamp: string;
+
+  todoId: number;
+
+  id: string;
+
+  commentsCount: number;
+
+  author: NestedCommentsAuthor;
+};
+
+export type NestedCommentsAuthor = {
+  __typename?: "User";
+
+  name: string;
+
+  id: string;
+
+  email: string;
 
   pictureUrl: Maybe<string>;
 };
@@ -522,23 +541,13 @@ export const GroupDocument = gql`
           id
           pictureUrl
         }
+        commentsCount
         comments {
           text
           timeStamp
           todoId
           id
-          comments {
-            text
-            timeStamp
-            todoId
-            id
-            author {
-              name
-              id
-              email
-              pictureUrl
-            }
-          }
+          commentsCount
           author {
             name
             id
@@ -597,6 +606,7 @@ export const CreateCommentDocument = gql`
       id
       timeStamp
       commentAuthorId
+      commentsCount
       author {
         id
         name
@@ -699,6 +709,56 @@ export function CreateTodoHOC<TProps, TChildProps = any>(
     CreateTodoVariables,
     CreateTodoProps<TChildProps>
   >(CreateTodoDocument, operationOptions);
+}
+export const NestedCommentsDocument = gql`
+  query NestedComments($parentId: Float!) {
+    nestedComments(parentCommentId: $parentId) {
+      text
+      timeStamp
+      todoId
+      id
+      commentsCount
+      author {
+        name
+        id
+        email
+        pictureUrl
+      }
+    }
+  }
+`;
+export class NestedCommentsComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<NestedCommentsQuery, NestedCommentsVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<NestedCommentsQuery, NestedCommentsVariables>
+        query={NestedCommentsDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type NestedCommentsProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<NestedCommentsQuery, NestedCommentsVariables>
+> &
+  TChildProps;
+export function NestedCommentsHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        NestedCommentsQuery,
+        NestedCommentsVariables,
+        NestedCommentsProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    NestedCommentsQuery,
+    NestedCommentsVariables,
+    NestedCommentsProps<TChildProps>
+  >(NestedCommentsDocument, operationOptions);
 }
 export const LoginDocument = gql`
   mutation Login($email: String!, $password: String!) {

@@ -8,6 +8,7 @@ export const joinGroupMutation = gql`
       id
       timeStamp
       commentAuthorId
+      commentsCount
       author {
         id
         name
