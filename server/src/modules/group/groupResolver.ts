@@ -11,7 +11,7 @@ export class GroupUserResolver {
   @Query(() => Group, { nullable: true })
   async group(
     @Arg("groupId") groupId: number,
-    @Arg("path") _: string,
+    // @Arg("path") _: string,
     @Ctx() ctx: MyContext
   ): Promise<Group | undefined> {
     if (

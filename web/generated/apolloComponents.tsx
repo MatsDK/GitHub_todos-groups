@@ -98,11 +98,11 @@ export type QueryCommentsArgs = {
 };
 
 export type QueryNestedCommentsArgs = {
+  skip: number;
   parentCommentId: number;
 };
 
 export type QueryGroupArgs = {
-  path: string;
   groupId: number;
 };
 
@@ -158,7 +158,6 @@ export type JoinGroupMutation = {
 
 export type GroupVariables = {
   groupId: number;
-  path: string;
 };
 
 export type GroupQuery = {
@@ -343,6 +342,7 @@ export type CreateTodoAuthor = {
 
 export type NestedCommentsVariables = {
   parentId: number;
+  skip: number;
 };
 
 export type NestedCommentsQuery = {
@@ -560,8 +560,8 @@ export function JoinGroupHOC<TProps, TChildProps = any>(
   >(JoinGroupDocument, operationOptions);
 }
 export const GroupDocument = gql`
-  query group($groupId: Float!, $path: String!) {
-    group(groupId: $groupId, path: $path) {
+  query group($groupId: Float!) {
+    group(groupId: $groupId) {
       id
       name
       repoName
@@ -751,8 +751,8 @@ export function CreateTodoHOC<TProps, TChildProps = any>(
   >(CreateTodoDocument, operationOptions);
 }
 export const NestedCommentsDocument = gql`
-  query NestedComments($parentId: Float!) {
-    nestedComments(parentCommentId: $parentId) {
+  query NestedComments($parentId: Float!, $skip: Float!) {
+    nestedComments(parentCommentId: $parentId, skip: $skip) {
       text
       timeStamp
       todoId

@@ -58,6 +58,7 @@ const Todo: React.FC<Props> = ({ todo }) => {
 
       {showCommentForm && (
         <CommentForm
+          showComments={setShowComments}
           hideForm={() => setShowCommentForm(false)}
           todoId={Number(todo.id)}
           setComments={setComments}
@@ -116,12 +117,14 @@ interface CommentFormProps {
   setComments: React.Dispatch<React.SetStateAction<GroupComments[]>>;
   todoId: number;
   hideForm: () => void;
+  showComments: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const CommentForm: React.FC<CommentFormProps> = ({
   todoId,
   setComments,
   hideForm,
+  showComments,
 }) => {
   return (
     <div style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}>
@@ -138,6 +141,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
 
               if (!res || !res.data || !res.data.createComment) return;
 
+              showComments(true);
               setComments(
                 (comments) => [res.data!.createComment, ...comments] as any
               );
@@ -170,16 +174,20 @@ const Comment: React.FC<CommentProps> = (props) => {
     null
   );
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
+  const [loadingNestedComments, setLoadingNestedComments] = useState<boolean>(
+    false
+  );
   const [showComments, setShowComments] = useState<boolean>(false);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
+  const [skipComments, setSkipComments] = useState<number>(0);
 
   const createComment = (newComment: any) => {
-    setNestedComments((nestedComments) => [
-      newComment,
-      ...((nestedComments as any) || []),
-    ]);
+    setNestedComments((nestedComments) =>
+      sortDates([newComment, ...((nestedComments as any) || [])], "timeStamp")
+    );
 
     setShowComments(true);
+    setSkipComments((skipComments) => (skipComments += 1));
 
     setComment((comment) => ({
       ...comment,
@@ -211,69 +219,113 @@ const Comment: React.FC<CommentProps> = (props) => {
 
         <NestedCommentsComponent
           skip={true}
-          variables={{ parentId: Number(comment.id) }}
+          variables={{ parentId: Number(comment.id), skip: 0 }}
         >
-          {(comments) => {
-            return (
-              <div>
-                <button
-                  onClick={async () => {
-                    setShowComments((showcomments) => !showcomments);
+          {(comments) => (
+            <div>
+              <button
+                onClick={async () => {
+                  setShowComments((showcomments) => !showcomments);
 
-                    if (!nestedComments) {
-                      setLoadingComments(true);
+                  if (!nestedComments && comment.commentsCount) {
+                    setLoadingComments(true);
 
-                      const res = await comments.client.query({
-                        query: NestedCommentsQuery,
-                        variables: { parentId: Number(comment.id) },
-                      });
+                    const res = await comments.client.query({
+                      query: NestedCommentsQuery,
+                      variables: { parentId: Number(comment.id), skip: 0 },
+                    });
 
-                      if (responseIsInvalid(res, "nestedComments"))
-                        return setLoadingComments(false);
+                    if (responseIsInvalid(res, "nestedComments"))
+                      return setLoadingComments(false);
 
-                      setNestedComments((nestedComments) =>
-                        sortDates(
-                          [
-                            ...(res.data.nestedComments as any),
-                            ...((nestedComments as any) || []),
-                          ],
-                          "timeStamp"
-                        )
-                      );
+                    setSkipComments(
+                      (skipComments) => (skipComments += COMMENTS_LIMIT)
+                    );
+                    setNestedComments((nestedComments) =>
+                      sortDates(
+                        [
+                          ...(res.data.nestedComments as any),
+                          ...((nestedComments as any) || []),
+                        ],
+                        "timeStamp"
+                      )
+                    );
 
-                      setLoadingComments(false);
-                    }
-                  }}
-                >
-                  ({comment.commentsCount}) Comments
-                </button>
-
-                <button
-                  onClick={() =>
-                    setShowCommentForm((showCommentForm) => !showCommentForm)
+                    setLoadingComments(false);
                   }
-                >
-                  Comment
-                </button>
+                }}
+              >
+                ({comment.commentsCount}) Comments
+              </button>
 
-                {showCommentForm && (
-                  <NestedCommentForm
-                    todoId={comment.todoId}
-                    parentCommentId={parseInt(comment.id)}
-                    newComment={createComment}
-                  />
-                )}
+              <button
+                onClick={() =>
+                  setShowCommentForm((showCommentForm) => !showCommentForm)
+                }
+              >
+                Comment
+              </button>
 
-                {loadingComments && "Loading..."}
+              {showCommentForm && (
+                <NestedCommentForm
+                  todoId={comment.todoId}
+                  parentCommentId={parseInt(comment.id)}
+                  newComment={createComment}
+                />
+              )}
 
-                {showComments &&
-                  nestedComments &&
-                  nestedComments.map((_: GroupComments, idx: number) => (
-                    <Comment comment={_} key={idx} />
+              {loadingComments && <p>Loading...</p>}
+
+              {showComments && nestedComments && (
+                <div>
+                  {nestedComments.map((_: GroupComments, idx: number) => (
+                    <div key={idx}>
+                      <Comment comment={_} />
+                    </div>
                   ))}
-              </div>
-            );
-          }}
+
+                  {!!comment.commentsCount &&
+                    comment.commentsCount > nestedComments.length && (
+                      <div style={{ display: "flex" }}>
+                        <button
+                          onClick={async () => {
+                            setLoadingNestedComments(true);
+                            const res = await comments.client.query({
+                              query: NestedCommentsQuery,
+                              variables: {
+                                parentId: Number(comment.id),
+                                skip: skipComments,
+                              },
+                            });
+                            setLoadingNestedComments(false);
+
+                            if (responseIsInvalid(res, "nestedComments"))
+                              return;
+
+                            setSkipComments(
+                              (skipComments) => (skipComments += COMMENTS_LIMIT)
+                            );
+
+                            setNestedComments((nestedComments) =>
+                              sortDates(
+                                [
+                                  ...res.data.nestedComments,
+                                  ...(nestedComments || []),
+                                ],
+                                "timeStamp"
+                              )
+                            );
+                          }}
+                        >
+                          load more
+                        </button>
+                        {loadingNestedComments && <p>Loading....</p>}
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
+          )}
         </NestedCommentsComponent>
       </div>
     </div>

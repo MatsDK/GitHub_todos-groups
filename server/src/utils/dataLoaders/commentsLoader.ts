@@ -8,6 +8,7 @@ const batchComments = async (ids: number[]) => {
     where: { parentCommentId: IsNull(), todoId: In(ids) },
     take: COMMENTS_LIMIT,
     skip: 0,
+    order: { timeStamp: "DESC" },
   });
 
   const map: Map<number, Comment[]> = new Map();
@@ -28,6 +29,7 @@ const batchNestedComments = async (ids: number[]) => {
     where: { parentCommentId: In(ids) },
     take: COMMENTS_LIMIT,
     skip: 0,
+    order: { timeStamp: "DESC" },
   });
 
   const map: Map<number, Comment[]> = new Map();

@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const NestedCommentsQuery = gql`
-  query NestedComments($parentId: Float!) {
-    nestedComments(parentCommentId: $parentId) {
+  query NestedComments($parentId: Float!, $skip: Float!) {
+    nestedComments(parentCommentId: $parentId, skip: $skip) {
       text
       timeStamp
       todoId

@@ -20,7 +20,7 @@ const batchCounts = async (ids: number[][]): Promise<any[]> => {
       WHERE a."parentCommentId" IN ${str} GROUP BY a."parentCommentId";`);
   else
     data = await Comment.query(`SELECT a.id, count(*) FROM "todo" a 
-      JOIN "comment" d ON a.id=d."todoId" WHERE a.id IN ${str} GROUP BY a.id;`);
+      JOIN "comment" d ON a.id=d."todoId" WHERE a.id IN ${str}  GROUP BY a.id;`);
 
   const dataMap: Map<number, number> = new Map();
 

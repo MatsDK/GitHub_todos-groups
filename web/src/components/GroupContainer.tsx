@@ -21,7 +21,7 @@ const GroupContainer: React.FC<Props> = ({ group, path, me }) => {
         <GroupComponent
           // fetchPolicy="cache-and-network"
           variables={{
-            path: path.join("/"),
+            // path: path.join("/"),
             groupId: parseInt(group as string),
           }}
         >

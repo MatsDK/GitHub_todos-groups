@@ -26,6 +26,7 @@ export class commentResolver {
       where: { todoId, parentCommentId: IsNull() },
       skip,
       take: COMMENTS_LIMIT,
+      order: { timeStamp: "DESC" },
     });
   }
 
@@ -56,7 +57,15 @@ export class commentResolver {
 
   @UseMiddleware(isAuth)
   @Query(() => [Comment])
-  nestedComments(@Arg("parentCommentId") parentCommentId: number) {
-    return Comment.find({ where: { parentCommentId } });
+  nestedComments(
+    @Arg("parentCommentId") parentCommentId: number,
+    @Arg("skip") skip: number
+  ) {
+    return Comment.find({
+      where: { parentCommentId },
+      take: COMMENTS_LIMIT,
+      skip,
+      order: { timeStamp: "DESC" },
+    });
   }
 }
