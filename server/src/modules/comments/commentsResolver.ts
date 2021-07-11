@@ -8,7 +8,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
-import { MyContext } from "../../types/MyContext";
+import { MyContext } from "../../types/types";
 import { CreateCommentInput } from "./createCommentInput";
 import dayjs from "dayjs";
 import { COMMENTS_LIMIT } from "../../constants";
@@ -67,5 +67,21 @@ export class commentResolver {
       skip,
       order: { timeStamp: "DESC" },
     });
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Boolean)
+  async deleteComment(
+    @Arg("commentId") commentId: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    const comment = await Comment.findOne({ where: { id: commentId } });
+    if (!comment || comment.commentAuthorId != (req as any).userId)
+      return false;
+
+    await Comment.delete({ parentCommentId: comment.id });
+    await comment.remove();
+
+    return true;
   }
 }

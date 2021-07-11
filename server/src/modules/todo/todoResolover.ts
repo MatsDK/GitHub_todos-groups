@@ -8,22 +8,23 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { Todo } from "../../entity/Todo";
-import { MyContext } from "../../types/MyContext";
 import { isAuth } from "../middleware/isAuth";
 import { CreateTodoInput } from "./createTodoInput";
+import { Comment } from "../../entity/Comment";
+import { MyContext } from "src/types/types";
 
 @Resolver()
 export class TodoResolver {
   @UseMiddleware(isAuth)
-  @Mutation(() => [Todo], { nullable: true })
+  @Mutation(() => Todo, { nullable: true })
   async createTodo(
     @Arg("data")
     { todoBody, todoTitle, fileName, todoGroupId }: CreateTodoInput,
     @Ctx() ctx: MyContext
-  ): Promise<Todo[] | undefined> {
+  ): Promise<Todo> {
     const timeStamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
-    await Todo.create({
+    const todo = await Todo.create({
       todoAuthorId: (ctx.req as any).userId,
       fileName,
       todoTitle,
@@ -32,7 +33,7 @@ export class TodoResolver {
       todoGroupId,
     }).save();
 
-    return Todo.find({ where: { todoGroupId } });
+    return todo;
   }
 
   @UseMiddleware(isAuth)
@@ -42,7 +43,22 @@ export class TodoResolver {
   }
 
   @Query(() => [Todo])
-  async todos(): Promise<Todo[]> {
+  todos(): Promise<Todo[]> {
     return Todo.find();
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Boolean)
+  async deleteTodo(
+    @Arg("todoId") todoId: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    const todo = await Todo.findOne({ where: { id: todoId } });
+    if (todo && todo.todoAuthorId != (req as any).userId) return false;
+
+    await Comment.delete({ todoId });
+    await todo?.remove();
+
+    return true;
   }
 }

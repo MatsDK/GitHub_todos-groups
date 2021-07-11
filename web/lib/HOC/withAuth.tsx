@@ -2,10 +2,7 @@ import { NextPageContext } from "next";
 import React from "react";
 import { MeQuery } from "../../generated/apolloComponents";
 import { meQuery } from "../../graphql/user/query/me";
-import {
-  NextContextWithApollo,
-  NextFunctionComponent,
-} from "../../interfaces/types";
+import { NextContextWithApollo, NextFunctionComponent } from "../../types";
 import { redirect } from "../redirect";
 
 export const withAuth = <T extends object>(
@@ -37,6 +34,7 @@ export const withAuth = <T extends object>(
         return redirectToLogin(ctx);
       }
     }
+
     render() {
       return <Component {...this.props} />;
     }

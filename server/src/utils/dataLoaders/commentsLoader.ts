@@ -22,7 +22,8 @@ const batchComments = async (ids: number[]) => {
   return ids.map((_: number) => map.get(_) || []);
 };
 
-export const createCommentsLoader = () => new DataLoader(batchComments as any);
+export const createCommentsLoader = () =>
+  new DataLoader(batchComments as any, { cache: false });
 
 const batchNestedComments = async (ids: number[]) => {
   const data = await Comment.find({

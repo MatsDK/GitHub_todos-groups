@@ -10,9 +10,9 @@ export class CreateTodoInput {
   @Field()
   todoBody: string;
 
-  @Field({ nullable: true })
-  @Length(1, 255)
-  fileName?: string;
+  @Field()
+  @Length(0, 255)
+  fileName: string;
 
   @Field()
   todoGroupId: number;

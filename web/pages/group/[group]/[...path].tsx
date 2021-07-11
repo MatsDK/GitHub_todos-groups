@@ -4,12 +4,13 @@ import { GroupQuery, MeMe } from "../../../generated/apolloComponents";
 import { GetRepoObjectQuery } from "../../../generated/github-apollo-components";
 import { getRepoObject } from "../../../github-graphql/query/getRepo";
 import { groupQuery } from "../../../graphql/group/query/group";
-import { NextFunctionComponent } from "../../../interfaces/types";
+import { NextFunctionComponent } from "../../../types";
 import { withAuth } from "../../../lib/HOC/withAuth";
 import { redirect } from "../../../lib/redirect";
 import GroupContainer from "../../../src/components/GroupContainer";
 import Layout from "../../../src/components/Layout";
 import { responseIsInvalid } from "../../../src/isResponseValid";
+import { MeContext } from "../../../src/context/meContext";
 
 const Path: NextFunctionComponent<{ me: MeMe }> = ({ me }) => {
   const router = useRouter();
@@ -18,13 +19,15 @@ const Path: NextFunctionComponent<{ me: MeMe }> = ({ me }) => {
   const { group } = router.query;
 
   return (
-    <Layout me={me} title={router.query.path[router.query.path.length - 1]}>
-      <GroupContainer
-        me={me}
-        group={group as string}
-        path={router.query.path as string[]}
-      />
-    </Layout>
+    <MeContext.Provider value={me}>
+      <Layout me={me} title={router.query.path[router.query.path.length - 1]}>
+        <GroupContainer
+          me={me}
+          group={group as string}
+          path={router.query.path as string[]}
+        />
+      </Layout>
+    </MeContext.Provider>
   );
 };
 
@@ -44,7 +47,7 @@ Path.getInitialProps = async ({ apolloClient, ...ctx }) => {
     context: { server: "github" },
     query: getRepoObject,
     variables: {
-      owner: "MatsDK",
+      owner: response.data.group!.repoOwner,
       name: response.data.group!.repoName,
       expression: `${response.data.group!.mainBranch}:${path}`,
     },

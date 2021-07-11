@@ -1,48 +1,88 @@
 import dayjs from "dayjs";
 import { Field, Formik } from "formik";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   CreateCommentComponent,
+  DeleteTodoComponent,
   GroupComments,
   GroupTodos,
   LoadCommentsComponent,
-  NestedCommentsComponent,
 } from "../../generated/apolloComponents";
-import {
-  LoadCommentsQuery,
-  NestedCommentsQuery,
-} from "../../graphql/todo/query/comments";
-import { COMMENTS_LIMIT } from "../constants";
+import { LoadCommentsQuery } from "../../graphql/todo/query/comments";
+import { MeContext } from "../context/meContext";
 import { responseIsInvalid } from "../isResponseValid";
 import { sortDates } from "../sortDates";
 import Picture from "../ui/Picture";
+import Comment from "./Comment";
 import { InputField } from "./inputField";
 
 interface Props {
   todo: GroupTodos;
+  removeTodo: (id: string) => void;
 }
 
-const Todo: React.FC<Props> = ({ todo }) => {
+const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
+  const meContext = useContext(MeContext);
+  const myTodo = meContext && meContext.id == rest.todo.author!.id;
+
+  const [todo, setTodo] = useState<GroupTodos>(rest.todo);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
-  const [showComments, setShowComments] = useState<boolean>(true);
+  const [showComments, setShowComments] = useState<boolean>(
+    !!todo.commentsCount
+  );
   const [comments, setComments] = useState<GroupComments[]>(
     sortDates(todo.comments || [], "timeStamp")
   );
   const [canLoadMore, setCanLoadMore] = useState<boolean>(
     comments.length < todo.commentsCount
   );
-  const [loaded, setLoaded] = useState<number>(1);
+  const [skip, setSkip] = useState<number>(comments.length);
+
+  useEffect(() => {
+    setComments(sortDates(todo.comments, "timeStamp"));
+  }, [todo]);
+
+  const removeComment = (id: string) => {
+    setComments((comments) => comments.filter((_) => _.id != id));
+    setTodo((todo) => ({
+      ...todo,
+      comments: comments.filter((_) => _.id != id),
+    }));
+  };
 
   return (
     <div>
-      <p style={{ marginBottom: 0, marginTop: "10px" }}>
+      <div style={{ marginBottom: 0, marginTop: "10px" }}>
         {todo.author!.pictureUrl && <Picture src={todo.author!.pictureUrl} />}
         {todo.author!.name}
         {" - "}
         {todo.author!.email}
         {" - "}
+        {myTodo && "Me"}
+        {" - "}
         {dayjs(todo.timeStamp).format("MMMM D, YYYY h:mm A")}
-      </p>
+        {" - "}
+        {myTodo && (
+          <div>
+            <DeleteTodoComponent variables={{ todoId: Number(todo.id) }}>
+              {(deleteTodo) => (
+                <button
+                  onClick={async () => {
+                    const res = await deleteTodo();
+
+                    if (!res || !res.data || !res.data.deleteTodo) return;
+
+                    removeTodo(todo.id);
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            </DeleteTodoComponent>
+            <button>Completed</button>
+          </div>
+        )}
+      </div>
       <div>
         <b>{todo.todoTitle}</b>
         <span>{todo.todoBody}</span>
@@ -58,10 +98,16 @@ const Todo: React.FC<Props> = ({ todo }) => {
 
       {showCommentForm && (
         <CommentForm
-          showComments={setShowComments}
-          hideForm={() => setShowCommentForm(false)}
-          todoId={Number(todo.id)}
-          setComments={setComments}
+          addComment={(newComment: any) => {
+            setSkip((skip) => skip + 1);
+            setTodo((todo) => ({
+              ...todo,
+              commentsCount: todo.commentsCount + 1,
+              comments: sortDates([newComment, ...todo.comments], "timeStamp"),
+            }));
+            setShowCommentForm(false);
+          }}
+          todo={todo}
         />
       )}
 
@@ -70,41 +116,43 @@ const Todo: React.FC<Props> = ({ todo }) => {
           style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}
         >
           {comments.map((comment: GroupComments, idx: number) => (
-            <Comment comment={comment} key={idx} />
+            <Comment
+              comment={comment}
+              key={idx}
+              removeComment={removeComment}
+            />
           ))}
+
           {canLoadMore && (
             <LoadCommentsComponent skip={true}>
-              {({ client }) => {
-                return (
-                  <button
-                    onClick={async () => {
-                      const res = await client.query({
-                        query: LoadCommentsQuery,
-                        variables: {
-                          todoId: parseInt(todo.id),
-                          skip: loaded * COMMENTS_LIMIT,
-                        },
-                      });
+              {({ client }) => (
+                <button
+                  onClick={async () => {
+                    const res = await client.query({
+                      query: LoadCommentsQuery,
+                      variables: {
+                        todoId: parseInt(todo.id),
+                        skip,
+                      },
+                    });
 
-                      if (responseIsInvalid(res, "comments")) return;
+                    if (responseIsInvalid(res, "comments")) return;
 
-                      setLoaded((loaded) => (loaded += 1));
+                    setSkip((skip) => skip + res.data.comments.length);
 
-                      if (!res.data.comments.length)
-                        return setCanLoadMore(false);
+                    if (!res.data.comments.length) return setCanLoadMore(false);
 
-                      setComments((comments) =>
-                        sortDates(
-                          [...(res.data.comments as any[]), ...comments],
-                          "timeStamp"
-                        )
-                      );
-                    }}
-                  >
-                    load more
-                  </button>
-                );
-              }}
+                    setComments((comments) =>
+                      sortDates(
+                        [...(res.data.comments as any[]), ...comments],
+                        "timeStamp"
+                      )
+                    );
+                  }}
+                >
+                  load more
+                </button>
+              )}
             </LoadCommentsComponent>
           )}
         </div>
@@ -114,269 +162,53 @@ const Todo: React.FC<Props> = ({ todo }) => {
 };
 
 interface CommentFormProps {
-  setComments: React.Dispatch<React.SetStateAction<GroupComments[]>>;
-  todoId: number;
-  hideForm: () => void;
-  showComments: React.Dispatch<React.SetStateAction<boolean>>;
+  todo: GroupTodos;
+  addComment: any;
 }
 
-const CommentForm: React.FC<CommentFormProps> = ({
-  todoId,
-  setComments,
-  hideForm,
-  showComments,
-}) => {
-  return (
-    <div style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}>
-      <CreateCommentComponent>
-        {(createComment) => (
-          <Formik
-            validateOnBlur={false}
-            enableReinitialize={true}
-            validateOnChange={false}
-            onSubmit={async (data) => {
-              const res = await createComment({
-                variables: { data: { todoId, ...data, parentCommentId: null } },
-              });
-
-              if (!res || !res.data || !res.data.createComment) return;
-
-              showComments(true);
-              setComments(
-                (comments) => [res.data!.createComment, ...comments] as any
-              );
-              hideForm();
-            }}
-            initialValues={{
-              text: "",
-            }}
-          >
-            {({ handleSubmit }) => (
-              <form onSubmit={handleSubmit}>
-                <Field name="text" placeholder="text" component={InputField} />
-                <button type="submit">create comment</button>
-              </form>
-            )}
-          </Formik>
-        )}
-      </CreateCommentComponent>
-    </div>
-  );
-};
-
-interface CommentProps {
-  comment: GroupComments;
-}
-
-const Comment: React.FC<CommentProps> = (props) => {
-  const [comment, setComment] = useState<GroupComments>(props.comment);
-  const [nestedComments, setNestedComments] = useState<GroupComments[] | null>(
-    null
-  );
-  const [loadingComments, setLoadingComments] = useState<boolean>(false);
-  const [loadingNestedComments, setLoadingNestedComments] = useState<boolean>(
-    false
-  );
-  const [showComments, setShowComments] = useState<boolean>(false);
-  const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
-  const [skipComments, setSkipComments] = useState<number>(0);
-
-  const createComment = (newComment: any) => {
-    setNestedComments((nestedComments) =>
-      sortDates([newComment, ...((nestedComments as any) || [])], "timeStamp")
-    );
-
-    setShowComments(true);
-    setSkipComments((skipComments) => (skipComments += 1));
-
-    setComment((comment) => ({
-      ...comment,
-      commentsCount: comment.commentsCount + 1,
-    }));
-  };
-
-  return (
-    <div>
-      <div style={{ display: "flex" }}>
-        {comment.author.pictureUrl && (
-          <Picture src={comment.author.pictureUrl} />
-        )}
-        <p>{comment.author.name}</p>
-        <p>{comment.author.email}</p>
-        <p>{dayjs(comment.timeStamp).format("MMMM D, YYYY h:mm A")}</p>
-      </div>
-      <div
-        style={{
-          marginBottom: 10,
-          padding: 15,
-          marginLeft: 10,
-          borderLeft: "1px solid black",
-        }}
-      >
-        <div style={{ marginBottom: 16 }}>
-          <span>{comment.text}</span>
-        </div>
-
-        <NestedCommentsComponent
-          skip={true}
-          variables={{ parentId: Number(comment.id), skip: 0 }}
-        >
-          {(comments) => (
-            <div>
-              <button
-                onClick={async () => {
-                  setShowComments((showcomments) => !showcomments);
-
-                  if (!nestedComments && comment.commentsCount) {
-                    setLoadingComments(true);
-
-                    const res = await comments.client.query({
-                      query: NestedCommentsQuery,
-                      variables: { parentId: Number(comment.id), skip: 0 },
-                    });
-
-                    if (responseIsInvalid(res, "nestedComments"))
-                      return setLoadingComments(false);
-
-                    setSkipComments(
-                      (skipComments) => (skipComments += COMMENTS_LIMIT)
-                    );
-                    setNestedComments((nestedComments) =>
-                      sortDates(
-                        [
-                          ...(res.data.nestedComments as any),
-                          ...((nestedComments as any) || []),
-                        ],
-                        "timeStamp"
-                      )
-                    );
-
-                    setLoadingComments(false);
-                  }
-                }}
-              >
-                ({comment.commentsCount}) Comments
-              </button>
-
-              <button
-                onClick={() =>
-                  setShowCommentForm((showCommentForm) => !showCommentForm)
-                }
-              >
-                Comment
-              </button>
-
-              {showCommentForm && (
-                <NestedCommentForm
-                  todoId={comment.todoId}
-                  parentCommentId={parseInt(comment.id)}
-                  newComment={createComment}
-                />
-              )}
-
-              {loadingComments && <p>Loading...</p>}
-
-              {showComments && nestedComments && (
-                <div>
-                  {nestedComments.map((_: GroupComments, idx: number) => (
-                    <div key={idx}>
-                      <Comment comment={_} />
-                    </div>
-                  ))}
-
-                  {!!comment.commentsCount &&
-                    comment.commentsCount > nestedComments.length && (
-                      <div style={{ display: "flex" }}>
-                        <button
-                          onClick={async () => {
-                            setLoadingNestedComments(true);
-                            const res = await comments.client.query({
-                              query: NestedCommentsQuery,
-                              variables: {
-                                parentId: Number(comment.id),
-                                skip: skipComments,
-                              },
-                            });
-                            setLoadingNestedComments(false);
-
-                            if (responseIsInvalid(res, "nestedComments"))
-                              return;
-
-                            setSkipComments(
-                              (skipComments) => (skipComments += COMMENTS_LIMIT)
-                            );
-
-                            setNestedComments((nestedComments) =>
-                              sortDates(
-                                [
-                                  ...res.data.nestedComments,
-                                  ...(nestedComments || []),
-                                ],
-                                "timeStamp"
-                              )
-                            );
-                          }}
-                        >
-                          load more
-                        </button>
-                        {loadingNestedComments && <p>Loading....</p>}
-                      </div>
-                    )}
-                </div>
-              )}
-            </div>
-          )}
-        </NestedCommentsComponent>
-      </div>
-    </div>
-  );
-};
-
-interface NestedCommentFormProps {
-  todoId: number;
-  parentCommentId: number;
-  newComment: (newComments: any) => void;
-}
-
-const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
-  todoId,
-  parentCommentId,
-  newComment,
-}) => {
-  return (
-    <div style={{ marginLeft: 25 }}>
-      <CreateCommentComponent>
-        {(createComment) => (
-          <Formik
-            validateOnBlur={false}
-            enableReinitialize={true}
-            validateOnChange={false}
-            onSubmit={async (data) => {
-              const res = await createComment({
-                variables: {
-                  data: { todoId, text: data.text, parentCommentId },
+const CommentForm: React.FC<CommentFormProps> = ({ todo, addComment }) => (
+  <div style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}>
+    <CreateCommentComponent>
+      {(createComment) => (
+        <Formik
+          validateOnBlur={false}
+          enableReinitialize={true}
+          validateOnChange={false}
+          onSubmit={async (data) => {
+            const res = await createComment({
+              variables: {
+                data: {
+                  todoId: Number(todo.id),
+                  ...data,
+                  parentCommentId: null,
                 },
-              });
+              },
+              // refetchQueries: [
+              //   {
+              //     query: groupQuery,
+              //     variables: { groupId: todo.todoGroupId },
+              //   },
+              // ],
+            });
 
-              if (!res || !res.data || !res.data.createComment) return;
+            if (!res || !res.data || !res.data.createComment) return;
 
-              newComment(res.data.createComment);
-            }}
-            initialValues={{
-              text: "",
-            }}
-          >
-            {({ handleSubmit }) => (
-              <form onSubmit={handleSubmit}>
-                <Field name="text" placeholder="text" component={InputField} />
-                <button type="submit">create comment</button>
-              </form>
-            )}
-          </Formik>
-        )}
-      </CreateCommentComponent>
-    </div>
-  );
-};
+            addComment(res.data.createComment);
+          }}
+          initialValues={{
+            text: "",
+          }}
+        >
+          {({ handleSubmit }) => (
+            <form onSubmit={handleSubmit}>
+              <Field name="text" placeholder="text" component={InputField} />
+              <button type="submit">create comment</button>
+            </form>
+          )}
+        </Formik>
+      )}
+    </CreateCommentComponent>
+  </div>
+);
 
 export default Todo;

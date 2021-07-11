@@ -1,9 +1,9 @@
 import { GroupUser } from "../../entity/GroupUser";
-import { MyContext } from "../../types/MyContext";
+import { MyContext } from "../../types/types";
 import { Arg, Ctx, Query, Resolver, UseMiddleware } from "type-graphql";
 import { Group } from "../../entity/Group";
 import { isAuth } from "../middleware/isAuth";
-import { Todo } from "../../entity/Todo";
+// import { Todo } from "../../entity/Todo";
 
 @Resolver()
 export class GroupUserResolver {
@@ -11,7 +11,6 @@ export class GroupUserResolver {
   @Query(() => Group, { nullable: true })
   async group(
     @Arg("groupId") groupId: number,
-    // @Arg("path") _: string,
     @Ctx() ctx: MyContext
   ): Promise<Group | undefined> {
     if (
@@ -23,15 +22,6 @@ export class GroupUserResolver {
 
     const group = await Group.findOne(groupId);
     if (!group) return undefined;
-
-    // const todos = await Todo.find({
-    //   where: { todoGroupId: group.id, fileName: Like(`%${path}%`) },
-    // });
-    const todos = await Todo.find({
-      where: { todoGroupId: group.id },
-    });
-    group.todos = () => todos;
-
     return group;
   }
 

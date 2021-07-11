@@ -1,6 +1,5 @@
 import Link from "next/link";
-import React, { useEffect } from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   GroupGroup,
   GroupTodos,
@@ -13,10 +12,10 @@ import {
   GetRepoObjectTreeInlineFragment,
 } from "../../generated/github-apollo-components";
 import { sortDates } from "../sortDates";
+import Picture from "../ui/Picture";
 import { PathArrow } from "./icons";
 import NewTodoForm from "./NewTodoForm";
 import Todo from "./Todo";
-import Picture from "../ui/Picture";
 
 interface Props {
   group: GroupGroup;
@@ -35,10 +34,13 @@ const GroupView: React.FC<Props> = ({
     sortDates(group.todos, "timeStamp")
   );
 
-  useEffect(() => {
-    setTodos(group.todos.reverse());
-    return () => {};
-  }, [group]);
+  const addTodo = (newTodo: any) => {
+    setTodos((todos) => sortDates([newTodo, ...todos], "timeStamp"));
+  };
+
+  const removeTodo = (id: string) => {
+    setTodos((todos) => todos.filter((_: GroupTodos) => _.id != id));
+  };
 
   return (
     <>
@@ -62,10 +64,12 @@ const GroupView: React.FC<Props> = ({
           <NewTodoForm
             path={path}
             groupId={parseInt(group.id)}
-            setTodos={setTodos}
+            addTodo={addTodo}
           />
           {todos.map((_: GroupTodos, idx: number) => (
-            <Todo todo={_} key={idx} />
+            <div key={idx}>
+              <Todo removeTodo={removeTodo} todo={_} key={idx} />
+            </div>
           ))}
         </div>
       </div>

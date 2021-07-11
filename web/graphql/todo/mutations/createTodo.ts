@@ -9,6 +9,21 @@ export const joinGroupMutation = gql`
         id
         pictureUrl
       }
+      commentsCount
+      comments {
+        text
+        timeStamp
+        todoId
+        id
+        commentsCount
+        author {
+          name
+          id
+          email
+          pictureUrl
+        }
+      }
+      todoGroupId
       id
       todoTitle
       timeStamp

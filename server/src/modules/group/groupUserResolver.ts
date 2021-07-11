@@ -1,5 +1,5 @@
 import { Invite } from "../../entity/Invite";
-import { MyContext } from "../../types/MyContext";
+import { MyContext } from "../../types/types";
 import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
 import { Group } from "../../entity/Group";
 import { GroupUser } from "../../entity/GroupUser";

@@ -1,4 +1,4 @@
-import { MyContext } from "src/types/MyContext";
+import { MyContext } from "src/types/types";
 import { Ctx, Field, ID, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -43,7 +43,10 @@ export class Group extends BaseEntity {
   mainBranch: string;
 
   @Field(() => [Todo])
-  todos(): Todo[] {
-    return [];
+  todos(): Promise<Todo[]> {
+    return Todo.find({
+      where: { todoGroupId: this.id },
+      order: { timeStamp: "DESC" },
+    });
   }
 }

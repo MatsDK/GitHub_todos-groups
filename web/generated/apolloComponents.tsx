@@ -21,7 +21,7 @@ export type CreateCommentInput = {
 export type CreateTodoInput = {
   todoTitle: string;
   todoBody: string;
-  fileName: Maybe<string>;
+  fileName: string;
   todoGroupId: number;
 };
 
@@ -42,9 +42,11 @@ export type Invite = {
 
 export type Mutation = {
   createComment?: Maybe<Comment>;
+  deleteComment: boolean;
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
-  createTodo?: Maybe<Array<Todo>>;
+  createTodo?: Maybe<Todo>;
+  deleteTodo: boolean;
   login?: Maybe<User>;
   logout: boolean;
   invalidateTokens?: Maybe<boolean>;
@@ -53,6 +55,10 @@ export type Mutation = {
 
 export type MutationCreateCommentArgs = {
   data: CreateCommentInput;
+};
+
+export type MutationDeleteCommentArgs = {
+  commentId: number;
 };
 
 export type MutationCreateGroupArgs = {
@@ -69,6 +75,10 @@ export type MutationJoinGroupArgs = {
 
 export type MutationCreateTodoArgs = {
   data: CreateTodoInput;
+};
+
+export type MutationDeleteTodoArgs = {
+  todoId: number;
 };
 
 export type MutationLoginArgs = {
@@ -203,6 +213,8 @@ export type GroupTodos = {
 
   author: Maybe<GroupAuthor>;
 
+  todoGroupId: number;
+
   commentsCount: number;
 
   comments: GroupComments[];
@@ -307,13 +319,19 @@ export type CreateTodoVariables = {
 export type CreateTodoMutation = {
   __typename?: "Mutation";
 
-  createTodo: Maybe<CreateTodoCreateTodo[]>;
+  createTodo: Maybe<CreateTodoCreateTodo>;
 };
 
 export type CreateTodoCreateTodo = {
   __typename?: "Todo";
 
   author: Maybe<CreateTodoAuthor>;
+
+  commentsCount: number;
+
+  comments: CreateTodoComments[];
+
+  todoGroupId: number;
 
   id: string;
 
@@ -338,6 +356,54 @@ export type CreateTodoAuthor = {
   id: string;
 
   pictureUrl: Maybe<string>;
+};
+
+export type CreateTodoComments = {
+  __typename?: "Comment";
+
+  text: string;
+
+  timeStamp: string;
+
+  todoId: number;
+
+  id: string;
+
+  commentsCount: number;
+
+  author: CreateTodo_Author;
+};
+
+export type CreateTodo_Author = {
+  __typename?: "User";
+
+  name: string;
+
+  id: string;
+
+  email: string;
+
+  pictureUrl: Maybe<string>;
+};
+
+export type DeleteCommentVariables = {
+  commentId: number;
+};
+
+export type DeleteCommentMutation = {
+  __typename?: "Mutation";
+
+  deleteComment: boolean;
+};
+
+export type DeleteTodoVariables = {
+  todoId: number;
+};
+
+export type DeleteTodoMutation = {
+  __typename?: "Mutation";
+
+  deleteTodo: boolean;
 };
 
 export type NestedCommentsVariables = {
@@ -512,6 +578,7 @@ export type MeGroups = {
 import gql from "graphql-tag";
 import * as React from "react";
 import * as ReactApollo from "react-apollo";
+import * as ReactApolloHooks from "react-apollo-hooks";
 
 // ====================================================
 // Components
@@ -559,6 +626,17 @@ export function JoinGroupHOC<TProps, TChildProps = any>(
     JoinGroupProps<TChildProps>
   >(JoinGroupDocument, operationOptions);
 }
+export function useJoinGroup(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    JoinGroupMutation,
+    JoinGroupVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<JoinGroupMutation, JoinGroupVariables>(
+    JoinGroupDocument,
+    baseOptions
+  );
+}
 export const GroupDocument = gql`
   query group($groupId: Float!) {
     group(groupId: $groupId) {
@@ -581,6 +659,7 @@ export const GroupDocument = gql`
           id
           pictureUrl
         }
+        todoGroupId
         commentsCount
         comments {
           text
@@ -637,6 +716,14 @@ export function GroupHOC<TProps, TChildProps = any>(
     GroupVariables,
     GroupProps<TChildProps>
   >(GroupDocument, operationOptions);
+}
+export function useGroup(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<GroupVariables>
+) {
+  return ReactApolloHooks.useQuery<GroupQuery, GroupVariables>(
+    GroupDocument,
+    baseOptions
+  );
 }
 export const CreateCommentDocument = gql`
   mutation CreateComment($data: CreateCommentInput!) {
@@ -695,6 +782,17 @@ export function CreateCommentHOC<TProps, TChildProps = any>(
     CreateCommentProps<TChildProps>
   >(CreateCommentDocument, operationOptions);
 }
+export function useCreateComment(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    CreateCommentMutation,
+    CreateCommentVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    CreateCommentMutation,
+    CreateCommentVariables
+  >(CreateCommentDocument, baseOptions);
+}
 export const CreateTodoDocument = gql`
   mutation createTodo($data: CreateTodoInput!) {
     createTodo(data: $data) {
@@ -704,6 +802,21 @@ export const CreateTodoDocument = gql`
         id
         pictureUrl
       }
+      commentsCount
+      comments {
+        text
+        timeStamp
+        todoId
+        id
+        commentsCount
+        author {
+          name
+          id
+          email
+          pictureUrl
+        }
+      }
+      todoGroupId
       id
       todoTitle
       timeStamp
@@ -749,6 +862,125 @@ export function CreateTodoHOC<TProps, TChildProps = any>(
     CreateTodoVariables,
     CreateTodoProps<TChildProps>
   >(CreateTodoDocument, operationOptions);
+}
+export function useCreateTodo(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    CreateTodoMutation,
+    CreateTodoVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<CreateTodoMutation, CreateTodoVariables>(
+    CreateTodoDocument,
+    baseOptions
+  );
+}
+export const DeleteCommentDocument = gql`
+  mutation deleteComment($commentId: Float!) {
+    deleteComment(commentId: $commentId)
+  }
+`;
+export class DeleteCommentComponent extends React.Component<
+  Partial<
+    ReactApollo.MutationProps<DeleteCommentMutation, DeleteCommentVariables>
+  >
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<DeleteCommentMutation, DeleteCommentVariables>
+        mutation={DeleteCommentDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type DeleteCommentProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<DeleteCommentMutation, DeleteCommentVariables>
+> &
+  TChildProps;
+export type DeleteCommentMutationFn = ReactApollo.MutationFn<
+  DeleteCommentMutation,
+  DeleteCommentVariables
+>;
+export function DeleteCommentHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        DeleteCommentMutation,
+        DeleteCommentVariables,
+        DeleteCommentProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    DeleteCommentMutation,
+    DeleteCommentVariables,
+    DeleteCommentProps<TChildProps>
+  >(DeleteCommentDocument, operationOptions);
+}
+export function useDeleteComment(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    DeleteCommentMutation,
+    DeleteCommentVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    DeleteCommentMutation,
+    DeleteCommentVariables
+  >(DeleteCommentDocument, baseOptions);
+}
+export const DeleteTodoDocument = gql`
+  mutation deleteTodo($todoId: Float!) {
+    deleteTodo(todoId: $todoId)
+  }
+`;
+export class DeleteTodoComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<DeleteTodoMutation, DeleteTodoVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<DeleteTodoMutation, DeleteTodoVariables>
+        mutation={DeleteTodoDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type DeleteTodoProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<DeleteTodoMutation, DeleteTodoVariables>
+> &
+  TChildProps;
+export type DeleteTodoMutationFn = ReactApollo.MutationFn<
+  DeleteTodoMutation,
+  DeleteTodoVariables
+>;
+export function DeleteTodoHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        DeleteTodoMutation,
+        DeleteTodoVariables,
+        DeleteTodoProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    DeleteTodoMutation,
+    DeleteTodoVariables,
+    DeleteTodoProps<TChildProps>
+  >(DeleteTodoDocument, operationOptions);
+}
+export function useDeleteTodo(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    DeleteTodoMutation,
+    DeleteTodoVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<DeleteTodoMutation, DeleteTodoVariables>(
+    DeleteTodoDocument,
+    baseOptions
+  );
 }
 export const NestedCommentsDocument = gql`
   query NestedComments($parentId: Float!, $skip: Float!) {
@@ -800,6 +1032,14 @@ export function NestedCommentsHOC<TProps, TChildProps = any>(
     NestedCommentsProps<TChildProps>
   >(NestedCommentsDocument, operationOptions);
 }
+export function useNestedComments(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<NestedCommentsVariables>
+) {
+  return ReactApolloHooks.useQuery<
+    NestedCommentsQuery,
+    NestedCommentsVariables
+  >(NestedCommentsDocument, baseOptions);
+}
 export const LoadCommentsDocument = gql`
   query loadComments($todoId: Float!, $skip: Float!) {
     comments(todoId: $todoId, skip: $skip) {
@@ -850,6 +1090,14 @@ export function LoadCommentsHOC<TProps, TChildProps = any>(
     LoadCommentsProps<TChildProps>
   >(LoadCommentsDocument, operationOptions);
 }
+export function useLoadComments(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<LoadCommentsVariables>
+) {
+  return ReactApolloHooks.useQuery<LoadCommentsQuery, LoadCommentsVariables>(
+    LoadCommentsDocument,
+    baseOptions
+  );
+}
 export const LoginDocument = gql`
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -895,6 +1143,17 @@ export function LoginHOC<TProps, TChildProps = any>(
     LoginProps<TChildProps>
   >(LoginDocument, operationOptions);
 }
+export function useLogin(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    LoginMutation,
+    LoginVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<LoginMutation, LoginVariables>(
+    LoginDocument,
+    baseOptions
+  );
+}
 export const LogoutDocument = gql`
   mutation Logout {
     logout
@@ -936,6 +1195,17 @@ export function LogoutHOC<TProps, TChildProps = any>(
     LogoutVariables,
     LogoutProps<TChildProps>
   >(LogoutDocument, operationOptions);
+}
+export function useLogout(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    LogoutMutation,
+    LogoutVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<LogoutMutation, LogoutVariables>(
+    LogoutDocument,
+    baseOptions
+  );
 }
 export const RegisterDocument = gql`
   mutation Register($data: RegisterInput!) {
@@ -984,6 +1254,17 @@ export function RegisterHOC<TProps, TChildProps = any>(
     RegisterVariables,
     RegisterProps<TChildProps>
   >(RegisterDocument, operationOptions);
+}
+export function useRegister(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    RegisterMutation,
+    RegisterVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<RegisterMutation, RegisterVariables>(
+    RegisterDocument,
+    baseOptions
+  );
 }
 export const MeDocument = gql`
   query me {
@@ -1035,4 +1316,12 @@ export function MeHOC<TProps, TChildProps = any>(
     MeVariables,
     MeProps<TChildProps>
   >(MeDocument, operationOptions);
+}
+export function useMe(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<MeVariables>
+) {
+  return ReactApolloHooks.useQuery<MeQuery, MeVariables>(
+    MeDocument,
+    baseOptions
+  );
 }

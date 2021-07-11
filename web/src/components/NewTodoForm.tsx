@@ -1,8 +1,4 @@
-import {
-  CreateTodoComponent,
-  CreateTodoCreateTodo,
-  GroupTodos,
-} from "../../generated/apolloComponents";
+import { CreateTodoComponent } from "../../generated/apolloComponents";
 import { Formik, Field } from "formik";
 import { InputField } from "./inputField";
 import { useState } from "react";
@@ -10,11 +6,11 @@ import { useEffect } from "react";
 
 interface Props {
   groupId: number;
-  setTodos: React.Dispatch<React.SetStateAction<GroupTodos[]>>;
   path: string[];
+  addTodo: any;
 }
 
-const newTodoForm: React.SFC<Props> = ({ groupId, setTodos, path }) => {
+const newTodoForm: React.SFC<Props> = ({ groupId, path, addTodo }) => {
   const [pathPlaceHolder, setPathPlaceHolder] = useState<string>(
     path.join("/")
   );
@@ -35,16 +31,18 @@ const newTodoForm: React.SFC<Props> = ({ groupId, setTodos, path }) => {
             validateOnChange={false}
             onSubmit={async (data) => {
               const res = await createTodo({
-                variables: { data: { ...data, todoGroupId: groupId } },
+                variables: {
+                  data: {
+                    ...data,
+                    todoGroupId: groupId,
+                    fileName: data.fileName || "",
+                  },
+                },
               });
 
               if (!res || !res.data || !res.data.createTodo) return;
 
-              setTodos(res.data.createTodo
-                .reverse()
-                .filter((_: CreateTodoCreateTodo) =>
-                  _.fileName.includes(path.join("/"))
-                ) as GroupTodos[]);
+              addTodo(res.data.createTodo);
             }}
             initialValues={{
               fileName: pathPlaceHolder,

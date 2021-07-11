@@ -1,4 +1,4 @@
-import { MyContext } from "../../../src/types/MyContext";
+import { MyContext } from "../../types/types";
 import { Ctx, Mutation, Resolver } from "type-graphql";
 
 @Resolver()

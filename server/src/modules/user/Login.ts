@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import { compare } from "bcryptjs";
 import { User } from "../../entity/User";
-import { MyContext } from "../../../src/types/MyContext";
+import { MyContext } from "../../types/types";
 import {
   refreshToken as createRefreshToken,
   accessToken as createAccessToken,

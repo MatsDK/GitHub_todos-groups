@@ -1,11 +1,11 @@
+import { NormalizedCacheObject } from "@apollo/client";
+import { ApolloClient } from "apollo-boost";
 import App from "next/app";
 import React from "react";
 import { ApolloProvider } from "react-apollo";
+import { withApollo } from "../lib/HOC/withApolloLinks";
 // import withApollo from "../lib/HOC/withApollo";
 import "../src/css/global.css";
-import { ApolloClient } from "apollo-boost";
-import { NormalizedCacheObject } from "@apollo/client";
-import { withApollo } from "../lib/HOC/withApolloLinks";
 
 interface Props {
   apolloClient: ApolloClient<NormalizedCacheObject>;

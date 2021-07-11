@@ -1,4 +1,4 @@
-import { MyContext } from "../../../src/types/MyContext";
+import { MyContext } from "../../types/types";
 import { Resolver, Query, Ctx, UseMiddleware, Mutation } from "type-graphql";
 import { User } from "../../entity/User";
 import { isAuth } from "../middleware/isAuth";

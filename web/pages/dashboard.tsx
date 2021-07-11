@@ -1,14 +1,14 @@
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
-import Layout from "../src/components/Layout";
 import {
+  JoinGroupComponent,
   MeGroups,
   MeInvites,
   MeMe,
-  JoinGroupComponent,
 } from "../generated/apolloComponents";
 import { withAuth } from "../lib/HOC/withAuth";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import Layout from "../src/components/Layout";
 
 interface authPageProps {
   me: MeMe;
