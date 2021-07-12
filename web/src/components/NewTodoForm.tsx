@@ -3,6 +3,7 @@ import { Formik, Field } from "formik";
 import { InputField } from "./inputField";
 import { useState } from "react";
 import { useEffect } from "react";
+import { groupQuery } from "../../graphql/group/query/group";
 
 interface Props {
   groupId: number;
@@ -37,6 +38,24 @@ const newTodoForm: React.SFC<Props> = ({ groupId, path, addTodo }) => {
                     todoGroupId: groupId,
                     fileName: data.fileName || "",
                   },
+                },
+                update: (cache, { data }) => {
+                  try {
+                    const cacheData: any = cache.readQuery({
+                      query: groupQuery,
+                      variables: { groupId },
+                    });
+
+                    if (!cacheData || !cacheData.group || !data?.createTodo)
+                      return;
+
+                    cacheData.group.todos = [
+                      data.createTodo,
+                      ...cacheData.group.todos,
+                    ];
+
+                    cache.writeQuery({query: groupQuery, variables: {groupId}, data: cacheData})
+                  } catch {} 
                 },
               });
 

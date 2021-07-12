@@ -1,16 +1,16 @@
 import { useRouter } from "next/router";
 import React from "react";
-import { GroupQuery, MeMe } from "../../../generated/apolloComponents";
-import { GetRepoObjectQuery } from "../../../generated/github-apollo-components";
-import { getRepoObject } from "../../../github-graphql/query/getRepo";
-import { groupQuery } from "../../../graphql/group/query/group";
-import { NextFunctionComponent } from "../../../types";
-import { withAuth } from "../../../lib/HOC/withAuth";
-import { redirect } from "../../../lib/redirect";
-import GroupContainer from "../../../src/components/GroupContainer";
-import Layout from "../../../src/components/Layout";
-import { responseIsInvalid } from "../../../src/isResponseValid";
-import { MeContext } from "../../../src/context/meContext";
+import { GroupQuery, MeMe } from "../../../../generated/apolloComponents";
+import { GetRepoObjectQuery } from "../../../../generated/github-apollo-components";
+import { getRepoObject } from "../../../../github-graphql/query/getRepo";
+import { groupQuery } from "../../../../graphql/group/query/group";
+import { NextFunctionComponent } from "../../../../types";
+import { withAuth } from "../../../../lib/HOC/withAuth";
+import { redirect } from "../../../../lib/redirect";
+import GroupContainer from "../../../../src/components/GroupContainer";
+import { responseIsInvalid } from "../../../../src/utils/isResponseValid";
+import { MeContext } from "../../../../src/context/meContext";
+import GroupLayout from "../../../../src/components/GroupLayout";
 
 const Path: NextFunctionComponent<{ me: MeMe }> = ({ me }) => {
   const router = useRouter();
@@ -20,13 +20,15 @@ const Path: NextFunctionComponent<{ me: MeMe }> = ({ me }) => {
 
   return (
     <MeContext.Provider value={me}>
-      <Layout me={me} title={router.query.path[router.query.path.length - 1]}>
+      <GroupLayout
+        me={me}
+        title={router.query.path[router.query.path.length - 1]}
+      >
         <GroupContainer
-          me={me}
           group={group as string}
           path={router.query.path as string[]}
         />
-      </Layout>
+      </GroupLayout>
     </MeContext.Provider>
   );
 };

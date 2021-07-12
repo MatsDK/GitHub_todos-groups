@@ -5,10 +5,10 @@ import { getRepoObject } from "../../github-graphql/query/getRepo";
 import { groupQuery } from "../../graphql/group/query/group";
 import { NextFunctionComponent } from "../../types";
 import { redirect } from "../../lib/redirect";
-import Layout from "../../src/components/Layout";
-import { responseIsInvalid } from "../../src/isResponseValid";
+import { responseIsInvalid } from "../../src/utils/isResponseValid";
 import GroupContainer from "../../src/components/GroupContainer";
 import { withAuth } from "../../lib/HOC/withAuth";
+import GroupLayout from "../../src/components/GroupLayout";
 import { MeContext } from "../../src/context/meContext";
 
 interface Props {
@@ -24,9 +24,9 @@ const Group: NextFunctionComponent<Props> = ({ me }) => {
 
   return (
     <MeContext.Provider value={me}>
-      <Layout me={me} title="Group">
-        <GroupContainer me={me} path={[]} group={group as string} />
-      </Layout>
+      <GroupLayout me={me} title="Group">
+        <GroupContainer path={[]} group={group as string} />
+      </GroupLayout>
     </MeContext.Provider>
   );
 };

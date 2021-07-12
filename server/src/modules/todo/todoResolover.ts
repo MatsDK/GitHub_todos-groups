@@ -61,4 +61,10 @@ export class TodoResolver {
 
     return true;
   }
+
+  @UseMiddleware(isAuth)
+  @Query(() => Todo, { nullable: true })
+  getTodo(@Arg("todoId") todoId: number): Promise<Todo | undefined> {
+    return Todo.findOne({ where: { id: todoId } });
+  }
 }

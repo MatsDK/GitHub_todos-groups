@@ -1,20 +1,14 @@
 import React from "react";
-import {
-  GroupComponent,
-  GroupGroup,
-  GroupTodos,
-  MeMe,
-} from "../../generated/apolloComponents";
+import { GroupComponent, GroupGroup } from "../../generated/apolloComponents";
 import { GetRepoObjectComponent } from "../../generated/github-apollo-components";
 import GroupView from "./GroupView";
 
 interface Props {
   group: string;
   path: string[];
-  me: MeMe;
 }
 
-const GroupContainer: React.FC<Props> = ({ group, path, me }) => {
+const GroupContainer: React.FC<Props> = ({ group, path }) => {
   return (
     <div>
       {typeof group == "string" && (
@@ -29,9 +23,6 @@ const GroupContainer: React.FC<Props> = ({ group, path, me }) => {
             if (!data || !data.group) return null;
             const group: GroupGroup = {
               ...data.group,
-              todos: data.group.todos.filter((_: GroupTodos) =>
-                _.fileName.includes(path.join("/"))
-              ),
             };
 
             return (
@@ -50,7 +41,6 @@ const GroupContainer: React.FC<Props> = ({ group, path, me }) => {
                     <GroupView
                       path={{ groupId: data.group!.id, path }}
                       group={group}
-                      me={me}
                       repoData={repoData.repository}
                     />
                   );

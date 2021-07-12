@@ -98,6 +98,7 @@ export type Query = {
   groups: Array<Group>;
   getTodos: Array<Todo>;
   todos: Array<Todo>;
+  getTodo?: Maybe<Todo>;
   me?: Maybe<User>;
   users: Array<User>;
 };
@@ -118,6 +119,10 @@ export type QueryGroupArgs = {
 
 export type QueryGetTodosArgs = {
   groupId: number;
+};
+
+export type QueryGetTodoArgs = {
+  todoId: number;
 };
 
 export type RegisterInput = {
@@ -473,6 +478,82 @@ export type LoadCommentsComments = {
 };
 
 export type LoadCommentsAuthor = {
+  __typename?: "User";
+
+  name: string;
+
+  id: string;
+
+  email: string;
+
+  pictureUrl: Maybe<string>;
+};
+
+export type GetTodoVariables = {
+  todoId: number;
+};
+
+export type GetTodoQuery = {
+  __typename?: "Query";
+
+  getTodo: Maybe<GetTodoGetTodo>;
+};
+
+export type GetTodoGetTodo = {
+  __typename?: "Todo";
+
+  id: string;
+
+  todoTitle: string;
+
+  todoBody: string;
+
+  todoGroupId: number;
+
+  timeStamp: string;
+
+  fileName: string;
+
+  commentsCount: number;
+
+  todoAuthorId: number;
+
+  author: Maybe<GetTodoAuthor>;
+
+  comments: GetTodoComments[];
+};
+
+export type GetTodoAuthor = {
+  __typename?: "User";
+
+  email: string;
+
+  id: string;
+
+  name: string;
+
+  isOwner: Maybe<boolean>;
+
+  pictureUrl: Maybe<string>;
+};
+
+export type GetTodoComments = {
+  __typename?: "Comment";
+
+  text: string;
+
+  timeStamp: string;
+
+  todoId: number;
+
+  id: string;
+
+  commentsCount: number;
+
+  author: GetTodo_Author;
+};
+
+export type GetTodo_Author = {
   __typename?: "User";
 
   name: string;
@@ -1095,6 +1176,81 @@ export function useLoadComments(
 ) {
   return ReactApolloHooks.useQuery<LoadCommentsQuery, LoadCommentsVariables>(
     LoadCommentsDocument,
+    baseOptions
+  );
+}
+export const GetTodoDocument = gql`
+  query getTodo($todoId: Float!) {
+    getTodo(todoId: $todoId) {
+      id
+      todoTitle
+      todoBody
+      todoGroupId
+      timeStamp
+      fileName
+      commentsCount
+      todoAuthorId
+      author {
+        email
+        id
+        name
+        isOwner
+        pictureUrl
+      }
+      comments {
+        text
+        timeStamp
+        todoId
+        id
+        commentsCount
+        author {
+          name
+          id
+          email
+          pictureUrl
+        }
+      }
+    }
+  }
+`;
+export class GetTodoComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<GetTodoQuery, GetTodoVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<GetTodoQuery, GetTodoVariables>
+        query={GetTodoDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type GetTodoProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<GetTodoQuery, GetTodoVariables>
+> &
+  TChildProps;
+export function GetTodoHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        GetTodoQuery,
+        GetTodoVariables,
+        GetTodoProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    GetTodoQuery,
+    GetTodoVariables,
+    GetTodoProps<TChildProps>
+  >(GetTodoDocument, operationOptions);
+}
+export function useGetTodo(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<GetTodoVariables>
+) {
+  return ReactApolloHooks.useQuery<GetTodoQuery, GetTodoVariables>(
+    GetTodoDocument,
     baseOptions
   );
 }

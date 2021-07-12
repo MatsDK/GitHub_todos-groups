@@ -10,8 +10,8 @@ import {
 } from "../../generated/apolloComponents";
 import { LoadCommentsQuery } from "../../graphql/todo/query/comments";
 import { MeContext } from "../context/meContext";
-import { responseIsInvalid } from "../isResponseValid";
-import { sortDates } from "../sortDates";
+import { responseIsInvalid } from "../utils/isResponseValid";
+import { sortDates } from "../utils/sortDates";
 import Picture from "../ui/Picture";
 import Comment from "./Comment";
 import { InputField } from "./inputField";
@@ -27,16 +27,16 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
 
   const [todo, setTodo] = useState<GroupTodos>(rest.todo);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
-  const [showComments, setShowComments] = useState<boolean>(
-    !!todo.commentsCount
-  );
+  const [skip, setSkip] = useState<number>(todo.comments.length);
   const [comments, setComments] = useState<GroupComments[]>(
     sortDates(todo.comments || [], "timeStamp")
   );
   const [canLoadMore, setCanLoadMore] = useState<boolean>(
     comments.length < todo.commentsCount
   );
-  const [skip, setSkip] = useState<number>(comments.length);
+  const [showComments, setShowComments] = useState<boolean>(
+    !!todo.commentsCount
+  );
 
   useEffect(() => {
     setComments(sortDates(todo.comments, "timeStamp"));
@@ -46,6 +46,7 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
     setComments((comments) => comments.filter((_) => _.id != id));
     setTodo((todo) => ({
       ...todo,
+      commentsCount: todo.commentsCount - 1,
       comments: comments.filter((_) => _.id != id),
     }));
   };
@@ -69,7 +70,6 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
                 <button
                   onClick={async () => {
                     const res = await deleteTodo();
-
                     if (!res || !res.data || !res.data.deleteTodo) return;
 
                     removeTodo(todo.id);
@@ -100,12 +100,15 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
         <CommentForm
           addComment={(newComment: any) => {
             setSkip((skip) => skip + 1);
+
             setTodo((todo) => ({
               ...todo,
               commentsCount: todo.commentsCount + 1,
               comments: sortDates([newComment, ...todo.comments], "timeStamp"),
             }));
+
             setShowCommentForm(false);
+            setShowComments(true);
           }}
           todo={todo}
         />

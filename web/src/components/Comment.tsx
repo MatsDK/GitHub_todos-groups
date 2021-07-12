@@ -8,9 +8,9 @@ import {
   NestedCommentsComponent,
 } from "../../generated/apolloComponents";
 import { NestedCommentsQuery } from "../../graphql/todo/query/comments";
-import { COMMENTS_LIMIT } from "../constants";
-import { responseIsInvalid } from "../isResponseValid";
-import { sortDates } from "../sortDates";
+import { COMMENTS_LIMIT } from "../utils/constants";
+import { responseIsInvalid } from "../utils/isResponseValid";
+import { sortDates } from "../utils/sortDates";
 import Picture from "../ui/Picture";
 import { InputField } from "./inputField";
 
@@ -21,18 +21,20 @@ interface CommentProps {
 
 const Comment: React.FC<CommentProps> = (props) => {
   const [comment, setComment] = useState<GroupComments>(props.comment);
-  const [nestedComments, setNestedComments] = useState<GroupComments[] | null>(
-    null
-  );
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
-  const [loadingNestedComments, setLoadingNestedComments] = useState<boolean>(
-    false
-  );
   const [showComments, setShowComments] = useState<boolean>(false);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
   const [skipComments, setSkipComments] = useState<number>(0);
+  const [nestedComments, setNestedComments] = useState<GroupComments[] | null>(
+    null
+  );
+  const [loadingNestedComments, setLoadingNestedComments] = useState<boolean>(
+    false
+  );
 
   useEffect(() => {
+    setNestedComments(null);
+    setShowComments(false);
     setComment(props.comment);
   }, [props]);
 
@@ -51,6 +53,11 @@ const Comment: React.FC<CommentProps> = (props) => {
   };
 
   const removeComment = (id: string) => {
+    setComment((comment) => ({
+      ...comment,
+      commentsCount: comment.commentsCount - 1,
+    }));
+
     setNestedComments((comments) => (comments || []).filter((_) => _.id != id));
   };
 
