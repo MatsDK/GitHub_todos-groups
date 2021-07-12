@@ -35,6 +35,10 @@ export class Todo extends BaseEntity {
   @Column({ default: "" })
   fileName: string;
 
+  @Field(() => Boolean)
+  @Column("bool", { default: false })
+  completed: boolean;
+
   @Field(() => User, { nullable: true })
   author(@Ctx() { authorsLoader }: MyContext): Promise<User> {
     return authorsLoader.load(this.todoAuthorId);

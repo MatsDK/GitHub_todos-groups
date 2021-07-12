@@ -10,6 +10,7 @@ export const joinGroupMutation = gql`
         pictureUrl
       }
       commentsCount
+      completed
       comments {
         text
         timeStamp

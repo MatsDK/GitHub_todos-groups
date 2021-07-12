@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 import { MeMe } from "../../generated/apolloComponents";
 import Head from "next/head";
@@ -10,11 +11,9 @@ interface Props {
 }
 
 const Page = styled.div`
-  max-width: 1300px;
-  padding: 20px;
+  padding: 20px calc((100vw - 1300px) / 2);
   height: 100vh;
   overflow: auto;
-  margin: 0 auto;
 `;
 
 const Navbar = styled.div`
@@ -43,16 +42,19 @@ const GroupLayout: React.FC<Props> = ({ children, title, me }) => {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <Page>
-        <Navbar>
-          {me && (
-            <Profile>
-              {me.pictureUrl && <Picture src={me.pictureUrl} />}
-              <span>{me.name}</span>
-            </Profile>
-          )}
-        </Navbar>
+        <div style={{ padding: "0 20px" }}>
+          <Navbar>
+            {me && (
+              <Profile>
+                <Link href="/logout">Logout</Link>
+                {me.pictureUrl && <Picture src={me.pictureUrl} />}
+                <span>{me.name}</span>
+              </Profile>
+            )}
+          </Navbar>
 
-        {children}
+          {children}
+        </div>
       </Page>
     </div>
   );

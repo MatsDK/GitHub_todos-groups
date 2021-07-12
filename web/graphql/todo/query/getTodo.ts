@@ -10,6 +10,7 @@ export const GetTodoQuery = gql`
       timeStamp
       fileName
       commentsCount
+      completed
       todoAuthorId
       author {
         email

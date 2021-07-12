@@ -1,19 +1,14 @@
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { GroupGroup, GroupTodos } from "../../generated/apolloComponents";
-import {
-  GetRepoObjectBlobInlineFragment,
-  GetRepoObjectRepository,
-  GetRepoObjectTreeInlineFragment,
-} from "../../generated/github-apollo-components";
+import { GetRepoObjectRepository } from "../../generated/github-apollo-components";
+import { ProgressSpan, TodoGrid } from "../ui/Todo";
 import { sortDates } from "../utils/sortDates";
-// import Picture from "../ui/Picture";
-import { TodoGrid } from "../ui/Todo";
-import { PathArrow } from "./icons";
-// import NewTodoForm from "./NewTodoForm";
+import { FilterTodos, SortTodos } from "../utils/todoUtils";
+import { FilePath } from "./FilePath";
+import Files from "./Files";
+import NewTodoForm from "./NewTodoForm";
 import TodoCard from "./TodoCard";
-import { FilterTodos } from "../utils/filterTodos";
 
 interface Props {
   group: GroupGroup;
@@ -26,10 +21,33 @@ const Title = styled.h1`
   font-size: 40px;
   width: fit-content;
   margin-top: 60px;
-  /* background: ${(props) => props.theme.gradient}; */
-  /* -webkit-background-clip: text; */
-  /* background-clip: text; */
-  /* -webkit-text-fill-color: transparent; */
+`;
+
+const NewTodoButton = styled.button`
+  padding: 5px 15px;
+  color: ${(props) => props.theme.textColors[3]};
+  background: ${(props) => props.theme.secondaryBgColor};
+  border: 0;
+  outline: none;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+  transition: 0.1s ease;
+
+  :hover {
+    color: ${(props) => props.theme.textColors[1]};
+  }
+`;
+
+const GroupHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  div {
+    display: flex;
+  }
 `;
 
 const GroupView: React.FC<Props> = ({
@@ -40,15 +58,18 @@ const GroupView: React.FC<Props> = ({
   const [todos, setTodos] = useState<Array<GroupTodos>>(
     sortDates(group.todos, "timeStamp")
   );
+  const [showTodoForm, setShowTodoForm] = useState<boolean>(false);
 
   useEffect(() => {
-    setTodos(FilterTodos<GroupTodos>(group.todos, path));
+    setTodos(
+      SortTodos(FilterTodos<GroupTodos>(group.todos, path), "timeStamp")
+    );
     return () => {};
   }, [path]);
 
-  // const addTodo = (newTodo: any) => {
-  //   setTodos((todos) => sortDates([newTodo, ...todos], "timeStamp"));
-  // };
+  const addTodo = (newTodo: any) => {
+    setTodos((todos) => sortDates([newTodo, ...todos], "timeStamp"));
+  };
 
   // const removeTodo = (id: string) => {
   //   setTodos((todos) => todos.filter((_: GroupTodos) => _.id != id));
@@ -56,17 +77,21 @@ const GroupView: React.FC<Props> = ({
 
   return (
     <>
-      <Title>{group.name}</Title>
+      {showTodoForm && (
+        <NewTodoForm
+          path={path}
+          closeForm={() => setShowTodoForm(false)}
+          groupId={parseInt(group.id)}
+          addTodo={addTodo}
+        />
+      )}
+      <GroupHeader>
+        <div>
+          <Title>{group.name}</Title>
+        </div>
+        <button>Invite</button>
+      </GroupHeader>
       <div>
-        {/* <h2>users</h2>
-        {group.users.map((user: GroupUsers, idx: number) => (
-          <div style={{ display: "flex" }} key={idx}>
-            {user.pictureUrl && <Picture src={user.pictureUrl} />}
-            <p>{user.name}</p> <p>--</p> <p>{user.email}</p>
-            <p>{user.id == me.id && "(you)"} </p>
-            <p>{user.isOwner && "--owner"}</p>
-          </div>
-        ))} */}
         <div>
           <FilePath
             path={[group.repoName, ...path]}
@@ -75,161 +100,44 @@ const GroupView: React.FC<Props> = ({
           <Files groupId={groupId} path={path.join("/")} repoData={repoData} />
         </div>
         <div>
-          {/* <h2 style={{ margin: 0 }}>Todos</h2>
-          <h3>new Todo</h3>
-          <NewTodoForm
-            path={path}
-            groupId={parseInt(group.id)}
-            addTodo={addTodo}
-          /> */}
-          <Title>Todos</Title>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "baseline" }}>
+              <Title>Todos</Title>
+              <ProgressSpan>
+                {todos.filter((todo) => !todo.completed).length} Acitive todos
+              </ProgressSpan>
+            </div>
+            <div>
+              <NewTodoButton
+                onClick={() => setShowTodoForm((showTodoForm) => !showTodoForm)}
+              >
+                New Todo
+              </NewTodoButton>
+            </div>
+          </div>
           <TodoGrid>
-            {todos.map((_: GroupTodos, idx: number) => (
-              <div key={idx}>
-                <TodoCard key={idx} todo={_} />
-              </div>
-            ))}
+            <div>
+              {todos.map(
+                (_: GroupTodos, idx: number) =>
+                  idx % 2 == 0 && <TodoCard key={idx} todo={_} />
+              )}
+            </div>
+            <div>
+              {todos.map(
+                (_: GroupTodos, idx: number) =>
+                  idx % 2 == 1 && <TodoCard key={idx} todo={_} />
+              )}
+            </div>
           </TodoGrid>
         </div>
       </div>
     </>
-  );
-};
-
-interface PathProps {
-  path: string[];
-  group: number;
-}
-
-const FilePathWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 5px 4px;
-  font-family: "Rubik", sans-serif;
-  margin-bottom: 10px;
-  font-weight: 400;
-  height: 30px;
-`;
-
-const Path = styled.p`
-  color: ${(props) => props.theme.textColors[2]};
-  margin: 0;
-  font-size: 23px;
-  transition: 0.1s ease;
-  cursor: pointer;
-
-  :hover {
-    color: ${(props) => props.theme.textColors[1]};
-  }
-`;
-
-const CurrentPath = styled.p`
-  margin: 0;
-  font-size: 23px;
-  background: ${(props) => props.theme.gradient};
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`;
-
-const FilePath: React.FC<PathProps> = ({ path, group }) => {
-  const currPath: string[] = [];
-
-  return (
-    <FilePathWrapper>
-      {path.map((_: string, idx) => {
-        if (idx) currPath.push(_);
-
-        return idx != path.length - 1 ? (
-          <Link
-            key={idx}
-            href={`/group/${group}/${
-              currPath.length ? "path/" : ""
-            }${currPath.join("/")}`}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Path>{_}</Path>
-              <PathArrow />
-            </div>
-          </Link>
-        ) : (
-          <CurrentPath key={idx}>{_}</CurrentPath>
-        );
-      })}
-    </FilePathWrapper>
-  );
-};
-
-interface FilesProps {
-  repoData: GetRepoObjectRepository;
-  groupId: string;
-  path: string;
-}
-
-const FilesWrapper = styled.div`
-  box-shadow: 6px 4px 4px rgba(0, 0, 0, 0.29);
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.secondaryBgColor};
-  padding: 20px;
-`;
-
-const Item = styled.div`
-  color: ${(props) => props.theme.textColors[1]};
-  width: 100%;
-
-  p {
-    width: 100%;
-    margin: 0;
-    font-size: 18px;
-    padding: 4px 10px;
-  }
-
-  :hover p {
-    text-decoration: underline;
-  }
-`;
-
-const Line = styled.div`
-  width: 100%;
-  height: 2px;
-  background: ${(props) => props.theme.mainBgColor};
-`;
-
-const order = ["tree", "blob"];
-
-const Files: React.FC<FilesProps> = ({ repoData, groupId, path }) => {
-  if (!repoData.object) return null;
-
-  if (repoData.object.__typename !== "Tree")
-    return (
-      <pre>{(repoData.object as GetRepoObjectBlobInlineFragment).text}</pre>
-    );
-
-  if (!(repoData.object as GetRepoObjectTreeInlineFragment).entries)
-    return null;
-
-  return (
-    <FilesWrapper>
-      {(repoData.object as GetRepoObjectTreeInlineFragment)
-        .entries!.sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type))
-        .map((_, idx: number) => {
-          const newPath =
-            `/group/${groupId}/path` +
-            (path ? `/${[path, _.name].join("/")}` : `/${_.name}`);
-
-          return (
-            <Item key={idx}>
-              <Link href={newPath}>
-                <p>{_.name}</p>
-              </Link>
-              {idx !=
-                (repoData.object as GetRepoObjectTreeInlineFragment).entries!
-                  .length -
-                  1 && <Line />}
-            </Item>
-          );
-        })}
-    </FilesWrapper>
   );
 };
 

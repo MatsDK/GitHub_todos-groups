@@ -1,6 +1,6 @@
 import { Invite } from "../../entity/Invite";
 import { MyContext } from "../../types/types";
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Int, Mutation, Resolver, UseMiddleware } from "type-graphql";
 import { Group } from "../../entity/Group";
 import { GroupUser } from "../../entity/GroupUser";
 import { isAuth } from "../middleware/isAuth";
@@ -53,5 +53,16 @@ export class GroupUserResolver {
     } catch (err) {
       return false;
     }
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Boolean, { nullable: true })
+  async inviteUser(
+    @Arg("groupId", () => Int) groupId: number,
+    @Arg("userEmail") userEmail: string
+  ) {
+    console.log(groupId, userEmail);
+
+    return true;
   }
 }

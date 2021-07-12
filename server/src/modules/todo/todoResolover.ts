@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import {
   Arg,
   Ctx,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -66,5 +67,19 @@ export class TodoResolver {
   @Query(() => Todo, { nullable: true })
   getTodo(@Arg("todoId") todoId: number): Promise<Todo | undefined> {
     return Todo.findOne({ where: { id: todoId } });
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Boolean)
+  async completeTodo(
+    @Arg("todoId", () => Int) todoId: number
+  ): Promise<boolean> {
+    try {
+      await Todo.update({ id: todoId }, { completed: true });
+
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

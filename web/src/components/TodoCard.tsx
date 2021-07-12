@@ -4,7 +4,8 @@ import Picture from "../ui/Picture";
 import { GroupTodos } from "../../generated/apolloComponents";
 import { MeContext } from "../context/meContext";
 import Link from "next/link";
-import { Todo } from "../ui/Todo";
+import { Todo, TodoTop, RightTodo, TodoBody } from "../ui/Todo";
+import { MenuDots } from "./icons";
 
 const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
@@ -19,38 +20,29 @@ const TodoCard: React.FC<Props> = ({ todo }) => {
 
   return (
     <Todo>
-      <div style={{ marginBottom: 0, marginTop: "10px" }}>
-        <div
-          style={{
-            display: "flex",
-            width: 450,
-            justifyContent: "space-between",
-          }}
-        >
-          <p>
-            {todo.author!.pictureUrl && (
-              <Picture src={todo.author!.pictureUrl} />
-            )}
-          </p>
-          <p>{todo.author!.name}</p>
-          <p>{todo.author!.email}</p>
-          <p>{myTodo && "Me"}</p>
-          <p>
-            {(dayjs(todo.timeStamp) as any).toNow(true)
-            // .format("MMMM D, YYYY h:mm A")
-            }{" "}
-            ago
-          </p>
-        </div>
+      <TodoTop>
         <div>
-          <b>{todo.todoTitle}</b>
-          <span>{todo.todoBody}</span>
+          {todo.author!.pictureUrl && <Picture src={todo.author!.pictureUrl} />}
+          <p>
+            {todo.author!.name}
+            <span>{myTodo && " (Me)"}</span>
+          </p>
         </div>
+        <RightTodo>
+          <p>{(dayjs(todo.timeStamp) as any).toNow(true)} ago</p>
+          <MenuDots />
+        </RightTodo>
+      </TodoTop>
+      <TodoBody>
+        <h1>
+          {todo.todoTitle} {todo.completed && <span>(Done)</span>}{" "}
+        </h1>
+        <span>{todo.todoBody}</span>
+      </TodoBody>
 
-        <Link href={`/group/${todo.todoGroupId}/todo/${todo.id}`}>
-          <p>{todo.commentsCount} Comments</p>
-        </Link>
-      </div>
+      <Link href={`/group/${todo.todoGroupId}/todo/${todo.id}`}>
+        <p>{todo.commentsCount} Comments</p>
+      </Link>
     </Todo>
   );
 };

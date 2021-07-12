@@ -7,6 +7,8 @@ import {
   GroupComments,
   GroupTodos,
   LoadCommentsComponent,
+  CompleteTodoComponent,
+  GroupGroup,
 } from "../../generated/apolloComponents";
 import { LoadCommentsQuery } from "../../graphql/todo/query/comments";
 import { MeContext } from "../context/meContext";
@@ -15,6 +17,7 @@ import { sortDates } from "../utils/sortDates";
 import Picture from "../ui/Picture";
 import Comment from "./Comment";
 import { InputField } from "./inputField";
+import { groupQuery } from "../../graphql/group/query/group";
 
 interface Props {
   todo: GroupTodos;
@@ -65,7 +68,30 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
         {" - "}
         {myTodo && (
           <div>
-            <DeleteTodoComponent variables={{ todoId: Number(todo.id) }}>
+            <DeleteTodoComponent
+              variables={{ todoId: Number(todo.id) }}
+              update={(cache, { data }) => {
+                try {
+                  if (!data || !data.deleteTodo) return;
+
+                  const cacheData: any = cache.readQuery({
+                    query: groupQuery,
+                    variables: { groupId: todo.todoGroupId },
+                  });
+                  if (!cacheData || !cacheData.group) return;
+
+                  cacheData.group.todos = (cacheData.group as GroupGroup).todos.filter(
+                    (_) => _.id != todo.id
+                  );
+
+                  cache.writeQuery({
+                    query: groupQuery,
+                    variables: { groupId: todo.todoGroupId },
+                    data: cacheData,
+                  });
+                } catch {}
+              }}
+            >
               {(deleteTodo) => (
                 <button
                   onClick={async () => {
@@ -79,13 +105,24 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
                 </button>
               )}
             </DeleteTodoComponent>
-            <button>Completed</button>
+            <CompleteTodoComponent variables={{ todoId: Number(todo.id) }}>
+              {(completeTodo) => (
+                <button
+                  onClick={async () => {
+                    const res = await completeTodo();
+                    if (!res || !res.data || !res.data.completeTodo) return;
+                  }}
+                >
+                  Completed
+                </button>
+              )}
+            </CompleteTodoComponent>
           </div>
         )}
       </div>
       <div>
         <b>{todo.todoTitle}</b>
-        <span>{todo.todoBody}</span>
+        <pre>{todo.todoBody}</pre>
       </div>
 
       <div>

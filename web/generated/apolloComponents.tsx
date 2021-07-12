@@ -47,6 +47,7 @@ export type Mutation = {
   joinGroup?: Maybe<boolean>;
   createTodo?: Maybe<Todo>;
   deleteTodo: boolean;
+  completeTodo: boolean;
   login?: Maybe<User>;
   logout: boolean;
   invalidateTokens?: Maybe<boolean>;
@@ -78,6 +79,10 @@ export type MutationCreateTodoArgs = {
 };
 
 export type MutationDeleteTodoArgs = {
+  todoId: number;
+};
+
+export type MutationCompleteTodoArgs = {
   todoId: number;
 };
 
@@ -140,6 +145,7 @@ export type Todo = {
   todoAuthorId: number;
   timeStamp: string;
   fileName: string;
+  completed: boolean;
   author?: Maybe<User>;
   comments: Array<Comment>;
   commentsCount: number;
@@ -218,6 +224,8 @@ export type GroupTodos = {
 
   author: Maybe<GroupAuthor>;
 
+  completed: boolean;
+
   todoGroupId: number;
 
   commentsCount: number;
@@ -277,6 +285,16 @@ export type Group_Author = {
   pictureUrl: Maybe<string>;
 };
 
+export type CompleteTodoVariables = {
+  todoId: number;
+};
+
+export type CompleteTodoMutation = {
+  __typename?: "Mutation";
+
+  completeTodo: boolean;
+};
+
 export type CreateCommentVariables = {
   data: CreateCommentInput;
 };
@@ -333,6 +351,8 @@ export type CreateTodoCreateTodo = {
   author: Maybe<CreateTodoAuthor>;
 
   commentsCount: number;
+
+  completed: boolean;
 
   comments: CreateTodoComments[];
 
@@ -515,6 +535,8 @@ export type GetTodoGetTodo = {
   fileName: string;
 
   commentsCount: number;
+
+  completed: boolean;
 
   todoAuthorId: number;
 
@@ -740,6 +762,7 @@ export const GroupDocument = gql`
           id
           pictureUrl
         }
+        completed
         todoGroupId
         commentsCount
         comments {
@@ -805,6 +828,61 @@ export function useGroup(
     GroupDocument,
     baseOptions
   );
+}
+export const CompleteTodoDocument = gql`
+  mutation CompleteTodo($todoId: Int!) {
+    completeTodo(todoId: $todoId)
+  }
+`;
+export class CompleteTodoComponent extends React.Component<
+  Partial<
+    ReactApollo.MutationProps<CompleteTodoMutation, CompleteTodoVariables>
+  >
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<CompleteTodoMutation, CompleteTodoVariables>
+        mutation={CompleteTodoDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type CompleteTodoProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<CompleteTodoMutation, CompleteTodoVariables>
+> &
+  TChildProps;
+export type CompleteTodoMutationFn = ReactApollo.MutationFn<
+  CompleteTodoMutation,
+  CompleteTodoVariables
+>;
+export function CompleteTodoHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        CompleteTodoMutation,
+        CompleteTodoVariables,
+        CompleteTodoProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    CompleteTodoMutation,
+    CompleteTodoVariables,
+    CompleteTodoProps<TChildProps>
+  >(CompleteTodoDocument, operationOptions);
+}
+export function useCompleteTodo(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    CompleteTodoMutation,
+    CompleteTodoVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    CompleteTodoMutation,
+    CompleteTodoVariables
+  >(CompleteTodoDocument, baseOptions);
 }
 export const CreateCommentDocument = gql`
   mutation CreateComment($data: CreateCommentInput!) {
@@ -884,6 +962,7 @@ export const CreateTodoDocument = gql`
         pictureUrl
       }
       commentsCount
+      completed
       comments {
         text
         timeStamp
@@ -1189,6 +1268,7 @@ export const GetTodoDocument = gql`
       timeStamp
       fileName
       commentsCount
+      completed
       todoAuthorId
       author {
         email
