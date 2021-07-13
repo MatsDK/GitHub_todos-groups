@@ -12,6 +12,7 @@ type InputProps = DetailedHTMLProps<
 //   >;
 
 const Input = styled.div`
+  width: 100%;
   input {
     font-size: 21px;
     outline: none;

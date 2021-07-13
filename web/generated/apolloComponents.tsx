@@ -45,6 +45,7 @@ export type Mutation = {
   deleteComment: boolean;
   createGroup: Group;
   joinGroup?: Maybe<boolean>;
+  inviteUser?: Maybe<boolean>;
   createTodo?: Maybe<Todo>;
   deleteTodo: boolean;
   completeTodo: boolean;
@@ -71,6 +72,11 @@ export type MutationCreateGroupArgs = {
 };
 
 export type MutationJoinGroupArgs = {
+  groupId: number;
+};
+
+export type MutationInviteUserArgs = {
+  userEmail: string;
   groupId: number;
 };
 
@@ -166,6 +172,17 @@ export type User = {
 // ====================================================
 // Documents
 // ====================================================
+
+export type InviteUserVariables = {
+  userEmail: string;
+  groupId: number;
+};
+
+export type InviteUserMutation = {
+  __typename?: "Mutation";
+
+  inviteUser: Maybe<boolean>;
+};
 
 export type JoinGroupVariables = {
   groupId: number;
@@ -687,6 +704,59 @@ import * as ReactApolloHooks from "react-apollo-hooks";
 // Components
 // ====================================================
 
+export const InviteUserDocument = gql`
+  mutation InviteUser($userEmail: String!, $groupId: Int!) {
+    inviteUser(userEmail: $userEmail, groupId: $groupId)
+  }
+`;
+export class InviteUserComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<InviteUserMutation, InviteUserVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<InviteUserMutation, InviteUserVariables>
+        mutation={InviteUserDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type InviteUserProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<InviteUserMutation, InviteUserVariables>
+> &
+  TChildProps;
+export type InviteUserMutationFn = ReactApollo.MutationFn<
+  InviteUserMutation,
+  InviteUserVariables
+>;
+export function InviteUserHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        InviteUserMutation,
+        InviteUserVariables,
+        InviteUserProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    InviteUserMutation,
+    InviteUserVariables,
+    InviteUserProps<TChildProps>
+  >(InviteUserDocument, operationOptions);
+}
+export function useInviteUser(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    InviteUserMutation,
+    InviteUserVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<InviteUserMutation, InviteUserVariables>(
+    InviteUserDocument,
+    baseOptions
+  );
+}
 export const JoinGroupDocument = gql`
   mutation JoinGroup($groupId: Float!) {
     joinGroup(groupId: $groupId)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { GroupGroup, GroupTodos } from "../../generated/apolloComponents";
 import { GetRepoObjectRepository } from "../../generated/github-apollo-components";
@@ -9,6 +9,9 @@ import { FilePath } from "./FilePath";
 import Files from "./Files";
 import NewTodoForm from "./NewTodoForm";
 import TodoCard from "./TodoCard";
+import Invite from "./Invite";
+import Picture from "../ui/Picture";
+import { MeContext } from "../context/meContext";
 
 interface Props {
   group: GroupGroup;
@@ -20,10 +23,9 @@ const Title = styled.h1`
   font-family: "Rubik", sans-serif;
   font-size: 40px;
   width: fit-content;
-  margin-top: 60px;
 `;
 
-const NewTodoButton = styled.button`
+const Button = styled.button`
   padding: 5px 15px;
   color: ${(props) => props.theme.textColors[3]};
   background: ${(props) => props.theme.secondaryBgColor};
@@ -50,15 +52,47 @@ const GroupHeader = styled.div`
   }
 `;
 
+const GroupUsers = styled.div`
+  margin-left: 30px;
+
+  div {
+    img {
+      margin-right: 10px;
+    }
+
+    p {
+      position: absolute;
+      box-shadow: 2px 2px 10px #0000009b;
+      border-radius: 2px;
+      transition: 0.14s ease;
+      margin-top: 40px;
+      padding: 3px 5px;
+      background-color: ${(props) => props.theme.secondaryBgColor};
+      transform: translateY(10px);
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  div:hover {
+    p {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+`;
+
 const GroupView: React.FC<Props> = ({
   group,
   repoData,
   path: { groupId, path },
 }) => {
+  const meContext = useContext(MeContext);
   const [todos, setTodos] = useState<Array<GroupTodos>>(
     sortDates(group.todos, "timeStamp")
   );
   const [showTodoForm, setShowTodoForm] = useState<boolean>(false);
+  const [showInviteForm, setShowInviteForm] = useState<boolean>(false);
 
   useEffect(() => {
     setTodos(
@@ -81,15 +115,38 @@ const GroupView: React.FC<Props> = ({
         <NewTodoForm
           path={path}
           closeForm={() => setShowTodoForm(false)}
-          groupId={parseInt(group.id)}
+          groupId={Number(group.id)}
           addTodo={addTodo}
         />
       )}
+      {showInviteForm && (
+        <Invite
+          groupId={Number(group.id)}
+          closeForm={() => setShowInviteForm(false)}
+        />
+      )}
       <GroupHeader>
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <Title>{group.name}</Title>
+          <GroupUsers>
+            {group.users.map(
+              (user, idx) =>
+                user.pictureUrl && (
+                  <div key={idx}>
+                    <Picture src={user.pictureUrl} />
+                    <p>
+                      {user.name}
+                      {meContext && meContext.id == user.id && " (Me)"}
+                      {user.isOwner && " (Owner)"}
+                    </p>
+                  </div>
+                )
+            )}
+          </GroupUsers>
         </div>
-        <button>Invite</button>
+        <div>
+          <Button onClick={() => setShowInviteForm(true)}>Invite</Button>
+        </div>
       </GroupHeader>
       <div>
         <div>
@@ -99,7 +156,7 @@ const GroupView: React.FC<Props> = ({
           />
           <Files groupId={groupId} path={path.join("/")} repoData={repoData} />
         </div>
-        <div>
+        <div style={{ marginTop: 50 }}>
           <div
             style={{
               display: "flex",
@@ -114,11 +171,11 @@ const GroupView: React.FC<Props> = ({
               </ProgressSpan>
             </div>
             <div>
-              <NewTodoButton
+              <Button
                 onClick={() => setShowTodoForm((showTodoForm) => !showTodoForm)}
               >
                 New Todo
-              </NewTodoButton>
+              </Button>
             </div>
           </div>
           <TodoGrid>

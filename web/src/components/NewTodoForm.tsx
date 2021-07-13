@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { groupQuery } from "../../graphql/group/query/group";
 import styled from "styled-components";
 import { CloseIcon } from "./icons";
+import { Button } from "../ui/Button";
 
 interface Props {
   groupId: number;
@@ -48,22 +49,6 @@ const NewTodoPopupInner = styled.div`
 
 const Title = styled.h1`
   margin: 0;
-`;
-
-const SaveButton = styled.button`
-  cursor: pointer;
-  margin-top: 10px;
-  padding: 2px 10px;
-  font-size: 20px;
-  color: ${(props) => props.theme.textColors[0]};
-  background: ${(props) => props.theme.gradient};
-  border: 0;
-  border-radius: 5px;
-  transition: 0.1s ease;
-
-  :hover {
-    color: ${(props) => props.theme.textColors[1]};
-  }
 `;
 
 const newTodoForm: React.SFC<Props> = ({
@@ -188,7 +173,7 @@ const newTodoForm: React.SFC<Props> = ({
                     component={InputField}
                   />
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <SaveButton type="submit">Create Todo</SaveButton>
+                    <Button type="submit">Create Todo</Button>
                   </div>
                 </form>
               )}

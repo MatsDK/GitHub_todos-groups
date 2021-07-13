@@ -4,6 +4,7 @@ import { Arg, Ctx, Int, Mutation, Resolver, UseMiddleware } from "type-graphql";
 import { Group } from "../../entity/Group";
 import { GroupUser } from "../../entity/GroupUser";
 import { isAuth } from "../middleware/isAuth";
+import { User } from "../../entity/User";
 
 @Resolver()
 export class GroupUserResolver {
@@ -60,8 +61,11 @@ export class GroupUserResolver {
   async inviteUser(
     @Arg("groupId", () => Int) groupId: number,
     @Arg("userEmail") userEmail: string
-  ) {
-    console.log(groupId, userEmail);
+  ): Promise<boolean> {
+    const user = await User.findOne({ where: { email: userEmail } });
+    if (!user) return false;
+
+    await Invite.create({ group_id: groupId, user_target: user.id }).save();
 
     return true;
   }
