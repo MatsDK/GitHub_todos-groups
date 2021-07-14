@@ -20,21 +20,16 @@ export class TodoResolver {
   @Mutation(() => Todo, { nullable: true })
   async createTodo(
     @Arg("data")
-    { todoBody, todoTitle, fileName, todoGroupId }: CreateTodoInput,
+    data: CreateTodoInput,
     @Ctx() ctx: MyContext
   ): Promise<Todo> {
     const timeStamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
-    const todo = await Todo.create({
+    return await Todo.create({
       todoAuthorId: (ctx.req as any).userId,
-      fileName,
-      todoTitle,
-      todoBody,
       timeStamp,
-      todoGroupId,
+      ...data,
     }).save();
-
-    return todo;
   }
 
   @UseMiddleware(isAuth)

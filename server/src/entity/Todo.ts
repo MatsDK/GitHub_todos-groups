@@ -39,6 +39,14 @@ export class Todo extends BaseEntity {
   @Column("bool", { default: false })
   completed: boolean;
 
+  @Field({ nullable: true })
+  @Column("int", { nullable: true })
+  startLineNumber: number;
+
+  @Field({ nullable: true })
+  @Column("int", { nullable: true })
+  endLineNumber: number;
+
   @Field(() => User, { nullable: true })
   author(@Ctx() { authorsLoader }: MyContext): Promise<User> {
     return authorsLoader.load(this.todoAuthorId);
