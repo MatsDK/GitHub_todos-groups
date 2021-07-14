@@ -6,6 +6,7 @@ import { ApolloProvider } from "react-apollo";
 import styled, { ThemeProvider } from "styled-components";
 import { withApollo } from "../lib/HOC/withApolloLinks";
 import "../src/css/global.css";
+import "../src/css/prism.css";
 import { darkTheme } from "../src/utils/themes";
 
 const Wrapper = styled.div`

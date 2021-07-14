@@ -30,7 +30,6 @@ const linkOptions: HttpLink.Options[] = [
 
 export const withApollo = (App: any) => {
   return class Apollo extends React.Component {
-    // static displayName = "withApollo(App)";
     static async getInitialProps(ctx: any) {
       const {
         Component,
@@ -60,7 +59,7 @@ export const withApollo = (App: any) => {
 
       if (res && res.finished) return {};
 
-      if (!isBrowser) {
+      if (!isBrowser)
         try {
           await getDataFromTree(
             <App
@@ -73,7 +72,6 @@ export const withApollo = (App: any) => {
         } catch (error) {
           console.log(error);
         }
-      }
 
       const apolloState = apollo.cache.extract();
 

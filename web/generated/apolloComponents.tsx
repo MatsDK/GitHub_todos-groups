@@ -23,6 +23,8 @@ export type CreateTodoInput = {
   todoBody: string;
   fileName: string;
   todoGroupId: number;
+  startLineNumber: Maybe<number>;
+  endLineNumber: Maybe<number>;
 };
 
 export type Group = {
@@ -152,6 +154,8 @@ export type Todo = {
   timeStamp: string;
   fileName: string;
   completed: boolean;
+  startLineNumber?: Maybe<number>;
+  endLineNumber?: Maybe<number>;
   author?: Maybe<User>;
   comments: Array<Comment>;
   commentsCount: number;
@@ -556,6 +560,10 @@ export type GetTodoGetTodo = {
   completed: boolean;
 
   todoAuthorId: number;
+
+  startLineNumber: Maybe<number>;
+
+  endLineNumber: Maybe<number>;
 
   author: Maybe<GetTodoAuthor>;
 
@@ -1340,6 +1348,8 @@ export const GetTodoDocument = gql`
       commentsCount
       completed
       todoAuthorId
+      startLineNumber
+      endLineNumber
       author {
         email
         id

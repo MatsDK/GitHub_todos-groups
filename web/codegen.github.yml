@@ -6,7 +6,7 @@ generates:
     config:
       noNamespaces: true
       withHOC: false
-    # withComponent: true
+      withHooks: true
     plugins:
       - "typescript-common"
       - "typescript-client"

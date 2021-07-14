@@ -1012,11 +1012,7 @@ export type GetRepoObjectRepository = {
   object: Maybe<GetRepoObjectObject>;
 };
 
-export type GetRepoObjectObject = {
-  __typename:
-    | GetRepoObjectBlobInlineFragment["__typename"]
-    | GetRepoObjectTreeInlineFragment["__typename"];
-};
+export type GetRepoObjectObject = any;
 
 export type GetRepoObjectBlobInlineFragment = {
   __typename?: "Blob";
@@ -1038,9 +1034,28 @@ export type GetRepoObjectEntries = {
   name: string;
 };
 
+export type GetTypeQueryVariables = {
+  owner: string;
+  name: string;
+  expression: string;
+};
+
+export type GetTypeQueryQuery = {
+  __typename?: "Query";
+
+  repository: Maybe<GetTypeQueryRepository>;
+};
+
+export type GetTypeQueryRepository = {
+  __typename?: "Repository";
+
+  object: Maybe<any>;
+};
+
 import gql from "graphql-tag";
 import * as React from "react";
 import * as ReactApollo from "react-apollo";
+import * as ReactApolloHooks from "react-apollo-hooks";
 
 // ====================================================
 // Components
@@ -1096,4 +1111,62 @@ export function GetRepoObjectHOC<TProps, TChildProps = any>(
     GetRepoObjectVariables,
     GetRepoObjectProps<TChildProps>
   >(GetRepoObjectDocument, operationOptions);
+}
+export function useGetRepoObject(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<GetRepoObjectVariables>
+) {
+  return ReactApolloHooks.useQuery<GetRepoObjectQuery, GetRepoObjectVariables>(
+    GetRepoObjectDocument,
+    baseOptions
+  );
+}
+export const GetTypeQueryDocument = gql`
+  query getTypeQuery($owner: String!, $name: String!, $expression: String!) {
+    repository(owner: $owner, name: $name) {
+      object(expression: $expression) {
+        __typename
+      }
+    }
+  }
+`;
+export class GetTypeQueryComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<GetTypeQueryQuery, GetTypeQueryVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<GetTypeQueryQuery, GetTypeQueryVariables>
+        query={GetTypeQueryDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type GetTypeQueryProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<GetTypeQueryQuery, GetTypeQueryVariables>
+> &
+  TChildProps;
+export function GetTypeQueryHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        GetTypeQueryQuery,
+        GetTypeQueryVariables,
+        GetTypeQueryProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    GetTypeQueryQuery,
+    GetTypeQueryVariables,
+    GetTypeQueryProps<TChildProps>
+  >(GetTypeQueryDocument, operationOptions);
+}
+export function useGetTypeQuery(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<GetTypeQueryVariables>
+) {
+  return ReactApolloHooks.useQuery<GetTypeQueryQuery, GetTypeQueryVariables>(
+    GetTypeQueryDocument,
+    baseOptions
+  );
 }

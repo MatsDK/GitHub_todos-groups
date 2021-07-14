@@ -1,3 +1,4 @@
 next.config.js
 .env.local
 .gitignore
+languages.json

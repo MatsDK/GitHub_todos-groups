@@ -1,26 +1,27 @@
 import dayjs from "dayjs";
 import { Field, Formik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import {
+  CompleteTodoComponent,
   CreateCommentComponent,
   DeleteTodoComponent,
+  GetTodoGetTodo,
   GroupComments,
-  GroupTodos,
-  LoadCommentsComponent,
-  CompleteTodoComponent,
   GroupGroup,
+  LoadCommentsComponent,
 } from "../../generated/apolloComponents";
+import { groupQuery } from "../../graphql/group/query/group";
 import { LoadCommentsQuery } from "../../graphql/todo/query/comments";
 import { MeContext } from "../context/meContext";
+import Picture from "../ui/Picture";
 import { responseIsInvalid } from "../utils/isResponseValid";
 import { sortDates } from "../utils/sortDates";
-import Picture from "../ui/Picture";
 import Comment from "./Comment";
 import { InputField } from "./inputField";
-import { groupQuery } from "../../graphql/group/query/group";
 
 interface Props {
-  todo: GroupTodos;
+  todo: GetTodoGetTodo;
   removeTodo: (id: string) => void;
 }
 
@@ -28,7 +29,7 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
   const meContext = useContext(MeContext);
   const myTodo = meContext && meContext.id == rest.todo.author!.id;
 
-  const [todo, setTodo] = useState<GroupTodos>(rest.todo);
+  const [todo, setTodo] = useState<GetTodoGetTodo>(rest.todo);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
   const [skip, setSkip] = useState<number>(todo.comments.length);
   const [comments, setComments] = useState<GroupComments[]>(
@@ -122,7 +123,15 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
       </div>
       <div>
         <b>{todo.todoTitle}</b>
-        <pre>{todo.todoBody}</pre>
+        {/* <pre>{todo.todoBody}</pre> */}
+        <pre>
+          <ReactMarkdown>{todo.todoBody}</ReactMarkdown>
+        </pre>
+        <div>
+          <p>path: {todo.fileName}</p>
+          <p>start: {todo.startLineNumber}</p>
+          <p>end: {todo.endLineNumber}</p>
+        </div>
       </div>
 
       <div>
@@ -202,7 +211,7 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
 };
 
 interface CommentFormProps {
-  todo: GroupTodos;
+  todo: GetTodoGetTodo;
   addComment: any;
 }
 
@@ -223,12 +232,6 @@ const CommentForm: React.FC<CommentFormProps> = ({ todo, addComment }) => (
                   parentCommentId: null,
                 },
               },
-              // refetchQueries: [
-              //   {
-              //     query: groupQuery,
-              //     variables: { groupId: todo.todoGroupId },
-              //   },
-              // ],
             });
 
             if (!res || !res.data || !res.data.createComment) return;

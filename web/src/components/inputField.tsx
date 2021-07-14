@@ -27,11 +27,26 @@ const Input = styled.div`
 export const InputField = ({
   field,
   form: { errors, touched },
+  setValue,
   ...props
-}: FieldProps & InputProps) => {
+}: FieldProps & InputProps & { setValue: any }) => {
   const errorMessage = touched[field.name] && errors[field.name];
 
-  return (
+  return setValue ? (
+    <div>
+      <Input>
+        <input
+          {...field}
+          onChange={(e) => {
+            setValue(e.target.value);
+            field.onChange(e);
+          }}
+          placeholder={props.placeholder}
+        />
+      </Input>
+      {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+    </div>
+  ) : (
     <div>
       <Input>
         <input {...field} placeholder={props.placeholder} />
@@ -59,13 +74,21 @@ const Textarea = styled.textarea`
 export const TextAreaField = ({
   field,
   form: { errors, touched },
+  setValue,
   ...props
-}: FieldProps & InputProps) => {
+}: FieldProps & InputProps & { setValue: any }) => {
   const errorMessage = touched[field.name] && errors[field.name];
 
   return (
     <div>
-      <Textarea placeholder={props.placeholder} {...field} />
+      <Textarea
+        placeholder={props.placeholder}
+        {...field}
+        onChange={(e) => {
+          setValue(e.target.value);
+          field.onChange(e);
+        }}
+      />
       {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
     </div>
   );

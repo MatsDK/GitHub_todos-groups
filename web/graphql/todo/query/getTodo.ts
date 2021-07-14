@@ -12,6 +12,8 @@ export const GetTodoQuery = gql`
       commentsCount
       completed
       todoAuthorId
+      startLineNumber
+      endLineNumber
       author {
         email
         id

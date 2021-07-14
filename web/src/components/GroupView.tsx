@@ -115,7 +115,8 @@ const GroupView: React.FC<Props> = ({
         <NewTodoForm
           path={path}
           closeForm={() => setShowTodoForm(false)}
-          groupId={Number(group.id)}
+          group={group}
+          isFilePath={repoData.object.__typename == "Blob"}
           addTodo={addTodo}
         />
       )}
@@ -167,7 +168,7 @@ const GroupView: React.FC<Props> = ({
             <div style={{ display: "flex", alignItems: "baseline" }}>
               <Title>Todos</Title>
               <ProgressSpan>
-                {todos.filter((todo) => !todo.completed).length} Acitive todos
+                {todos.filter((todo) => !todo.completed).length} Active todos
               </ProgressSpan>
             </div>
             <div>

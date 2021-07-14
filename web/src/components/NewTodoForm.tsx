@@ -1,4 +1,7 @@
-import { CreateTodoComponent } from "../../generated/apolloComponents";
+import {
+  CreateTodoComponent,
+  GroupGroup,
+} from "../../generated/apolloComponents";
 import { Formik, Field } from "formik";
 import { InputField, TextAreaField } from "./inputField";
 import { useState } from "react";
@@ -7,18 +10,24 @@ import { groupQuery } from "../../graphql/group/query/group";
 import styled from "styled-components";
 import { CloseIcon } from "./icons";
 import { Button } from "../ui/Button";
+import ReactMarkdown from "react-markdown";
+import { GetTypeQueryComponent } from "../../generated/github-apollo-components";
+import { getTypeQuery } from "../../github-graphql/query/getType";
 
 interface Props {
-  groupId: number;
+  group: GroupGroup;
   path: string[];
   addTodo: any;
+  isFilePath: boolean;
   closeForm: () => void;
 }
 
-const Label = styled.p`
+const Label = styled("p")<{ button?: any }>`
   font-size: 20px;
   margin: 10px 0 5px 0;
   color: ${(props) => props.theme.textColors[2]};
+  cursor: ${(props) => (props.button ? "pointer" : "inerhit")};
+  margin-right: ${(props) => (props.button ? "10px" : "0")};
 `;
 
 const NewTodoPopup = styled.div`
@@ -51,12 +60,29 @@ const Title = styled.h1`
   margin: 0;
 `;
 
+const Preview = styled.div`
+  resize: vertical;
+  max-height: 400px;
+  min-height: 150px;
+  flex: 1;
+  border: 2px solid ${(props) => props.theme.mainBgColor};
+  width: calc(100% - 20px);
+  padding: 2px 10px;
+`;
+
 const newTodoForm: React.SFC<Props> = ({
-  groupId,
+  group,
   path,
   addTodo,
   closeForm,
+  ...rest
 }) => {
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [fileName, setFileName] = useState<string>(path.join("/"));
+  const [isFilePath, setIsFilePath] = useState<boolean>(rest.isFilePath);
+  const [startLineNumber, setStartLineNumber] = useState<null | number>(null);
+  const [endLineNumber, setEndLineNumber] = useState<null | number>(null);
   const [pathPlaceHolder, setPathPlaceHolder] = useState<string>(
     path.join("/")
   );
@@ -66,6 +92,11 @@ const newTodoForm: React.SFC<Props> = ({
 
     return () => {};
   }, [path]);
+
+  useEffect(() => {
+    if (path.join("/") == fileName) return setIsFilePath(rest.isFilePath);
+    if (!rest.isFilePath) setIsFilePath(false);
+  }, [fileName]);
 
   return (
     <NewTodoPopup
@@ -98,25 +129,22 @@ const newTodoForm: React.SFC<Props> = ({
                   !data.todoTitle.trim().length
                 )
                   return;
-                console.log({
-                  ...data,
-                  todoGroupId: groupId,
-                  fileName: data.fileName || "",
-                });
 
                 const res = await createTodo({
                   variables: {
                     data: {
                       ...data,
-                      todoGroupId: groupId,
+                      todoGroupId: Number(group.id),
                       fileName: data.fileName || "",
+                      startLineNumber,
+                      endLineNumber,
                     },
                   },
                   update: (cache, { data }) => {
                     try {
                       const cacheData: any = cache.readQuery({
                         query: groupQuery,
-                        variables: { groupId },
+                        variables: { groupId: Number(group.id) },
                       });
 
                       if (
@@ -134,7 +162,7 @@ const newTodoForm: React.SFC<Props> = ({
 
                       cache.writeQuery({
                         query: groupQuery,
-                        variables: { groupId },
+                        variables: { groupId: Number(group.id) },
                         data: cacheData,
                       });
                     } catch {}
@@ -150,6 +178,8 @@ const newTodoForm: React.SFC<Props> = ({
                 fileName: pathPlaceHolder,
                 todoTitle: "",
                 todoBody: "",
+                startLineNumber: "",
+                endLineNumber: "",
               }}
             >
               {({ handleSubmit }) => (
@@ -160,18 +190,88 @@ const newTodoForm: React.SFC<Props> = ({
                     placeholder="todo title"
                     component={InputField}
                   />
-                  <Label>Write Todo Body</Label>
-                  <Field
-                    name="todoBody"
-                    placeholder="todo body"
-                    component={TextAreaField}
-                  />
+                  <div style={{ display: "flex" }}>
+                    <Label button onClick={() => setShowPreview(false)}>
+                      Write
+                    </Label>
+                    <Label button onClick={() => setShowPreview(true)}>
+                      Preview
+                    </Label>
+                  </div>
+                  {!showPreview ? (
+                    <Field
+                      name="todoBody"
+                      placeholder="todo body"
+                      setValue={setInputValue}
+                      component={TextAreaField}
+                    />
+                  ) : (
+                    <Preview>
+                      <ReactMarkdown>{inputValue}</ReactMarkdown>
+                    </Preview>
+                  )}
                   <Label>File Path</Label>
-                  <Field
-                    name="fileName"
-                    placeholder={"filename"}
-                    component={InputField}
-                  />
+                  <div style={{ display: "flex" }}>
+                    <Field
+                      name="fileName"
+                      placeholder={"filename"}
+                      setValue={setFileName}
+                      component={InputField}
+                    />
+                    <GetTypeQueryComponent skip={true}>
+                      {(query) => (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const res = await query.client.query({
+                              query: getTypeQuery,
+                              context: { server: "github" },
+                              variables: {
+                                owner: group.repoOwner,
+                                name: group.repoName,
+                                expression: `${group.mainBranch}:${fileName}`,
+                              },
+                            });
+
+                            if (!res || !res.data || !res.data.repository)
+                              return;
+
+                            if (
+                              !res.data.repository.object ||
+                              !res.data.repository.object.__typename
+                            )
+                              return console.log("Path not found");
+
+                            setIsFilePath(
+                              res.data.repository.object.__typename == "Blob"
+                            );
+                          }}
+                        >
+                          Enter
+                        </button>
+                      )}
+                    </GetTypeQueryComponent>
+                    {isFilePath && (
+                      <div style={{ display: "flex" }}>
+                        <Field
+                          name="startLineNumber"
+                          placeholder="startLineNumber"
+                          setValue={(value: string) =>
+                            setStartLineNumber(Number(value) || null)
+                          }
+                          component={InputField}
+                        />
+                        <Field
+                          name="endLineNumber"
+                          placeholder="endLineNumber"
+                          setValue={(value: string) =>
+                            setEndLineNumber(Number(value) || null)
+                          }
+                          component={InputField}
+                        />
+                      </div>
+                    )}
+                  </div>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button type="submit">Create Todo</Button>
                   </div>

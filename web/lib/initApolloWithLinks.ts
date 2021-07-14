@@ -39,12 +39,6 @@ const create = (
       authLink.concat(serverHttpLink) as any
     ) as any,
     cache: new InMemoryCache(cacheConfig).restore(initialState || {}),
-    // defaultOptions: {
-    //   query: {
-    //     fetchPolicy: "no-cache",
-    //     errorPolicy: "all",
-    //   },
-    // },
   });
 };
 
