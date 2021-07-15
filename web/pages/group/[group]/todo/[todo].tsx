@@ -7,6 +7,8 @@ import GroupLayout from "../../../../src/components/GroupLayout";
 import { NextFunctionComponent } from "../../../../types";
 import Todo from "../../../../src/components/Todo";
 import { MeContext } from "../../../../src/context/meContext";
+import { getGroupRepoDataQuery } from "../../../../graphql/group/query/getGroupRepoData";
+import { getRepoObject } from "../../../../github-graphql/query/getRepo";
 
 interface Props {
   me: MeMe;
@@ -40,10 +42,35 @@ const TodoPage: NextFunctionComponent<Props> = ({ me }) => {
 };
 
 TodoPage.getInitialProps = async ({ apolloClient, query: { todo } }) => {
-  await apolloClient.query({
+  const res = await apolloClient.query({
     query: GetTodoQuery,
     variables: { todoId: Number(todo) },
   });
+  if (!res || !res.data || !res.data.getTodo) return;
+
+  if (
+    !!res.data.getTodo.fileName &&
+    res.data.getTodo.startLineNumber != null &&
+    res.data.getTodo.endLineNumber != null
+  ) {
+    const repoData = await apolloClient.query({
+      query: getGroupRepoDataQuery,
+      variables: { groupId: res.data.getTodo.todoGroupId },
+    });
+    if (!repoData || !repoData.data || !repoData.data.group) return;
+
+    await apolloClient.query({
+      query: getRepoObject,
+      context: { server: "github" },
+      variables: {
+        owner: repoData.data.group.repoOwner,
+        name: repoData.data.group.repoName,
+        expression: `${repoData.data.group.mainBranch}:${
+          res.data.getTodo.fileName
+        }`,
+      },
+    });
+  }
 };
 
 export default withAuth(TodoPage);

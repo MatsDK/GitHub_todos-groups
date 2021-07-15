@@ -42,7 +42,7 @@ const GroupLayout: React.FC<Props> = ({ children, title, me }) => {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <Page>
-        <div style={{ padding: "0 20px" }}>
+        <div style={{ padding: "0 20px", marginBottom: 100 }}>
           <Navbar>
             {me && (
               <Profile>

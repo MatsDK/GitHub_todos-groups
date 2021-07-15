@@ -198,6 +198,26 @@ export type JoinGroupMutation = {
   joinGroup: Maybe<boolean>;
 };
 
+export type GetRepoDataQueryVariables = {
+  groupId: number;
+};
+
+export type GetRepoDataQueryQuery = {
+  __typename?: "Query";
+
+  group: Maybe<GetRepoDataQueryGroup>;
+};
+
+export type GetRepoDataQueryGroup = {
+  __typename?: "Group";
+
+  repoName: string;
+
+  repoOwner: string;
+
+  mainBranch: string;
+};
+
 export type GroupVariables = {
   groupId: number;
 };
@@ -817,6 +837,58 @@ export function useJoinGroup(
     JoinGroupDocument,
     baseOptions
   );
+}
+export const GetRepoDataQueryDocument = gql`
+  query GetRepoDataQuery($groupId: Float!) {
+    group(groupId: $groupId) {
+      repoName
+      repoOwner
+      mainBranch
+    }
+  }
+`;
+export class GetRepoDataQueryComponent extends React.Component<
+  Partial<
+    ReactApollo.QueryProps<GetRepoDataQueryQuery, GetRepoDataQueryVariables>
+  >
+> {
+  render() {
+    return (
+      <ReactApollo.Query<GetRepoDataQueryQuery, GetRepoDataQueryVariables>
+        query={GetRepoDataQueryDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type GetRepoDataQueryProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<GetRepoDataQueryQuery, GetRepoDataQueryVariables>
+> &
+  TChildProps;
+export function GetRepoDataQueryHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        GetRepoDataQueryQuery,
+        GetRepoDataQueryVariables,
+        GetRepoDataQueryProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    GetRepoDataQueryQuery,
+    GetRepoDataQueryVariables,
+    GetRepoDataQueryProps<TChildProps>
+  >(GetRepoDataQueryDocument, operationOptions);
+}
+export function useGetRepoDataQuery(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<GetRepoDataQueryVariables>
+) {
+  return ReactApolloHooks.useQuery<
+    GetRepoDataQueryQuery,
+    GetRepoDataQueryVariables
+  >(GetRepoDataQueryDocument, baseOptions);
 }
 export const GroupDocument = gql`
   query group($groupId: Float!) {

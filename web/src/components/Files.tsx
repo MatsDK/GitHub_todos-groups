@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Prism from "prismjs";
 import React from "react";
 import styled from "styled-components";
 import {
@@ -7,7 +6,7 @@ import {
   GetRepoObjectRepository,
   GetRepoObjectTreeInlineFragment,
 } from "../../generated/github-apollo-components";
-import languages from "../../languages.json";
+import CodeHighlight from "./CodeHighlight";
 import { FileIcon, FolderIcon } from "./icons";
 
 interface FilesProps {
@@ -47,39 +46,17 @@ const Line = styled.div`
 
 const order = ["tree", "blob"];
 
-const detectLanguage = (path: string): string => {
-  const ext: string = `.${path.split(".").pop()}`;
-  const language: undefined | any[] = Object.entries(languages as any).find(
-    (_: any) => {
-      return _[1] && _[1].extensions && (_[1] as any).extensions.includes(ext);
-    }
-  );
-
-  if (language) return language[0].toLowerCase();
-
-  return "markdown";
-};
-
 const Files: React.FC<FilesProps> = ({ repoData, groupId, path }) => {
   if (!repoData.object) return null;
 
   if (repoData.object.__typename !== "Tree") {
-    const lang = detectLanguage(path);
-
-    import(`prismjs/components/prism-${lang}`)
-      .then(() => {
-        Prism.highlightAll();
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-
     return (
-      <pre className={`language-${lang}`}>
-        <code className={`language-${lang}`}>
-          {(repoData.object as GetRepoObjectBlobInlineFragment).text}
-        </code>
-      </pre>
+      <CodeHighlight
+        fileData={
+          (repoData.object as GetRepoObjectBlobInlineFragment).text || ""
+        }
+        path={path}
+      />
     );
   }
 

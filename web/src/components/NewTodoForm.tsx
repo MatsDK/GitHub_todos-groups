@@ -21,6 +21,10 @@ interface Props {
   isFilePath: boolean;
   closeForm: () => void;
 }
+type LineNumbers = {
+  startLineNumber: null | number;
+  endLineNumber: null | number;
+};
 
 const Label = styled("p")<{ button?: any }>`
   font-size: 20px;
@@ -130,14 +134,24 @@ const newTodoForm: React.SFC<Props> = ({
                 )
                   return;
 
+                const validLineNumbers: boolean =
+                  startLineNumber != null &&
+                  endLineNumber != null &&
+                  endLineNumber < startLineNumber &&
+                  endLineNumber - startLineNumber > 0;
+
+                const lineNumbers: LineNumbers = {
+                  startLineNumber: validLineNumbers ? startLineNumber : null,
+                  endLineNumber: validLineNumbers ? endLineNumber : null,
+                };
+
                 const res = await createTodo({
                   variables: {
                     data: {
                       ...data,
                       todoGroupId: Number(group.id),
                       fileName: data.fileName || "",
-                      startLineNumber,
-                      endLineNumber,
+                      ...lineNumbers,
                     },
                   },
                   update: (cache, { data }) => {

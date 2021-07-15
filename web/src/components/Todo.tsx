@@ -6,17 +6,24 @@ import {
   CompleteTodoComponent,
   CreateCommentComponent,
   DeleteTodoComponent,
+  GetRepoDataQueryComponent,
   GetTodoGetTodo,
   GroupComments,
   GroupGroup,
   LoadCommentsComponent,
 } from "../../generated/apolloComponents";
+import {
+  GetRepoObjectBlobInlineFragment,
+  GetRepoObjectComponent,
+} from "../../generated/github-apollo-components";
 import { groupQuery } from "../../graphql/group/query/group";
 import { LoadCommentsQuery } from "../../graphql/todo/query/comments";
 import { MeContext } from "../context/meContext";
 import Picture from "../ui/Picture";
 import { responseIsInvalid } from "../utils/isResponseValid";
 import { sortDates } from "../utils/sortDates";
+import { hasAttachedFile } from "../utils/todoUtils";
+import CodeHighlight from "./CodeHighlight";
 import Comment from "./Comment";
 import { InputField } from "./inputField";
 
@@ -26,8 +33,66 @@ interface Props {
 }
 
 const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
+  const hasAttachedFile: boolean =
+    !!rest.todo.fileName &&
+    rest.todo.startLineNumber != null &&
+    rest.todo.endLineNumber != null;
+
+  return hasAttachedFile ? (
+    <GetRepoDataQueryComponent variables={{ groupId: rest.todo.todoGroupId }}>
+      {({ data }) => {
+        if (!data || !data.group) return null;
+
+        return (
+          <GetRepoObjectComponent
+            context={{ server: "github" }}
+            variables={{
+              expression: `${data.group.mainBranch}:${rest.todo.fileName}`,
+              owner: data.group.repoOwner,
+              name: data.group.repoName,
+            }}
+          >
+            {({ data }) => {
+              const text: string | null =
+                (data &&
+                  data.repository &&
+                  data.repository.object &&
+                  (data.repository.object as GetRepoObjectBlobInlineFragment)
+                    .text) ||
+                null;
+
+              return (
+                <TodoView fileData={text} removeTodo={removeTodo} {...rest} />
+              );
+            }}
+          </GetRepoObjectComponent>
+        );
+      }}
+    </GetRepoDataQueryComponent>
+  ) : (
+    <div>
+      <TodoView fileData={null} removeTodo={removeTodo} {...rest} />
+    </div>
+  );
+};
+
+interface TodoViewProps {
+  todo: GetTodoGetTodo;
+  removeTodo: (id: string) => void;
+  fileData: string | null;
+}
+
+const TodoView: React.FC<TodoViewProps> = ({
+  removeTodo,
+  fileData,
+  ...rest
+}) => {
   const meContext = useContext(MeContext);
   const myTodo = meContext && meContext.id == rest.todo.author!.id;
+  const lineNumbers = {
+    endLineNumber: rest.todo.endLineNumber,
+    startLineNumber: rest.todo.startLineNumber,
+  };
 
   const [todo, setTodo] = useState<GetTodoGetTodo>(rest.todo);
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
@@ -41,6 +106,28 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
   const [showComments, setShowComments] = useState<boolean>(
     !!todo.commentsCount
   );
+  const [attachedFileData, setFileData] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (hasAttachedFile(fileData, lineNumbers)) {
+      const fileDataLines = fileData!.split("\n");
+
+      setFileData(
+        fileDataLines
+          .slice(
+            (rest.todo.startLineNumber as number) >= 0
+              ? (rest.todo.startLineNumber as number)
+              : 0,
+            (rest.todo.endLineNumber as number) <= fileDataLines.length
+              ? (rest.todo.endLineNumber as number)
+              : fileDataLines.length
+          )
+          .join("\n")
+      );
+    }
+
+    return () => {};
+  }, []);
 
   useEffect(() => {
     setComments(sortDates(todo.comments, "timeStamp"));
@@ -123,7 +210,6 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
       </div>
       <div>
         <b>{todo.todoTitle}</b>
-        {/* <pre>{todo.todoBody}</pre> */}
         <pre>
           <ReactMarkdown>{todo.todoBody}</ReactMarkdown>
         </pre>
@@ -131,6 +217,12 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
           <p>path: {todo.fileName}</p>
           <p>start: {todo.startLineNumber}</p>
           <p>end: {todo.endLineNumber}</p>
+          {attachedFileData && (
+            <CodeHighlight
+              fileData={attachedFileData}
+              path={rest.todo.fileName}
+            />
+          )}
         </div>
       </div>
 
@@ -162,7 +254,11 @@ const Todo: React.FC<Props> = ({ removeTodo, ...rest }) => {
 
       {showComments && (
         <div
-          style={{ padding: 15, marginLeft: 10, borderLeft: "1px solid black" }}
+          style={{
+            padding: 15,
+            marginLeft: 10,
+            borderLeft: "1px solid black",
+          }}
         >
           {comments.map((comment: GroupComments, idx: number) => (
             <Comment
