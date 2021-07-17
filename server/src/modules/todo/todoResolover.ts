@@ -28,6 +28,7 @@ export class TodoResolver {
     return await Todo.create({
       todoAuthorId: (ctx.req as any).userId,
       timeStamp,
+
       ...data,
     }).save();
   }

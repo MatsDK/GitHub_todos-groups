@@ -1,18 +1,18 @@
 import {
   CreateTodoComponent,
   GroupGroup,
-} from "../../generated/apolloComponents";
+} from "../../../generated/apolloComponents";
 import { Formik, Field } from "formik";
 import { InputField, TextAreaField } from "./inputField";
 import { useState } from "react";
 import { useEffect } from "react";
-import { groupQuery } from "../../graphql/group/query/group";
+import { groupQuery } from "../../../graphql/group/query/group";
 import styled from "styled-components";
-import { CloseIcon } from "./icons";
-import { Button } from "../ui/Button";
+import { CloseIcon } from "../icons";
+import { Button } from "../../ui/Button";
 import ReactMarkdown from "react-markdown";
-import { GetTypeQueryComponent } from "../../generated/github-apollo-components";
-import { getTypeQuery } from "../../github-graphql/query/getType";
+import { GetTypeQueryComponent } from "../../../generated/github-apollo-components";
+import { getTypeQuery } from "../../../github-graphql/query/getType";
 
 interface Props {
   group: GroupGroup;
@@ -137,7 +137,7 @@ const newTodoForm: React.SFC<Props> = ({
                 const validLineNumbers: boolean =
                   startLineNumber != null &&
                   endLineNumber != null &&
-                  endLineNumber < startLineNumber &&
+                  endLineNumber > startLineNumber &&
                   endLineNumber - startLineNumber > 0;
 
                 const lineNumbers: LineNumbers = {

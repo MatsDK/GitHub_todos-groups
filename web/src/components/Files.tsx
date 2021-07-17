@@ -55,6 +55,7 @@ const Files: React.FC<FilesProps> = ({ repoData, groupId, path }) => {
         fileData={
           (repoData.object as GetRepoObjectBlobInlineFragment).text || ""
         }
+        startNumber={1}
         path={path}
       />
     );

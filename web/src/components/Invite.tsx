@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { CloseIcon } from "./icons";
 import { Formik, Field } from "formik";
-import { InputField } from "./inputField";
+import { InputField } from "./Forms/inputField";
 import { Button } from "../ui/Button";
 import { InviteUserComponent } from "../../generated/apolloComponents";
 

@@ -1,18 +1,16 @@
 import dayjs from "dayjs";
-import { Field, Formik } from "formik";
 import { useEffect, useState } from "react";
 import {
-  CreateCommentComponent,
   DeleteCommentComponent,
   GroupComments,
   NestedCommentsComponent,
 } from "../../generated/apolloComponents";
 import { NestedCommentsQuery } from "../../graphql/todo/query/comments";
+import Picture from "../ui/Picture";
 import { COMMENTS_LIMIT } from "../utils/constants";
 import { responseIsInvalid } from "../utils/isResponseValid";
 import { sortDates } from "../utils/sortDates";
-import Picture from "../ui/Picture";
-import { InputField } from "./inputField";
+import NestedCommentForm from "./Forms/NestedCommentForm";
 
 interface CommentProps {
   comment: GroupComments;
@@ -210,50 +208,5 @@ const Comment: React.FC<CommentProps> = (props) => {
     </div>
   );
 };
-
-interface NestedCommentFormProps {
-  todoId: number;
-  parentCommentId: number;
-  newComment: (newComments: any) => void;
-}
-
-const NestedCommentForm: React.FC<NestedCommentFormProps> = ({
-  todoId,
-  parentCommentId,
-  newComment,
-}) => (
-  <div style={{ marginLeft: 25 }}>
-    <CreateCommentComponent>
-      {(createComment) => (
-        <Formik
-          validateOnBlur={false}
-          enableReinitialize={true}
-          validateOnChange={false}
-          onSubmit={async (data) => {
-            const res = await createComment({
-              variables: {
-                data: { todoId, text: data.text, parentCommentId },
-              },
-            });
-
-            if (!res || !res.data || !res.data.createComment) return;
-
-            newComment(res.data.createComment);
-          }}
-          initialValues={{
-            text: "",
-          }}
-        >
-          {({ handleSubmit }) => (
-            <form onSubmit={handleSubmit}>
-              <Field name="text" placeholder="text" component={InputField} />
-              <button type="submit">create comment</button>
-            </form>
-          )}
-        </Formik>
-      )}
-    </CreateCommentComponent>
-  </div>
-);
 
 export default Comment;

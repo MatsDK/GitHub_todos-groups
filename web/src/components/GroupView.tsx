@@ -7,7 +7,7 @@ import { sortDates } from "../utils/sortDates";
 import { FilterTodos, SortTodos } from "../utils/todoUtils";
 import { FilePath } from "./FilePath";
 import Files from "./Files";
-import NewTodoForm from "./NewTodoForm";
+import NewTodoForm from "./Forms/NewTodoForm";
 import TodoCard from "./TodoCard";
 import Invite from "./Invite";
 import Picture from "../ui/Picture";

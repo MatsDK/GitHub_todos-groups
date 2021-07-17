@@ -1,6 +1,6 @@
 import { Field, Formik } from "formik";
 import React from "react";
-import { InputField } from "../src/components/inputField";
+import { InputField } from "../src/components/Forms/inputField";
 import Layout from "../src/components/Layout";
 import { LoginComponent } from "../generated/apolloComponents";
 import { withApollo } from "react-apollo";

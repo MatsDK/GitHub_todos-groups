@@ -1,13 +1,15 @@
 import React from "react";
 import { detectLanguage } from "../utils/todoUtils";
 import Prism from "prismjs";
+import "prismjs/plugins/line-numbers/prism-line-numbers";
 
 interface Props {
   fileData: string;
   path: string;
+  startNumber: number;
 }
 
-const CodeHighlight: React.FC<Props> = ({ fileData, path }) => {
+const CodeHighlight: React.FC<Props> = ({ fileData, path, startNumber }) => {
   const lang = detectLanguage(path);
 
   import(`prismjs/components/prism-${lang}`)
@@ -20,8 +22,8 @@ const CodeHighlight: React.FC<Props> = ({ fileData, path }) => {
 
   return (
     <div>
-      <pre className={`language-${lang}`}>
-        <code className={`language-${lang}`}>{fileData}</code>
+      <pre className={`language-${lang} line-numbers`} data-start={startNumber}>
+        <code>{fileData}</code>
       </pre>
     </div>
   );
