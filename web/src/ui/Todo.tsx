@@ -1,13 +1,12 @@
 import styled from "styled-components";
 
 export const TodoGrid = styled.div`
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
   width: 100%;
+  grid-gap: 1rem;
 
   > div {
-    width: 49%;
-
     display: flex;
     flex-direction: column;
   }
@@ -18,7 +17,6 @@ export const TodoGrid = styled.div`
 export const Todo = styled.div`
   background-color: ${(props) => props.theme.secondaryBgColor};
   padding: 5px 10px 5px 20px;
-  margin-bottom: 20px;
 
   box-shadow: 3px 4px 4px rgba(0, 0, 0, 0.35);
   border-radius: 10px;

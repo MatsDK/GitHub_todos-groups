@@ -17,7 +17,7 @@ export class GroupUser extends BaseEntity {
   @PrimaryColumn("int", { unique: false })
   groupId: number;
 
-  @Column("boolean", { nullable: true, default: false })
+  @Column("bool", { nullable: true, default: false })
   isOwner: boolean;
 
   @ManyToOne(() => User, (user) => user.groupConnection, { primary: true })

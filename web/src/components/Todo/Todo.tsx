@@ -2,11 +2,11 @@ import React from "react";
 import {
   GetRepoDataQueryComponent,
   GetTodoGetTodo,
-} from "../../generated/apolloComponents";
+} from "../../../generated/apolloComponents";
 import {
   GetRepoObjectBlobInlineFragment,
   GetRepoObjectComponent,
-} from "../../generated/github-apollo-components";
+} from "../../../generated/github-apollo-components";
 import TodoView from "./TodoView";
 
 interface Props {

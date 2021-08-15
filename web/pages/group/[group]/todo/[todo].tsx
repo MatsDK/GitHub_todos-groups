@@ -5,7 +5,7 @@ import { GetTodoQuery } from "../../../../graphql/todo/query/getTodo";
 import { withAuth } from "../../../../lib/HOC/withAuth";
 import GroupLayout from "../../../../src/components/GroupLayout";
 import { NextFunctionComponent } from "../../../../types";
-import Todo from "../../../../src/components/Todo";
+import Todo from "../../../../src/components/Todo/Todo";
 import { MeContext } from "../../../../src/context/meContext";
 import { getGroupRepoDataQuery } from "../../../../graphql/group/query/getGroupRepoData";
 import { getRepoObject } from "../../../../github-graphql/query/getRepo";

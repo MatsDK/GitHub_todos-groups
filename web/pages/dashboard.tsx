@@ -6,6 +6,7 @@ import {
   MeGroups,
   MeInvites,
   MeMe,
+  TodosComponent,
 } from "../generated/apolloComponents";
 import { withAuth } from "../lib/HOC/withAuth";
 import Layout from "../src/components/Layout";
@@ -14,7 +15,7 @@ interface authPageProps {
   me: MeMe;
 }
 
-const auth: React.FC<authPageProps> = ({ me }) => {
+const Dashboard: React.FC<authPageProps> = ({ me }) => {
   const router = useRouter();
   const [groups] = useState<MeGroups[]>(me.groups);
   const [invites] = useState<MeInvites[]>(me.invites);
@@ -28,6 +29,25 @@ const auth: React.FC<authPageProps> = ({ me }) => {
             <div>{_.name}</div>
           </Link>
         ))}
+      </div>
+      <div>
+        <b>My Todos</b>
+        <TodosComponent>
+          {({ data, loading }) => {
+            if (!data || loading || !data.todos) return null;
+
+            return (
+              <div>
+                {data.todos.map((t, idx) => (
+                  <div key={idx}>
+                    <span>{t.todoTitle}</span>
+                    <span>{t.commentsCount} Comments</span>
+                  </div>
+                ))}
+              </div>
+            );
+          }}
+        </TodosComponent>
       </div>
       <div>
         <b>Invites</b>
@@ -61,4 +81,4 @@ const auth: React.FC<authPageProps> = ({ me }) => {
   );
 };
 
-export default withAuth(auth);
+export default withAuth(Dashboard);

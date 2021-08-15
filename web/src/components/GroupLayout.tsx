@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { MeMe } from "../../generated/apolloComponents";
 import Head from "next/head";
-import Picture from "../ui/Picture";
+import Avatar from "../ui/Avatar";
 import styled from "styled-components";
 
 interface Props {
@@ -19,7 +19,7 @@ const Page = styled.div`
 const Navbar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 0 30px;
+  align-items: center;
 `;
 
 const Profile = styled.div`
@@ -33,6 +33,11 @@ const Profile = styled.div`
   }
 `;
 
+const DashBoardButton = styled.span`
+  cursor: pointer;
+  font-size: 22px;
+`;
+
 const GroupLayout: React.FC<Props> = ({ children, title, me }) => {
   return (
     <div>
@@ -44,13 +49,18 @@ const GroupLayout: React.FC<Props> = ({ children, title, me }) => {
       <Page>
         <div style={{ padding: "0 20px", marginBottom: 100 }}>
           <Navbar>
-            {me && (
-              <Profile>
-                <Link href="/logout">Logout</Link>
-                {me.pictureUrl && <Picture src={me.pictureUrl} />}
-                <span>{me.name}</span>
-              </Profile>
-            )}
+            <Link href="/dashboard">
+              <DashBoardButton>Dashboard</DashBoardButton>
+            </Link>
+            <div>
+              {me && (
+                <Profile>
+                  <Link href="/logout">Logout</Link>
+                  {me.pictureUrl && <Avatar src={me.pictureUrl} />}
+                  <span>{me.name}</span>
+                </Profile>
+              )}
+            </div>
           </Navbar>
 
           {children}

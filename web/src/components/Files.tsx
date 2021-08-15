@@ -23,6 +23,7 @@ const FilesWrapper = styled.div`
 `;
 
 const Item = styled.div`
+  cursor: pointer;
   color: ${(props) => props.theme.textColors[1]};
   width: 100%;
 

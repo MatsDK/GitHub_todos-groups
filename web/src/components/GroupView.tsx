@@ -8,7 +8,7 @@ import { FilterTodos, SortTodos } from "../utils/todoUtils";
 import { FilePath } from "./FilePath";
 import Files from "./Files";
 import NewTodoForm from "./Forms/NewTodoForm";
-import TodoCard from "./TodoCard";
+import TodoCard from "./Todo/TodoCard";
 import Invite from "./Invite";
 import Picture from "../ui/Picture";
 import { MeContext } from "../context/meContext";
@@ -180,18 +180,9 @@ const GroupView: React.FC<Props> = ({
             </div>
           </div>
           <TodoGrid>
-            <div>
-              {todos.map(
-                (_: GroupTodos, idx: number) =>
-                  idx % 2 == 0 && <TodoCard key={idx} todo={_} />
-              )}
-            </div>
-            <div>
-              {todos.map(
-                (_: GroupTodos, idx: number) =>
-                  idx % 2 == 1 && <TodoCard key={idx} todo={_} />
-              )}
-            </div>
+            {todos.map((_: GroupTodos, idx: number) => (
+              <TodoCard key={idx} todo={_} />
+            ))}
           </TodoGrid>
         </div>
       </div>

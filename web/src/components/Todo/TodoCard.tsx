@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 import React, { useContext } from "react";
-import Picture from "../ui/Picture";
-import { GroupTodos } from "../../generated/apolloComponents";
-import { MeContext } from "../context/meContext";
+import Picture from "../../ui/Picture";
+import { GroupTodos } from "../../../generated/apolloComponents";
+import { MeContext } from "../../context/meContext";
 import Link from "next/link";
-import { Todo, TodoTop, RightTodo, TodoBody } from "../ui/Todo";
-import { MenuDots } from "./icons";
+import { Todo, TodoTop, RightTodo, TodoBody } from "../../ui/Todo";
+import { MenuDots } from "../icons";
 
 const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
@@ -35,7 +35,9 @@ const TodoCard: React.FC<Props> = ({ todo }) => {
       </TodoTop>
       <TodoBody>
         <h1>
-          {todo.todoTitle} {todo.completed && <span>(Done)</span>}{" "}
+          {todo.todoTitle}
+          {todo.completed && <span>(Done)</span>}{" "}
+          {todo.userId != null && <span>(In Progress)</span>}{" "}
         </h1>
         <span>{todo.todoBody}</span>
       </TodoBody>

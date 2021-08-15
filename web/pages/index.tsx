@@ -1,12 +1,17 @@
 import * as React from "react";
-import Layout from "../src/components/Layout";
+import { withAuth } from "../lib/HOC/withAuth";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const IndexPage: React.FunctionComponent = () => {
-  return (
-    <Layout title="Home">
-      <h1>Home</h1>
-    </Layout>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/dashboard");
+    return () => {};
+  }, []);
+
+  return null;
 };
 
-export default IndexPage;
+export default withAuth(IndexPage);

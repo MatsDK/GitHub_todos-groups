@@ -39,6 +39,10 @@ export class Todo extends BaseEntity {
   @Column("bool", { default: false })
   completed: boolean;
 
+  @Field(() => Number, { nullable: true })
+  @Column("int", { nullable: true })
+  userId: number | null;
+
   @Field({ nullable: true })
   @Column("int", { nullable: true })
   startLineNumber: number;

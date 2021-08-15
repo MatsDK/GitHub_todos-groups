@@ -51,6 +51,7 @@ export type Mutation = {
   createTodo?: Maybe<Todo>;
   deleteTodo: boolean;
   completeTodo: boolean;
+  takeTodo: boolean;
   login?: Maybe<User>;
   logout: boolean;
   invalidateTokens?: Maybe<boolean>;
@@ -91,6 +92,10 @@ export type MutationDeleteTodoArgs = {
 };
 
 export type MutationCompleteTodoArgs = {
+  todoId: number;
+};
+
+export type MutationTakeTodoArgs = {
   todoId: number;
 };
 
@@ -154,6 +159,7 @@ export type Todo = {
   timeStamp: string;
   fileName: string;
   completed: boolean;
+  userId?: Maybe<number>;
   startLineNumber?: Maybe<number>;
   endLineNumber?: Maybe<number>;
   author?: Maybe<User>;
@@ -264,6 +270,8 @@ export type GroupTodos = {
   __typename?: "Todo";
 
   author: Maybe<GroupAuthor>;
+
+  userId: Maybe<number>;
 
   completed: boolean;
 
@@ -472,6 +480,16 @@ export type DeleteTodoMutation = {
   deleteTodo: boolean;
 };
 
+export type TakeTodoVariables = {
+  todoId: number;
+};
+
+export type TakeTodoMutation = {
+  __typename?: "Mutation";
+
+  takeTodo: boolean;
+};
+
 export type NestedCommentsVariables = {
   parentId: number;
   skip: number;
@@ -580,6 +598,8 @@ export type GetTodoGetTodo = {
   completed: boolean;
 
   todoAuthorId: number;
+
+  userId: Maybe<number>;
 
   startLineNumber: Maybe<number>;
 
@@ -721,6 +741,30 @@ export type MeGroups = {
   name: string;
 
   id: string;
+};
+
+export type TodosVariables = {};
+
+export type TodosQuery = {
+  __typename?: "Query";
+
+  todos: TodosTodos[];
+};
+
+export type TodosTodos = {
+  __typename?: "Todo";
+
+  id: string;
+
+  todoTitle: string;
+
+  todoGroupId: number;
+
+  timeStamp: string;
+
+  fileName: string;
+
+  commentsCount: number;
 };
 
 import gql from "graphql-tag";
@@ -912,6 +956,7 @@ export const GroupDocument = gql`
           id
           pictureUrl
         }
+        userId
         completed
         todoGroupId
         commentsCount
@@ -1292,6 +1337,59 @@ export function useDeleteTodo(
     baseOptions
   );
 }
+export const TakeTodoDocument = gql`
+  mutation TakeTodo($todoId: Int!) {
+    takeTodo(todoId: $todoId)
+  }
+`;
+export class TakeTodoComponent extends React.Component<
+  Partial<ReactApollo.MutationProps<TakeTodoMutation, TakeTodoVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Mutation<TakeTodoMutation, TakeTodoVariables>
+        mutation={TakeTodoDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type TakeTodoProps<TChildProps = any> = Partial<
+  ReactApollo.MutateProps<TakeTodoMutation, TakeTodoVariables>
+> &
+  TChildProps;
+export type TakeTodoMutationFn = ReactApollo.MutationFn<
+  TakeTodoMutation,
+  TakeTodoVariables
+>;
+export function TakeTodoHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        TakeTodoMutation,
+        TakeTodoVariables,
+        TakeTodoProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    TakeTodoMutation,
+    TakeTodoVariables,
+    TakeTodoProps<TChildProps>
+  >(TakeTodoDocument, operationOptions);
+}
+export function useTakeTodo(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    TakeTodoMutation,
+    TakeTodoVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<TakeTodoMutation, TakeTodoVariables>(
+    TakeTodoDocument,
+    baseOptions
+  );
+}
 export const NestedCommentsDocument = gql`
   query NestedComments($parentId: Float!, $skip: Float!) {
     nestedComments(parentCommentId: $parentId, skip: $skip) {
@@ -1420,6 +1518,7 @@ export const GetTodoDocument = gql`
       commentsCount
       completed
       todoAuthorId
+      userId
       startLineNumber
       endLineNumber
       author {
@@ -1710,6 +1809,59 @@ export function useMe(
 ) {
   return ReactApolloHooks.useQuery<MeQuery, MeVariables>(
     MeDocument,
+    baseOptions
+  );
+}
+export const TodosDocument = gql`
+  query todos {
+    todos {
+      id
+      todoTitle
+      todoGroupId
+      timeStamp
+      fileName
+      commentsCount
+    }
+  }
+`;
+export class TodosComponent extends React.Component<
+  Partial<ReactApollo.QueryProps<TodosQuery, TodosVariables>>
+> {
+  render() {
+    return (
+      <ReactApollo.Query<TodosQuery, TodosVariables>
+        query={TodosDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type TodosProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<TodosQuery, TodosVariables>
+> &
+  TChildProps;
+export function TodosHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        TodosQuery,
+        TodosVariables,
+        TodosProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    TodosQuery,
+    TodosVariables,
+    TodosProps<TChildProps>
+  >(TodosDocument, operationOptions);
+}
+export function useTodos(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<TodosVariables>
+) {
+  return ReactApolloHooks.useQuery<TodosQuery, TodosVariables>(
+    TodosDocument,
     baseOptions
   );
 }

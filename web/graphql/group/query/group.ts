@@ -22,6 +22,7 @@ export const groupQuery = gql`
           id
           pictureUrl
         }
+        userId
         completed
         todoGroupId
         commentsCount

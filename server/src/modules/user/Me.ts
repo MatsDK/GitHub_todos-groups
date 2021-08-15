@@ -2,6 +2,7 @@ import { MyContext } from "../../types/types";
 import { Resolver, Query, Ctx, UseMiddleware, Mutation } from "type-graphql";
 import { User } from "../../entity/User";
 import { isAuth } from "../middleware/isAuth";
+import { Todo } from "../../entity/Todo";
 
 @Resolver()
 export class MeResolver {
@@ -16,6 +17,12 @@ export class MeResolver {
   @Query(() => [User])
   async users(): Promise<User[]> {
     return User.find();
+  }
+
+  @UseMiddleware(isAuth)
+  @Query(() => [Todo])
+  async todos(@Ctx() context: MyContext): Promise<Todo[]> {
+    return Todo.find({ where: { userId: context.req.userId }, take: 10 });
   }
 
   @UseMiddleware(isAuth)

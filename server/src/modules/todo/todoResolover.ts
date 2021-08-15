@@ -71,7 +71,22 @@ export class TodoResolver {
     @Arg("todoId", () => Int) todoId: number
   ): Promise<boolean> {
     try {
-      await Todo.update({ id: todoId }, { completed: true });
+      await Todo.update({ id: todoId }, { completed: true, userId: null });
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @UseMiddleware(isAuth)
+  @Mutation(() => Boolean)
+  async takeTodo(
+    @Arg("todoId", () => Int) todoId: number,
+    @Ctx() context: MyContext
+  ): Promise<boolean> {
+    try {
+      await Todo.update({ id: todoId }, { userId: context.req.userId });
 
       return true;
     } catch (e) {
