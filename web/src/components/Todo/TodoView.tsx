@@ -125,6 +125,23 @@ const TodoView: React.FC<TodoViewProps> = ({
           </div>
         </TodoTop>
       </div>
+      {rest.todo.userId != null && (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span>In Progress:</span>
+          <div
+            style={{ display: "flex", alignItems: "center", marginLeft: 10 }}
+          >
+            {todo.author!.pictureUrl && (
+              <Picture src={todo.author!.pictureUrl} />
+            )}
+            <p>
+              {todo.author!.name}
+
+              <span>{myTodo && " (Me)"}</span>
+            </p>
+          </div>
+        </div>
+      )}
       <div>
         <TodoContent>
           <TodoTitle>{todo.todoTitle}</TodoTitle>

@@ -39,8 +39,18 @@ const Dashboard: React.FC<authPageProps> = ({ me }) => {
             return (
               <div>
                 {data.todos.map((t, idx) => (
-                  <div key={idx}>
-                    <span>{t.todoTitle}</span>
+                  <div
+                    key={idx}
+                    style={{ display: "flex", flexDirection: "column" }}
+                  >
+                    <Link href={`/group/${t.todoGroupId}/todo/${t.id}`}>
+                      <span>{t.todoTitle}</span>
+                    </Link>
+                    {t.group && (
+                      <Link href={`/group/${t.todoGroupId}`}>
+                        <span>{t.group.name}</span>
+                      </Link>
+                    )}
                     <span>{t.commentsCount} Comments</span>
                   </div>
                 ))}

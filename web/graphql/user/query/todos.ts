@@ -9,6 +9,9 @@ export const myTodosQuery = gql`
       timeStamp
       fileName
       commentsCount
+      group {
+        name
+      }
     }
   }
 `;

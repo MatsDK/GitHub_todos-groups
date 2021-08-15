@@ -15,6 +15,7 @@ import { createGroupsLoader } from "./utils/dataLoaders/groupsLoader";
 import { createInvitesLoader } from "./utils/dataLoaders/invitesLoader";
 import { createUsersLoader } from "./utils/dataLoaders/usersLoader";
 import { createCountsLoader } from "./utils/dataLoaders/countLoader";
+import { createGroupsLoaderById } from "./utils/dataLoaders/groupsLoaderById";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ dotenv.config();
     authorsLoader: createAuthorsLoader(),
     nestedCommentsLoader: createNestedCommentsLoader(),
     countsLoader: createCountsLoader(),
+    groupsLoaderById: createGroupsLoaderById(),
   };
 
   const apolloServer = new ApolloServer({

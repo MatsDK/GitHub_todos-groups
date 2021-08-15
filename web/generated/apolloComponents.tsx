@@ -160,6 +160,8 @@ export type Todo = {
   fileName: string;
   completed: boolean;
   userId?: Maybe<number>;
+  user?: Maybe<User>;
+  group?: Maybe<Group>;
   startLineNumber?: Maybe<number>;
   endLineNumber?: Maybe<number>;
   author?: Maybe<User>;
@@ -605,9 +607,21 @@ export type GetTodoGetTodo = {
 
   endLineNumber: Maybe<number>;
 
+  user: Maybe<GetTodoUser>;
+
   author: Maybe<GetTodoAuthor>;
 
   comments: GetTodoComments[];
+};
+
+export type GetTodoUser = {
+  __typename?: "User";
+
+  id: string;
+
+  name: string;
+
+  pictureUrl: Maybe<string>;
 };
 
 export type GetTodoAuthor = {
@@ -765,6 +779,14 @@ export type TodosTodos = {
   fileName: string;
 
   commentsCount: number;
+
+  group: Maybe<TodosGroup>;
+};
+
+export type TodosGroup = {
+  __typename?: "Group";
+
+  name: string;
 };
 
 import gql from "graphql-tag";
@@ -1521,6 +1543,11 @@ export const GetTodoDocument = gql`
       userId
       startLineNumber
       endLineNumber
+      user {
+        id
+        name
+        pictureUrl
+      }
       author {
         email
         id
@@ -1821,6 +1848,9 @@ export const TodosDocument = gql`
       timeStamp
       fileName
       commentsCount
+      group {
+        name
+      }
     }
   }
 `;

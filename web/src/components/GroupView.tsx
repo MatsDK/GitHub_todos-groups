@@ -25,6 +25,22 @@ const Title = styled.h1`
   width: fit-content;
 `;
 
+const ScrollToTodosButton = styled.a`
+  color: ${(props) => props.theme.textColors[2]};
+  text-decoration: none;
+
+  span {
+    font-size: 24px;
+    font-weight: 400;
+    margin-right: 5px;
+    transition: 0.15s ease;
+
+    :hover {
+      color: ${(props) => props.theme.textColors[0]};
+    }
+  }
+`;
+
 const Button = styled.button`
   padding: 5px 15px;
   color: ${(props) => props.theme.textColors[3]};
@@ -105,10 +121,6 @@ const GroupView: React.FC<Props> = ({
     setTodos((todos) => sortDates([newTodo, ...todos], "timeStamp"));
   };
 
-  // const removeTodo = (id: string) => {
-  //   setTodos((todos) => todos.filter((_: GroupTodos) => _.id != id));
-  // };
-
   return (
     <>
       {showTodoForm && (
@@ -151,13 +163,19 @@ const GroupView: React.FC<Props> = ({
       </GroupHeader>
       <div>
         <div>
-          <FilePath
-            path={[group.repoName, ...path]}
-            group={parseInt(group.id)}
-          />
+          <div style={{ display: "flex" }}>
+            <FilePath
+              path={[group.repoName, ...path]}
+              group={parseInt(group.id)}
+            />
+
+            <ScrollToTodosButton href="#TodosSection">
+              <span>Todos</span>
+            </ScrollToTodosButton>
+          </div>
           <Files groupId={groupId} path={path.join("/")} repoData={repoData} />
         </div>
-        <div style={{ marginTop: 50 }}>
+        <div style={{ marginTop: 50 }} id="TodosSection">
           <div
             style={{
               display: "flex",

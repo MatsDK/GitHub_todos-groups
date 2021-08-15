@@ -15,6 +15,7 @@ const FilePathWrapper = styled.div`
   margin-bottom: 10px;
   font-weight: 400;
   height: 30px;
+  flex: 1;
 `;
 
 const Path = styled.p`

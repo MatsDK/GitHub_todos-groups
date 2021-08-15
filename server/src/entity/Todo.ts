@@ -3,6 +3,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 import { Comment } from "./Comment";
 import { MyContext } from "src/types/types";
+import { Group } from "./Group";
 
 @ObjectType()
 @Entity()
@@ -42,6 +43,16 @@ export class Todo extends BaseEntity {
   @Field(() => Number, { nullable: true })
   @Column("int", { nullable: true })
   userId: number | null;
+
+  @Field(() => User, { nullable: true })
+  user(): Promise<User | undefined> {
+    return User.findOne({ where: { id: this.userId } });
+  }
+
+  @Field(() => Group, { nullable: true })
+  group(@Ctx() { groupsLoaderById }: MyContext): Promise<Group> {
+    return groupsLoaderById.load(this.todoGroupId);
+  }
 
   @Field({ nullable: true })
   @Column("int", { nullable: true })

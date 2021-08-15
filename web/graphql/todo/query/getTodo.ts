@@ -15,6 +15,11 @@ export const GetTodoQuery = gql`
       userId
       startLineNumber
       endLineNumber
+      user {
+        id
+        name
+        pictureUrl
+      }
       author {
         email
         id

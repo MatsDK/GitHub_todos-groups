@@ -7,6 +7,7 @@ export interface MyContext {
   res: Response;
   usersLoader: any;
   groupsLoader: any;
+  groupsLoaderById: any;
   invitesLoader: any;
   authorsLoader: any;
   commentsLoader: any;
