@@ -1,4 +1,5 @@
 import { Field, Formik } from "formik";
+import Link from "next/link";
 import React from "react";
 import { InputField } from "../src/components/Forms/inputField";
 import Layout from "../src/components/Layout";
@@ -51,6 +52,11 @@ const Login = ({ client }: { client: ApolloClient<any> }): any => {
           </Formik>
         )}
       </LoginComponent>
+      <Link href="/register">
+        <div>
+          <h3>Register</h3>
+        </div>
+      </Link>
     </Layout>
   );
 };

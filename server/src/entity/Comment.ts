@@ -42,6 +42,6 @@ export class Comment extends BaseEntity {
 
   @Field(() => Float)
   commentsCount(@Ctx() { countsLoader }: MyContext): Promise<number> {
-    return countsLoader.load([null, this.id]);
+    return countsLoader.load(["comment", "parentCommentId", this.id]);
   }
 }

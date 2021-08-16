@@ -10,7 +10,7 @@ import { redirect } from "../../../../lib/redirect";
 import GroupContainer from "../../../../src/components/GroupContainer";
 import { responseIsInvalid } from "../../../../src/utils/isResponseValid";
 import { MeContext } from "../../../../src/context/meContext";
-import GroupLayout from "../../../../src/components/GroupLayout";
+import GroupLayout from "../../../../src/components/Layout";
 
 const Path: NextFunctionComponent<{ me: MeMe }> = ({ me }) => {
   const router = useRouter();

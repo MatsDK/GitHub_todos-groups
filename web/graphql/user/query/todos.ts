@@ -11,6 +11,8 @@ export const myTodosQuery = gql`
       commentsCount
       group {
         name
+        activeTodosCount
+        usersCount
       }
     }
   }

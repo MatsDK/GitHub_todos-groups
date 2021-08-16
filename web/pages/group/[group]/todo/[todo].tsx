@@ -3,7 +3,7 @@ import React from "react";
 import { MeMe, GetTodoComponent } from "../../../../generated/apolloComponents";
 import { GetTodoQuery } from "../../../../graphql/todo/query/getTodo";
 import { withAuth } from "../../../../lib/HOC/withAuth";
-import GroupLayout from "../../../../src/components/GroupLayout";
+import GroupLayout from "../../../../src/components/Layout";
 import { NextFunctionComponent } from "../../../../types";
 import Todo from "../../../../src/components/Todo/Todo";
 import { MeContext } from "../../../../src/context/meContext";

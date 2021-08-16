@@ -35,6 +35,8 @@ export type Group = {
   repoOwner: string;
   mainBranch: string;
   todos: Array<Todo>;
+  activeTodosCount: number;
+  usersCount: number;
 };
 
 export type Invite = {
@@ -752,6 +754,12 @@ export type MeInvites = {
 export type MeGroups = {
   __typename?: "Group";
 
+  repoName: string;
+
+  activeTodosCount: number;
+
+  usersCount: number;
+
   name: string;
 
   id: string;
@@ -787,6 +795,10 @@ export type TodosGroup = {
   __typename?: "Group";
 
   name: string;
+
+  activeTodosCount: number;
+
+  usersCount: number;
 };
 
 import gql from "graphql-tag";
@@ -1792,6 +1804,9 @@ export const MeDocument = gql`
         name
       }
       groups {
+        repoName
+        activeTodosCount
+        usersCount
         name
         id
       }
@@ -1850,6 +1865,8 @@ export const TodosDocument = gql`
       commentsCount
       group {
         name
+        activeTodosCount
+        usersCount
       }
     }
   }

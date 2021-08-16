@@ -8,7 +8,7 @@ import { redirect } from "../../lib/redirect";
 import { responseIsInvalid } from "../../src/utils/isResponseValid";
 import GroupContainer from "../../src/components/GroupContainer";
 import { withAuth } from "../../lib/HOC/withAuth";
-import GroupLayout from "../../src/components/GroupLayout";
+import GroupLayout from "../../src/components/Layout";
 import { MeContext } from "../../src/context/meContext";
 
 interface Props {

@@ -12,18 +12,13 @@ import TodoCard from "./Todo/TodoCard";
 import Invite from "./Invite";
 import Picture from "../ui/Picture";
 import { MeContext } from "../context/meContext";
+import { Title } from "../ui/Dashboard";
 
 interface Props {
   group: GroupGroup;
   repoData: GetRepoObjectRepository;
   path: { groupId: string; path: string[] };
 }
-
-const Title = styled.h1`
-  font-family: "Rubik", sans-serif;
-  font-size: 40px;
-  width: fit-content;
-`;
 
 const ScrollToTodosButton = styled.a`
   color: ${(props) => props.theme.textColors[2]};

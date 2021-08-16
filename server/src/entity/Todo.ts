@@ -74,6 +74,6 @@ export class Todo extends BaseEntity {
 
   @Field(() => Float)
   commentsCount(@Ctx() { countsLoader }: MyContext): Promise<number> {
-    return countsLoader.load([this.id, null]);
+    return countsLoader.load(["comment", "todoId", this.id]);
   }
 }

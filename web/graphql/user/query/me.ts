@@ -12,6 +12,9 @@ export const meQuery = gql`
         name
       }
       groups {
+        repoName
+        activeTodosCount
+        usersCount
         name
         id
       }

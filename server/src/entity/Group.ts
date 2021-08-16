@@ -49,4 +49,19 @@ export class Group extends BaseEntity {
       order: { timeStamp: "DESC" },
     });
   }
+
+  @Field(() => Number)
+  activeTodosCount(@Ctx() { countsLoader }: MyContext): Promise<Number> {
+    return countsLoader.load([
+      "todo",
+      "todoGroupId",
+      this.id,
+      `a."completed" = false`,
+    ]);
+  }
+
+  @Field(() => Number)
+  usersCount(@Ctx() { usersCountLoader }: MyContext): Promise<Number> {
+    return usersCountLoader.load(this.id);
+  }
 }

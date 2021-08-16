@@ -9,7 +9,8 @@ import {
   TodosComponent,
 } from "../generated/apolloComponents";
 import { withAuth } from "../lib/HOC/withAuth";
-import Layout from "../src/components/Layout";
+import GroupLayout from "../src/components/Layout";
+import { Title, GroupCard, GroupsGrid } from "../src/ui/Dashboard";
 
 interface authPageProps {
   me: MeMe;
@@ -20,18 +21,37 @@ const Dashboard: React.FC<authPageProps> = ({ me }) => {
   const [groups] = useState<MeGroups[]>(me.groups);
   const [invites] = useState<MeInvites[]>(me.invites);
 
+  console.log(groups);
   return (
-    <Layout me={me} title="Dashboard">
-      <div>
-        <b>Groups</b>
-        {groups.map((_: MeGroups, idx: number) => (
-          <Link key={idx} href={`/group/${_.id}`}>
-            <div>{_.name}</div>
-          </Link>
-        ))}
+    <GroupLayout me={me} title="Dashboard">
+      <div style={{ marginTop: 50 }}>
+        <Title>Groups</Title>
+        <GroupsGrid>
+          {groups.map((_: MeGroups, idx: number) => (
+            <GroupCard key={idx}>
+              <div>
+                <Link href={`/group/${_.id}`}>
+                  <span>
+                    {_.name}/{_.repoName}
+                  </span>
+                </Link>
+                <div>
+                  <div>
+                    <p>{_.activeTodosCount}</p>
+                    <label> Active Todo{_.activeTodosCount > 1 && "s"}</label>
+                  </div>
+                  <div>
+                    <p>{_.usersCount}</p>
+                    <label> User{_.usersCount > 1 && "s"}</label>
+                  </div>
+                </div>
+              </div>
+            </GroupCard>
+          ))}
+        </GroupsGrid>
       </div>
       <div>
-        <b>My Todos</b>
+        <Title>My Todos</Title>
         <TodosComponent>
           {({ data, loading }) => {
             if (!data || loading || !data.todos) return null;
@@ -47,9 +67,15 @@ const Dashboard: React.FC<authPageProps> = ({ me }) => {
                       <span>{t.todoTitle}</span>
                     </Link>
                     {t.group && (
-                      <Link href={`/group/${t.todoGroupId}`}>
-                        <span>{t.group.name}</span>
-                      </Link>
+                      <div>
+                        <Link href={`/group/${t.todoGroupId}`}>
+                          <span>{t.group.name}</span>
+                        </Link>
+                        <span>
+                          {t.group.activeTodosCount} Active Todo
+                          {t.group.activeTodosCount > 1 && "s"}
+                        </span>
+                      </div>
                     )}
                     <span>{t.commentsCount} Comments</span>
                   </div>
@@ -87,7 +113,7 @@ const Dashboard: React.FC<authPageProps> = ({ me }) => {
           )}
         </JoinGroupComponent>
       </div>
-    </Layout>
+    </GroupLayout>
   );
 };
 
