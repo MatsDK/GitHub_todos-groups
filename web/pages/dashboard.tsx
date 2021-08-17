@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -10,7 +11,19 @@ import {
 } from "../generated/apolloComponents";
 import { withAuth } from "../lib/HOC/withAuth";
 import GroupLayout from "../src/components/Layout";
-import { Title, GroupCard, GroupsGrid } from "../src/ui/Dashboard";
+import {
+  TodosWrapper,
+  Title,
+  GroupCard,
+  GroupsGrid,
+  TodoCard,
+  TodoTitle,
+  TodoInfo,
+} from "../src/ui/Dashboard";
+import { sortDates } from "../src/utils/sortDates";
+
+const relativeTime = require("dayjs/plugin/relativeTime");
+dayjs.extend(relativeTime);
 
 interface authPageProps {
   me: MeMe;
@@ -21,7 +34,6 @@ const Dashboard: React.FC<authPageProps> = ({ me }) => {
   const [groups] = useState<MeGroups[]>(me.groups);
   const [invites] = useState<MeInvites[]>(me.invites);
 
-  console.log(groups);
   return (
     <GroupLayout me={me} title="Dashboard">
       <div style={{ marginTop: 50 }}>
@@ -57,30 +69,29 @@ const Dashboard: React.FC<authPageProps> = ({ me }) => {
             if (!data || loading || !data.todos) return null;
 
             return (
-              <div>
-                {data.todos.map((t, idx) => (
-                  <div
+              <TodosWrapper>
+                {sortDates(data.todos, "timeStamp").map((t, idx) => (
+                  <TodoCard
                     key={idx}
                     style={{ display: "flex", flexDirection: "column" }}
                   >
                     <Link href={`/group/${t.todoGroupId}/todo/${t.id}`}>
-                      <span>{t.todoTitle}</span>
+                      <TodoTitle>{t.todoTitle}</TodoTitle>
                     </Link>
                     {t.group && (
                       <div>
                         <Link href={`/group/${t.todoGroupId}`}>
-                          <span>{t.group.name}</span>
+                          <TodoInfo>
+                            {t.group.name}/{t.group.repoName} •{" "}
+                            {(dayjs(t.timeStamp) as any).toNow(true)} ago
+                          </TodoInfo>
                         </Link>
-                        <span>
-                          {t.group.activeTodosCount} Active Todo
-                          {t.group.activeTodosCount > 1 && "s"}
-                        </span>
                       </div>
                     )}
-                    <span>{t.commentsCount} Comments</span>
-                  </div>
+                    <TodoInfo>{t.commentsCount} Comments</TodoInfo>
+                  </TodoCard>
                 ))}
-              </div>
+              </TodosWrapper>
             );
           }}
         </TodosComponent>

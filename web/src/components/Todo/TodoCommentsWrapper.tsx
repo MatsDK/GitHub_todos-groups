@@ -36,6 +36,7 @@ const TodoCommentsWrapper: React.FC<Props> = ({
 
   return (
     <div>
+      <h2 style={{ margin: 0 }}>Comments</h2>
       <div>
         <button onClick={() => setShowComments((_) => !_)}>
           ({todo.commentsCount}) Comments

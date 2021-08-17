@@ -20,6 +20,9 @@ export const GetTodoQuery = gql`
         name
         pictureUrl
       }
+      group {
+        name
+      }
       author {
         email
         id

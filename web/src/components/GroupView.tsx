@@ -2,17 +2,18 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { GroupGroup, GroupTodos } from "../../generated/apolloComponents";
 import { GetRepoObjectRepository } from "../../generated/github-apollo-components";
+import { MeContext } from "../context/meContext";
+import { DarkButton } from "../ui/Button";
+import { Title } from "../ui/Dashboard";
+import Picture from "../ui/Picture";
 import { ProgressSpan, TodoGrid } from "../ui/Todo";
 import { sortDates } from "../utils/sortDates";
 import { FilterTodos, SortTodos } from "../utils/todoUtils";
 import { FilePath } from "./FilePath";
 import Files from "./Files";
 import NewTodoForm from "./Forms/NewTodoForm";
-import TodoCard from "./Todo/TodoCard";
 import Invite from "./Invite";
-import Picture from "../ui/Picture";
-import { MeContext } from "../context/meContext";
-import { Title } from "../ui/Dashboard";
+import TodoCard from "./Todo/TodoCard";
 
 interface Props {
   group: GroupGroup;
@@ -33,23 +34,6 @@ const ScrollToTodosButton = styled.a`
     :hover {
       color: ${(props) => props.theme.textColors[0]};
     }
-  }
-`;
-
-const Button = styled.button`
-  padding: 5px 15px;
-  color: ${(props) => props.theme.textColors[3]};
-  background: ${(props) => props.theme.secondaryBgColor};
-  border: 0;
-  outline: none;
-  cursor: pointer;
-  font-size: 20px;
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
-  border-radius: 3px;
-  transition: 0.1s ease;
-
-  :hover {
-    color: ${(props) => props.theme.textColors[1]};
   }
 `;
 
@@ -153,7 +137,9 @@ const GroupView: React.FC<Props> = ({
           </GroupUsers>
         </div>
         <div>
-          <Button onClick={() => setShowInviteForm(true)}>Invite</Button>
+          <DarkButton onClick={() => setShowInviteForm(true)}>
+            Invite
+          </DarkButton>
         </div>
       </GroupHeader>
       <div>
@@ -185,11 +171,11 @@ const GroupView: React.FC<Props> = ({
               </ProgressSpan>
             </div>
             <div>
-              <Button
+              <DarkButton
                 onClick={() => setShowTodoForm((showTodoForm) => !showTodoForm)}
               >
                 New Todo
-              </Button>
+              </DarkButton>
             </div>
           </div>
           <TodoGrid>

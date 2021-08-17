@@ -611,6 +611,8 @@ export type GetTodoGetTodo = {
 
   user: Maybe<GetTodoUser>;
 
+  group: Maybe<GetTodoGroup>;
+
   author: Maybe<GetTodoAuthor>;
 
   comments: GetTodoComments[];
@@ -624,6 +626,12 @@ export type GetTodoUser = {
   name: string;
 
   pictureUrl: Maybe<string>;
+};
+
+export type GetTodoGroup = {
+  __typename?: "Group";
+
+  name: string;
 };
 
 export type GetTodoAuthor = {
@@ -796,9 +804,7 @@ export type TodosGroup = {
 
   name: string;
 
-  activeTodosCount: number;
-
-  usersCount: number;
+  repoName: string;
 };
 
 import gql from "graphql-tag";
@@ -1560,6 +1566,9 @@ export const GetTodoDocument = gql`
         name
         pictureUrl
       }
+      group {
+        name
+      }
       author {
         email
         id
@@ -1865,8 +1874,7 @@ export const TodosDocument = gql`
       commentsCount
       group {
         name
-        activeTodosCount
-        usersCount
+        repoName
       }
     }
   }

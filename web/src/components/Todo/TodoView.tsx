@@ -25,6 +25,10 @@ import {
   TodoTitle,
   TodoTop,
 } from "../../ui/Todopage";
+import { DarkButton } from "../../ui/Button";
+
+const relativeTime = require("dayjs/plugin/relativeTime");
+dayjs.extend(relativeTime);
 
 interface TodoViewProps {
   todo: GetTodoGetTodo;
@@ -106,7 +110,10 @@ const TodoView: React.FC<TodoViewProps> = ({
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Timestamp style={{ marginRight: 15 }}>
-              {dayjs(todo.timeStamp).format("MMMM D, YYYY h:mm A")}
+              {(dayjs(todo.timeStamp) as any).toNow(true)} ago in
+              <Link href={`/group/${todo.todoGroupId}`}>
+                <span>{todo.group!.name}</span>
+              </Link>
             </Timestamp>
             {myTodo && (
               <div>
@@ -171,34 +178,37 @@ const TodoView: React.FC<TodoViewProps> = ({
                 </div>
               </AttachedFile>
             )}
-            {!todo.completed && (
-              <CompleteTodoComponent variables={{ todoId: Number(todo.id) }}>
-                {(completeTodo) => (
-                  <button
-                    onClick={async () => {
-                      const res = await completeTodo();
-                      if (!res || !res.data || !res.data.completeTodo) return;
-                    }}
-                  >
-                    Completed
-                  </button>
-                )}
-              </CompleteTodoComponent>
-            )}
-            {!todo.completed && todo.userId == null && (
-              <TakeTodoComponent variables={{ todoId: Number(todo.id) }}>
-                {(completeTodo) => (
-                  <button
-                    onClick={async () => {
-                      const res = await completeTodo();
-                      if (!res || !res.data || !res.data.takeTodo) return;
-                    }}
-                  >
-                    Take Todo
-                  </button>
-                )}
-              </TakeTodoComponent>
-            )}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              {!todo.completed && (
+                <CompleteTodoComponent variables={{ todoId: Number(todo.id) }}>
+                  {(completeTodo) => (
+                    <DarkButton
+                      onClick={async () => {
+                        const res = await completeTodo();
+                        if (!res || !res.data || !res.data.completeTodo) return;
+                      }}
+                    >
+                      Completed
+                    </DarkButton>
+                  )}
+                </CompleteTodoComponent>
+              )}
+              {!todo.completed && todo.userId == null && (
+                <TakeTodoComponent variables={{ todoId: Number(todo.id) }}>
+                  {(completeTodo) => (
+                    <DarkButton
+                      style={{ marginLeft: 10 }}
+                      onClick={async () => {
+                        const res = await completeTodo();
+                        if (!res || !res.data || !res.data.takeTodo) return;
+                      }}
+                    >
+                      Take Todo
+                    </DarkButton>
+                  )}
+                </TakeTodoComponent>
+              )}
+            </div>
           </div>
         </TodoContent>
         <div>

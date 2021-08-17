@@ -36,6 +36,8 @@ const Profile = styled.div`
 const DashBoardButton = styled.span`
   cursor: pointer;
   font-size: 22px;
+  margin-right: 1.5rem;
+  color: ${(props) => props.theme.textColors[2]};
 `;
 
 const GroupLayout: React.FC<Props> = ({ children, title, me }) => {
@@ -55,7 +57,7 @@ const GroupLayout: React.FC<Props> = ({ children, title, me }) => {
             <div>
               {me && (
                 <Profile>
-                  <Link href="/logout">Logout</Link>
+                  {/* <Link href="/logout">Logout</Link> */}
                   {me.pictureUrl && <Avatar src={me.pictureUrl} />}
                   <span>{me.name}</span>
                 </Profile>

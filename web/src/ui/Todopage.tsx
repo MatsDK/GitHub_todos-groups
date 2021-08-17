@@ -34,6 +34,15 @@ export const TodoTop = styled.div`
 export const Timestamp = styled.p`
   font-size: 17px;
   color: ${(props) => props.theme.textColors[3]};
+
+  span {
+    margin-left: 0.3rem;
+    cursor: pointer;
+    background: ${(props) => props.theme.gradient};
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 `;
 
 export const DropDown = styled.div`

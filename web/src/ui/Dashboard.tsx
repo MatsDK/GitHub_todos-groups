@@ -50,3 +50,29 @@ export const GroupsGrid = styled.div`
   grid-gap: 0.5rem;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 `;
+
+export const TodosWrapper = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-gap: 0.5rem;
+`;
+
+export const TodoCard = styled.div`
+  background-color: ${(props) => props.theme.secondaryBgColor};
+  padding: 10px;
+  border-radius: 5px;
+`;
+
+export const TodoTitle = styled.span`
+  color: ${(props) => props.theme.textColors[0]};
+  font-weight: 500;
+  font-size: 24px;
+  margin-top: -0.5rem;
+  cursor: pointer;
+`;
+
+export const TodoInfo = styled.span`
+  color: ${(props) => props.theme.textColors[3]};
+  cursor: pointer;
+`;
